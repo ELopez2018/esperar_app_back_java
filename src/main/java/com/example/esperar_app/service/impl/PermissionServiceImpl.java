@@ -1,7 +1,7 @@
 package com.example.esperar_app.service.impl;
 
-import com.example.esperar_app.dto.inputs.SavePermission;
-import com.example.esperar_app.dto.responses.ShowPermission;
+import com.example.esperar_app.persistence.dto.inputs.SavePermission;
+import com.example.esperar_app.persistence.dto.responses.ShowPermission;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.persistence.entity.security.Operation;
 import com.example.esperar_app.persistence.entity.security.Permission;

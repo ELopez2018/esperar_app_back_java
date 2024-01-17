@@ -1,4 +1,4 @@
-package com.example.esperar_app.exception.dto;
+package com.example.esperar_app.persistence.dto.responses.auth;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

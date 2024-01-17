@@ -1,5 +1,6 @@
 package com.example.esperar_app.persistence.entity.security;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

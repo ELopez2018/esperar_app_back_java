@@ -1,6 +1,6 @@
 package com.example.esperar_app.exception;
 
-import com.example.esperar_app.exception.dto.ApiError;
+import com.example.esperar_app.persistence.dto.responses.auth.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

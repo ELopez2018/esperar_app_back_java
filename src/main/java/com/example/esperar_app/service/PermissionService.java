@@ -1,7 +1,7 @@
 package com.example.esperar_app.service;
 
-import com.example.esperar_app.dto.inputs.SavePermission;
-import com.example.esperar_app.dto.responses.ShowPermission;
+import com.example.esperar_app.persistence.dto.inputs.SavePermission;
+import com.example.esperar_app.persistence.dto.responses.ShowPermission;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

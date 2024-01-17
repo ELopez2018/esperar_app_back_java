@@ -1,6 +1,6 @@
 package com.example.esperar_app.config.security.handler;
 
-import com.example.esperar_app.exception.dto.ApiError;
+import com.example.esperar_app.persistence.dto.responses.auth.ApiError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.ServletException;

@@ -1,4 +1,4 @@
-package com.example.esperar_app.dto.responses;
+package com.example.esperar_app.persistence.dto.responses.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

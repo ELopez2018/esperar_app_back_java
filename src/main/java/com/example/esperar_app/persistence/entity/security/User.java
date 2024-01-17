@@ -165,6 +165,10 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
     private Vehicle drivingVehicle;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<UserAuth> userAuthList;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (role == null) return null;

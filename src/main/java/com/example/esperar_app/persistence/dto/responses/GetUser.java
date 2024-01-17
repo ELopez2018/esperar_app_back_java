@@ -1,4 +1,4 @@
-package com.example.esperar_app.dto.responses;
+package com.example.esperar_app.persistence.dto.responses;
 
 import com.example.esperar_app.persistence.utils.DocumentType;
 import lombok.Getter;
