@@ -6,6 +6,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -78,7 +79,7 @@ public class JwtService {
      * @return true if the token is expired, false otherwise
      */
     public String extractJwtFromRequest(HttpServletRequest request) {
-        String authorizationHeader = request.getHeader("Authorization");
+        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if(!StringUtils.hasText(authorizationHeader) || !authorizationHeader.startsWith(("Bearer "))) {
             return null;

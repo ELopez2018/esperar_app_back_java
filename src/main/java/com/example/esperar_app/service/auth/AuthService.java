@@ -10,10 +10,12 @@ import com.example.esperar_app.persistence.entity.security.UserAuth;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
 import com.example.esperar_app.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -22,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final UserService userService;
@@ -29,45 +32,12 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserAuthRepository userAuthRepository;
 
-    @Autowired
-    public AuthService(
-            UserService userService,
-            JwtService jwtService,
-            AuthenticationManager authenticationManager,
-            UserAuthRepository userAuthRepository) {
-        this.userService = userService;
-        this.jwtService = jwtService;
-        this.authenticationManager = authenticationManager;
-        this.userAuthRepository = userAuthRepository;
-    }
-
-    /**
-     * Create a new user (sign up)
-     * @param createUserDto is the object that contains the user's data
-     * @return the registered user
-     */
-    public RegisteredUser registerOne(CreateUserDto createUserDto) {
-        User user = userService.create(createUserDto);
-        String accessToken = jwtService.generateToken(user, generateExtraClaims(user));
-
-        saveUserAuth(user, accessToken);
-
-        RegisteredUser registeredUser = new RegisteredUser();
-        registeredUser.setRole(user.getRole().getName());
-        registeredUser.setAccessToken(accessToken);
-
-        BeanUtils.copyProperties(user, registeredUser);
-
-        return registeredUser;
-    }
-
-
     /**
      * Generate extra claims for the JWT token
      * @param user is the user that will be used to generate the claims
      * @return a map with the claims
      */
-    private Map<String, Object> generateExtraClaims(User user) {
+    public Map<String, Object> generateExtraClaims(User user) {
         return Map.of(
                 "name", user.getFullName(),
                 "role", user.getRole().getName(),
@@ -81,21 +51,40 @@ public class AuthService {
      * @return the access token
      */
     public AuthResponse login(LoginDto loginDto) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginDto.getUsername(), loginDto.getPassword()));
 
-        User user = userService.findOneByUsername(loginDto.getUsername())
-                .orElseThrow(() -> new ObjectNotFoundException("User not found"));
+        System.out.println("Username: " + loginDto.getUsername());
+        System.out.println("Password: " + loginDto.getPassword());
 
-        String accessToken = jwtService.generateToken(user, generateExtraClaims(user));
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
 
-        saveUserAuth(user, accessToken);
+            System.out.println("Pasamos?");
 
-        AuthResponse authResponse = new AuthResponse();
-        authResponse.setAccessToken(accessToken);
-        authResponse.setId(user.getId());
+            Optional<User> user = userService.findOneByUsername(loginDto.getUsername());
 
-        return authResponse;
+            if(user.isPresent()) {
+                System.out.println("User found: " + user);
+
+                String jwt = jwtService.generateToken(user.get(), generateExtraClaims(user.get()));
+
+                saveUserAuth(user.get(), jwt);
+
+                AuthResponse authRsp = new AuthResponse();
+                authRsp.setAccessToken(jwt);
+                authRsp.setId(user.get().getId());
+
+                System.out.println("User authenticated: " + loginDto.getUsername());
+
+                return authRsp;
+            } else {
+                System.out.println("User not found: " + loginDto.getUsername());
+                throw new ObjectNotFoundException("User not found");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     /**
@@ -140,7 +129,7 @@ public class AuthService {
         }
     }
 
-    private void saveUserAuth(User user, String accessToken) {
+    public void saveUserAuth(User user, String accessToken) {
         UserAuth userAuth = new UserAuth();
         userAuth.setToken(accessToken);
         userAuth.setUser(user);

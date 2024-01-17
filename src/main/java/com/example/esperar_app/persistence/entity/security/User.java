@@ -2,6 +2,7 @@ package com.example.esperar_app.persistence.entity.security;
 
 import com.example.esperar_app.persistence.entity.Vehicle;
 import com.example.esperar_app.persistence.utils.DocumentType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,9 +18,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
@@ -34,7 +36,9 @@ import java.util.stream.Collectors;
 
 @Entity(name = "users")
 @Table(name = "users")
-@Getter @Setter @ToString @AllArgsConstructor @NoArgsConstructor @RequiredArgsConstructor
+@Data
+@Builder
+@AllArgsConstructor @NoArgsConstructor
 public class User implements UserDetails {
     /**
      * Unique identifier
@@ -52,12 +56,13 @@ public class User implements UserDetails {
     /**
      * Username
      */
-    @Column()
+    @Column(nullable = false)
     private String username;
 
     /**
      * Password
      */
+    @JsonIgnore
     @Column()
     private String password;
 
@@ -153,7 +158,7 @@ public class User implements UserDetails {
     @Column(name = "deleted_at")
     public String deletedAt;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<Vehicle> ownedVehicles;
 
@@ -177,12 +182,12 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return null;
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return null;
+        return username;
     }
 
     @Override

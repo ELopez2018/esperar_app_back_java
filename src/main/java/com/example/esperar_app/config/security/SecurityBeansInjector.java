@@ -35,10 +35,6 @@ public class SecurityBeansInjector {
         return authenticationProvider::authenticate;
     }
 
-    /**
-     * This bean is required by the OAuth2 authorization server
-     * @return The authentication provider
-     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationStrategy = new DaoAuthenticationProvider();
@@ -63,10 +59,8 @@ public class SecurityBeansInjector {
      */
     @Bean
     public UserDetailsService userDetailsService() {
-        return (username) -> {
-            return userRepository.findByUsername(username)
+        return username -> userRepository.findByUsername(username)
                     .orElseThrow(() ->
                             new ObjectNotFoundException("User with username [" + username + "] not found"));
-        };
     }
 }

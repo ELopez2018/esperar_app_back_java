@@ -10,7 +10,6 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -19,7 +18,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "routes")
-@Getter @Setter @ToString @AllArgsConstructor @NoArgsConstructor @RequiredArgsConstructor
+@Getter @Setter @ToString @AllArgsConstructor @NoArgsConstructor
 public class Route {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,10 +26,10 @@ public class Route {
     @Column
     private String name;
 
-    @Column
+    @Column(name = "from_place")
     private String from;
 
-    @Column
+    @Column(name = "to_place")
     private String to;
 
     @Column(name = "created_at")

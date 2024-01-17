@@ -5,39 +5,38 @@ import java.util.List;
 
 public enum RoleEnum {
     ADMINISTRATOR(Arrays.asList(
-            RolePermissionEnum.READ_ALL_PRODUCTS,
-            RolePermissionEnum.READ_ONE_PRODUCT,
-            RolePermissionEnum.CREATE_PRODUCT,
-            RolePermissionEnum.UPDATE_PRODUCT,
-            RolePermissionEnum.DELETE_PRODUCT,
+            RolePermissionEnum.SIGNUP,
+            RolePermissionEnum.READ_ALL_USERS,
+            RolePermissionEnum.READ_ONE_USER,
+            RolePermissionEnum.CREATE_ONE_USER,
+            RolePermissionEnum.UPDATE_ONE_USER,
+            RolePermissionEnum.REMOVE_ONE_USER,
 
-            RolePermissionEnum.READ_ALL_CATEGORIES,
-            RolePermissionEnum.READ_ONE_CATEGORY,
-            RolePermissionEnum.CREATE_CATEGORY,
-            RolePermissionEnum.UPDATE_CATEGORY,
-            RolePermissionEnum.DELETE_CATEGORY,
+            RolePermissionEnum.AUTHENTICATE,
+            RolePermissionEnum.VALIDATE_TOKEN,
+            RolePermissionEnum.READ_MY_PROFILE,
+            RolePermissionEnum.LOGOUT,
 
-            RolePermissionEnum.READ_MY_PROFILE
-    )),
+            RolePermissionEnum.READ_ALL_VEHICLES,
+            RolePermissionEnum.READ_ONE_VEHICLE,
+            RolePermissionEnum.CREATE_ONE_VEHICLE,
+            RolePermissionEnum.UPDATE_ONE_VEHICLE,
+            RolePermissionEnum.REMOVE_ONE_VEHICLE,
 
-    CUSTOMER(Arrays.asList(
-            RolePermissionEnum.READ_MY_PROFILE
-    )),
+            RolePermissionEnum.READ_ALL_ROUTES,
+            RolePermissionEnum.READ_ONE_ROUTE,
+            RolePermissionEnum.CREATE_ONE_ROUTE,
+            RolePermissionEnum.UPDATE_ONE_ROUTE,
+            RolePermissionEnum.REMOVE_ONE_ROUTE,
 
-    ASSISTANT(Arrays.asList(
-            RolePermissionEnum.READ_ALL_PRODUCTS,
-            RolePermissionEnum.READ_ONE_PRODUCT,
-            RolePermissionEnum.CREATE_PRODUCT,
-            RolePermissionEnum.UPDATE_PRODUCT,
-            RolePermissionEnum.DELETE_PRODUCT,
+            RolePermissionEnum.READ_ALL_COORDINATES,
+            RolePermissionEnum.READ_ONE_COORDINATE,
+            RolePermissionEnum.CREATE_ONE_COORDINATE,
+            RolePermissionEnum.UPDATE_ONE_COORDINATE,
+            RolePermissionEnum.REMOVE_ONE_COORDINATE,
 
-            RolePermissionEnum.READ_ALL_CATEGORIES,
-            RolePermissionEnum.READ_ONE_CATEGORY,
-            RolePermissionEnum.CREATE_CATEGORY,
-            RolePermissionEnum.UPDATE_CATEGORY,
-            RolePermissionEnum.DELETE_CATEGORY,
-
-            RolePermissionEnum.READ_MY_PROFILE
+            RolePermissionEnum.CREATE_ONE_CHAT,
+            RolePermissionEnum.REMOVE_ONE_CHAT
     ));
 
     private List<RolePermissionEnum> permissions;

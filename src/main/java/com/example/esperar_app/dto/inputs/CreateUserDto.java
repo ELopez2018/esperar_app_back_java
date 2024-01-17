@@ -3,7 +3,6 @@ package com.example.esperar_app.dto.inputs;
 import com.example.esperar_app.persistence.utils.DocumentType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,17 +29,12 @@ public class CreateUserDto implements Serializable {
     @Size(min = 4, max = 50)
     private String firstName;
 
-    @Null
-    @Size(min = 4, max = 50)
+    @Size(min = 3, max = 50)
     private String secondName;
 
     @NotNull
-    @Size(min = 4, max = 50)
-    private String firstLastName;
-
-    @Null
-    @Size(min = 4, max = 50)
-    private String secondLastName;
+    @Size(min = 3, max = 50)
+    private String lastName;
 
     @NotNull
     private String birthdate;

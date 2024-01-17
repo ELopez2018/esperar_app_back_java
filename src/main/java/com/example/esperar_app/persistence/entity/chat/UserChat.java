@@ -13,13 +13,12 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Entity
 @Table(name = "user_chats")
-@Getter @Setter @ToString @AllArgsConstructor @NoArgsConstructor @RequiredArgsConstructor
+@Getter @Setter @ToString @AllArgsConstructor @NoArgsConstructor
 public class UserChat {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

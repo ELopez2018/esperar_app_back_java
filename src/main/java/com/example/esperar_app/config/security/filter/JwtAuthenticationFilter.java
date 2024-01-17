@@ -48,17 +48,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // STEP 1. Get the token from the header
         String accessToken = jwtService.extractJwtFromRequest(request);
 
-        // STEP 1.1 Obtain the token from database
-        Optional<UserAuth> userAuth = userAuthRepository.findByToken(accessToken);
-
-        boolean isValid = validateToken(userAuth);
-
-        if(!isValid) {
+        if (!StringUtils.hasText(accessToken)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if(!StringUtils.hasText(accessToken)) {
+        System.out.println("¿PASAMOS?");
+
+        // STEP 1.1 Obtain the token from the database
+        Optional<UserAuth> userAuth = userAuthRepository.findByToken(accessToken);
+
+        if (userAuth.isPresent()) {
+            System.out.println("User auth: " + userAuth.get().getToken());
+            boolean isValid = validateToken(userAuth);
+            if (!isValid) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+        } else {
             filterChain.doFilter(request, response);
             return;
         }
@@ -80,6 +87,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // STEP 4. Continue the filter chain
         filterChain.doFilter(request, response);
     }
+
 
     /**
      * Validate the token
