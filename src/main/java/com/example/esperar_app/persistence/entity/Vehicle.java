@@ -1,0 +1,59 @@
+package com.example.esperar_app.persistence.entity;
+
+import com.example.esperar_app.persistence.entity.security.User;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Entity
+@Table(name = "vehicles")
+@Getter @Setter @ToString @AllArgsConstructor @NoArgsConstructor @RequiredArgsConstructor
+public class Vehicle {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, name = "license_plate")
+    private String licensePlate;
+
+    @Column
+    private String model;
+
+    @Column
+    private String brand;
+
+    @Column
+    private Integer year;
+
+    @Column
+    private String color;
+
+    @Column(name = "cylinder_capacity")
+    private Double cylinderCapacity;
+
+    @Column
+    private Integer capacity;
+
+    @Column
+    private Integer occupancy;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "driver_id", referencedColumnName = "id")
+    private User driver;
+}

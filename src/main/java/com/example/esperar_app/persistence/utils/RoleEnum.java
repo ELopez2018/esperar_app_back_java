@@ -1,0 +1,56 @@
+package com.example.esperar_app.persistence.utils;
+
+import java.util.Arrays;
+import java.util.List;
+
+public enum RoleEnum {
+    ADMINISTRATOR(Arrays.asList(
+            RolePermissionEnum.READ_ALL_PRODUCTS,
+            RolePermissionEnum.READ_ONE_PRODUCT,
+            RolePermissionEnum.CREATE_PRODUCT,
+            RolePermissionEnum.UPDATE_PRODUCT,
+            RolePermissionEnum.DELETE_PRODUCT,
+
+            RolePermissionEnum.READ_ALL_CATEGORIES,
+            RolePermissionEnum.READ_ONE_CATEGORY,
+            RolePermissionEnum.CREATE_CATEGORY,
+            RolePermissionEnum.UPDATE_CATEGORY,
+            RolePermissionEnum.DELETE_CATEGORY,
+
+            RolePermissionEnum.READ_MY_PROFILE
+    )),
+
+    CUSTOMER(Arrays.asList(
+            RolePermissionEnum.READ_MY_PROFILE
+    )),
+
+    ASSISTANT(Arrays.asList(
+            RolePermissionEnum.READ_ALL_PRODUCTS,
+            RolePermissionEnum.READ_ONE_PRODUCT,
+            RolePermissionEnum.CREATE_PRODUCT,
+            RolePermissionEnum.UPDATE_PRODUCT,
+            RolePermissionEnum.DELETE_PRODUCT,
+
+            RolePermissionEnum.READ_ALL_CATEGORIES,
+            RolePermissionEnum.READ_ONE_CATEGORY,
+            RolePermissionEnum.CREATE_CATEGORY,
+            RolePermissionEnum.UPDATE_CATEGORY,
+            RolePermissionEnum.DELETE_CATEGORY,
+
+            RolePermissionEnum.READ_MY_PROFILE
+    ));
+
+    private List<RolePermissionEnum> permissions;
+
+    RoleEnum(List<RolePermissionEnum> permissions) {
+        this.permissions = permissions;
+    }
+
+    public List<RolePermissionEnum> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(List<RolePermissionEnum> permissions) {
+        this.permissions = permissions;
+    }
+}
