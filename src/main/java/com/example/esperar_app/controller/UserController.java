@@ -1,8 +1,8 @@
 package com.example.esperar_app.controller;
 
-import com.example.esperar_app.persistence.dto.inputs.CreateUserDto;
-import com.example.esperar_app.persistence.dto.inputs.RegisteredUser;
-import com.example.esperar_app.persistence.dto.inputs.UpdateUserDto;
+import com.example.esperar_app.persistence.dto.inputs.user.CreateUserDto;
+import com.example.esperar_app.persistence.dto.inputs.user.RegisteredUser;
+import com.example.esperar_app.persistence.dto.inputs.user.UpdateUserDto;
 import com.example.esperar_app.persistence.dto.responses.GetUser;
 import com.example.esperar_app.service.user.UserService;
 import jakarta.validation.Valid;

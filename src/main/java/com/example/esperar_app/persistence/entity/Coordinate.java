@@ -1,5 +1,6 @@
 package com.example.esperar_app.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,7 +41,8 @@ public class Coordinate {
     @Column(name="deleted_at")
     private Date deletedAt;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "route_id", nullable = false, referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "route_id")
+    @JsonIgnore
     private Route route;
 }

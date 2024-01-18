@@ -1,4 +1,4 @@
-package com.example.esperar_app.persistence.dto.inputs;
+package com.example.esperar_app.persistence.dto.inputs.user;
 
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;

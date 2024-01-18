@@ -1,6 +1,6 @@
 package com.example.esperar_app.controller;
 
-import com.example.esperar_app.persistence.dto.inputs.LoginDto;
+import com.example.esperar_app.persistence.dto.inputs.user.LoginDto;
 import com.example.esperar_app.persistence.dto.responses.auth.AuthResponse;
 import com.example.esperar_app.persistence.dto.responses.auth.LogoutResponse;
 import com.example.esperar_app.persistence.entity.security.User;
