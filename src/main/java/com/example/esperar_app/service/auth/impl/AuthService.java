@@ -1,4 +1,4 @@
-package com.example.esperar_app.service.auth;
+package com.example.esperar_app.service.auth.impl;
 
 import com.example.esperar_app.persistence.dto.inputs.LoginDto;
 import com.example.esperar_app.persistence.dto.responses.auth.AuthResponse;
@@ -6,7 +6,7 @@ import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
-import com.example.esperar_app.service.UserService;
+import com.example.esperar_app.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

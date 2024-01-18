@@ -19,7 +19,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,9 +35,7 @@ import java.util.stream.Collectors;
 
 @Entity(name = "users")
 @Table(name = "users")
-@Data
-@Builder
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor @NoArgsConstructor @Getter @Setter @Builder
 public class User implements UserDetails {
     /**
      * Unique identifier
@@ -158,15 +155,16 @@ public class User implements UserDetails {
     @Column(name = "deleted_at")
     public String deletedAt;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "owner", cascade = CascadeType.MERGE, orphanRemoval = true)
     @ToString.Exclude
     private List<Vehicle> ownedVehicles;
 
-    @OneToOne(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "driver", cascade = CascadeType.MERGE, orphanRemoval = true)
     private Vehicle drivingVehicle;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, orphanRemoval = true)
     @ToString.Exclude
+    @JsonIgnore
     private List<UserAuth> userAuthList;
 
     @Override

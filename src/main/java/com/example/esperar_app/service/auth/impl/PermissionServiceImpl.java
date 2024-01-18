@@ -1,4 +1,4 @@
-package com.example.esperar_app.service.impl;
+package com.example.esperar_app.service.auth.impl;
 
 import com.example.esperar_app.persistence.dto.inputs.SavePermission;
 import com.example.esperar_app.persistence.dto.responses.ShowPermission;
@@ -9,7 +9,7 @@ import com.example.esperar_app.persistence.entity.security.Role;
 import com.example.esperar_app.persistence.repository.security.OperationRepository;
 import com.example.esperar_app.persistence.repository.security.PermissionRepository;
 import com.example.esperar_app.persistence.repository.security.RoleRepository;
-import com.example.esperar_app.service.PermissionService;
+import com.example.esperar_app.service.auth.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -4,7 +4,7 @@ import com.example.esperar_app.persistence.dto.inputs.LoginDto;
 import com.example.esperar_app.persistence.dto.responses.auth.AuthResponse;
 import com.example.esperar_app.persistence.dto.responses.auth.LogoutResponse;
 import com.example.esperar_app.persistence.entity.security.User;
-import com.example.esperar_app.service.auth.AuthService;
+import com.example.esperar_app.service.auth.impl.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

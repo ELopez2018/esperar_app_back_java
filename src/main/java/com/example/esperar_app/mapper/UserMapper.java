@@ -2,7 +2,6 @@ package com.example.esperar_app.mapper;
 
 import com.example.esperar_app.persistence.dto.inputs.CreateUserDto;
 import com.example.esperar_app.persistence.dto.inputs.RegisteredUser;
-import com.example.esperar_app.persistence.dto.inputs.UpdateUserDto;
 import com.example.esperar_app.persistence.dto.responses.GetUser;
 import com.example.esperar_app.persistence.entity.security.Role;
 import com.example.esperar_app.persistence.entity.security.User;
@@ -32,6 +31,7 @@ public interface UserMapper {
             @Mapping(target = "ownedVehicles", ignore = true),
             @Mapping(target = "role", ignore = true),
             @Mapping(target = "updatedAt", ignore = true),
+            @Mapping(target = "userAuthList", ignore = true)
     })
     User createUserDtoToUser(CreateUserDto createUserDto);
 

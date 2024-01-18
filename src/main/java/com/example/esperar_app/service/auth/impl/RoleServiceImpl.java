@@ -1,8 +1,8 @@
-package com.example.esperar_app.service.impl;
+package com.example.esperar_app.service.auth.impl;
 
 import com.example.esperar_app.persistence.entity.security.Role;
 import com.example.esperar_app.persistence.repository.security.RoleRepository;
-import com.example.esperar_app.service.RoleService;
+import com.example.esperar_app.service.auth.RoleService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

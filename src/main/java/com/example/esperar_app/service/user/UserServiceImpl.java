@@ -1,4 +1,4 @@
-package com.example.esperar_app.service.impl;
+package com.example.esperar_app.service.user;
 
 import com.example.esperar_app.persistence.dto.inputs.CreateUserDto;
 import com.example.esperar_app.persistence.dto.inputs.RegisteredUser;
@@ -12,12 +12,9 @@ import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
-import com.example.esperar_app.service.RoleService;
-import com.example.esperar_app.service.UserService;
-import com.example.esperar_app.service.auth.JwtService;
+import com.example.esperar_app.service.auth.RoleService;
+import com.example.esperar_app.service.auth.impl.JwtService;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -26,13 +23,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.beans.PropertyDescriptor;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+
+import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStrings;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -144,16 +140,7 @@ public class UserServiceImpl implements UserService {
 
 
     private String[] getNullPropertyNames(Object source) {
-        final BeanWrapper src = new BeanWrapperImpl(source);
-        java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();
-
-        Set<String> emptyNames = new HashSet<>();
-        for (PropertyDescriptor pd : pds) {
-            Object srcValue = src.getPropertyValue(pd.getName());
-            if (srcValue == null) emptyNames.add(pd.getName());
-        }
-        String[] result = new String[emptyNames.size()];
-        return emptyNames.toArray(result);
+        return getStrings(source);
     }
 
     private void validatePassword(CreateUserDto createUserDto) {

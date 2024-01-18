@@ -1,4 +1,4 @@
-package com.example.esperar_app.service;
+package com.example.esperar_app.service.auth;
 
 import com.example.esperar_app.persistence.dto.inputs.SavePermission;
 import com.example.esperar_app.persistence.dto.responses.ShowPermission;

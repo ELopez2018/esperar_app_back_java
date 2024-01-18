@@ -1,6 +1,5 @@
-package com.example.esperar_app.service.impl;
+package com.example.esperar_app.service.coordinate;
 
-import com.example.esperar_app.service.CoordinateService;
 import org.springframework.stereotype.Service;
 
 @Service
