@@ -2,7 +2,6 @@ package com.example.esperar_app.mapper;
 
 import com.example.esperar_app.persistence.dto.inputs.vehicle.CreateVehicleDto;
 import com.example.esperar_app.persistence.dto.inputs.vehicle.GetVehicle;
-import com.example.esperar_app.persistence.dto.responses.GetUser;
 import com.example.esperar_app.persistence.entity.Vehicle;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
