@@ -5,7 +5,7 @@ import com.example.esperar_app.persistence.entity.security.Operation;
 import com.example.esperar_app.persistence.entity.security.Permission;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.repository.security.OperationRepository;
-import com.example.esperar_app.service.UserService;
+import com.example.esperar_app.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;

@@ -1,4 +1,4 @@
-package com.example.esperar_app.service.auth;
+package com.example.esperar_app.service.auth.impl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

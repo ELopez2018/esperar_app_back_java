@@ -4,7 +4,7 @@ import com.example.esperar_app.persistence.dto.inputs.CreateUserDto;
 import com.example.esperar_app.persistence.dto.inputs.RegisteredUser;
 import com.example.esperar_app.persistence.dto.inputs.UpdateUserDto;
 import com.example.esperar_app.persistence.dto.responses.GetUser;
-import com.example.esperar_app.service.UserService;
+import com.example.esperar_app.service.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
