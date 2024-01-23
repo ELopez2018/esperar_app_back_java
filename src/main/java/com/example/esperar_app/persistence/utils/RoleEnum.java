@@ -1,8 +1,12 @@
 package com.example.esperar_app.persistence.utils;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Arrays;
 import java.util.List;
 
+@Getter
 public enum RoleEnum {
     ADMINISTRATOR(Arrays.asList(
             RolePermissionEnum.SIGNUP,
@@ -35,18 +39,13 @@ public enum RoleEnum {
             RolePermissionEnum.UPDATE_ONE_COORDINATE,
             RolePermissionEnum.REMOVE_ONE_COORDINATE,
 
-            RolePermissionEnum.CREATE_ONE_CHAT,
-            RolePermissionEnum.REMOVE_ONE_CHAT
+            RolePermissionEnum.JOIN_CHAT
     ));
 
     private List<RolePermissionEnum> permissions;
 
     RoleEnum(List<RolePermissionEnum> permissions) {
         this.permissions = permissions;
-    }
-
-    public List<RolePermissionEnum> getPermissions() {
-        return permissions;
     }
 
     public void setPermissions(List<RolePermissionEnum> permissions) {

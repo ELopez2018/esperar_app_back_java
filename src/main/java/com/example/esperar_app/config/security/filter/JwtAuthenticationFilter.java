@@ -53,8 +53,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        System.out.println("¿PASAMOS?");
-
         // STEP 1.1 Obtain the token from the database
         Optional<UserAuth> userAuth = userAuthRepository.findByToken(accessToken);
 

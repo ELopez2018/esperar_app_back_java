@@ -37,7 +37,6 @@ public enum RolePermissionEnum {
     REMOVE_ONE_COORDINATE,
 
     // Chats permissions
-    CREATE_ONE_CHAT,
-    REMOVE_ONE_CHAT
+    JOIN_CHAT,
 }
 
