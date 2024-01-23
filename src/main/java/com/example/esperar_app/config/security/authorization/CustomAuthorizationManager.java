@@ -92,6 +92,15 @@ public class CustomAuthorizationManager implements AuthorizationManager<RequestA
                     Pattern pattern = Pattern.compile(basePath.concat(operation.getPath()));
                     Matcher matcher = pattern.matcher(url);
 
+                    System.out.println("INICIO");
+                    System.out.println("URL: " + url);
+                    System.out.println("BASE PATH: " + basePath);
+                    System.out.println("OPERATION PATH: " + operation.getPath());
+                    System.out.println("MATCHER: " + matcher.matches());
+                    System.out.println("HTTP METHOD: " + operation.getHttpMethod());
+                    System.out.println("HTTP METHOD: " + httpMethod);
+                    System.out.println("FIN");
+
                     return matcher.matches() && operation.getHttpMethod().equals(httpMethod);
                 }
         );
