@@ -37,6 +37,8 @@ public enum RolePermissionEnum {
     REMOVE_ONE_COORDINATE,
 
     // Chats permissions
-    JOIN_CHAT,
+    GREETING,
+    JS,
+    WEBSOCKET,
 }
 

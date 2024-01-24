@@ -39,7 +39,9 @@ public enum RoleEnum {
             RolePermissionEnum.UPDATE_ONE_COORDINATE,
             RolePermissionEnum.REMOVE_ONE_COORDINATE,
 
-            RolePermissionEnum.JOIN_CHAT
+            RolePermissionEnum.GREETING,
+            RolePermissionEnum.JS,
+            RolePermissionEnum.WEBSOCKET
     ));
 
     private List<RolePermissionEnum> permissions;

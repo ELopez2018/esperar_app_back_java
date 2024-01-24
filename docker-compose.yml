@@ -8,10 +8,11 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: esperar_app_db
+      MYSQL_USER: esteban
+      MYSQL_PASSWORD: S3CR3T
+      MYSQL_ROOT_PASSWORD: R0OT_S3CR3T
+      MYSQL_INITDB_SKIP_TZINFO: 'true'  # Avoid warning about time zone tables
     networks:
       - esperar_app_net
     volumes:
