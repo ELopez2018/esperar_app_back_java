@@ -57,7 +57,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Optional<UserAuth> userAuth = userAuthRepository.findByToken(accessToken);
 
         if (userAuth.isPresent()) {
-            System.out.println("User auth: " + userAuth.get().getToken());
             boolean isValid = validateToken(userAuth);
             if (!isValid) {
                 filterChain.doFilter(request, response);
