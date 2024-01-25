@@ -5,6 +5,7 @@ INSERT INTO modules (base_path, name) VALUES ('/vehicles', 'VEHICLES');
 INSERT INTO modules (base_path, name) VALUES ('/routes', 'ROUTES');
 INSERT INTO modules (base_path, name) VALUES ('/coordinates', 'COORDINATES');
 INSERT INTO modules (base_path, name) VALUES ('/', 'WEBSOCKET');
+INSERT INTO modules (base_path, name) VALUES ('/notices', 'NOTICES');
 
 -- ROLES
 INSERT INTO roles (name) VALUES ('ADMINISTRATOR');
@@ -38,6 +39,11 @@ INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('
 INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', true, 'GREETING', 'index.html', 6);
 INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', true, 'JS', 'app.js', 6);
 INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', true, 'WEBSOCKET', 'websocket', 6);
+INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', false, 'READ_ALL_NOTICES', '', 7);
+INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', false, 'READ_ONE_NOTICE', '/[0-9]*', 7);
+INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('POST', false, 'CREATE_ONE_NOTICE', '', 7);
+INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('PUT', false, 'UPDATE_ONE_NOTICE', '/[0-9]*', 7);
+INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('DELETE', false, 'REMOVE_ONE_NOTICE', '/[0-9]*', 7);
 
 -- PERMISSIONS
 INSERT INTO permissions (operation_id, role_id) VALUES (1, 1);
@@ -68,3 +74,8 @@ INSERT INTO permissions (operation_id, role_id) VALUES (25, 1);
 INSERT INTO permissions (operation_id, role_id) VALUES (26, 1);
 INSERT INTO permissions (operation_id, role_id) VALUES (27, 1);
 INSERT INTO permissions (operation_id, role_id) VALUES (28, 1);
+INSERT INTO permissions (operation_id, role_id) VALUES (29, 1);
+INSERT INTO permissions (operation_id, role_id) VALUES (30, 1);
+INSERT INTO permissions (operation_id, role_id) VALUES (31, 1);
+INSERT INTO permissions (operation_id, role_id) VALUES (32, 1);
+INSERT INTO permissions (operation_id, role_id) VALUES (33, 1);
