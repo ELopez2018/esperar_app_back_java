@@ -73,7 +73,9 @@ public class UserServiceImpl implements UserService {
 
         saveUserAuth(user, accessToken);
 
-        return userMapper.toRegisteredUser(user);
+        RegisteredUser registeredUser = userMapper.toRegisteredUser(user);
+        registeredUser.setAccessToken(accessToken);
+        return registeredUser;
     }
 
     @Override

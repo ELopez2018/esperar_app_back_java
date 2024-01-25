@@ -47,12 +47,10 @@ public class CustomAuthorizationManager implements AuthorizationManager<RequestA
         String httpMethod = request.getMethod();
 
         boolean isPublic = isPublic(url, httpMethod);
-        System.out.println("PUBLIC ENDPOINT: " + isPublic);
 
         if(isPublic) return new AuthorizationDecision(true);
 
         boolean isGranted = isGranted(url, httpMethod, authentication.get());
-        System.out.println("GRANTED: " + isGranted);
 
         return new AuthorizationDecision(isGranted);
     }
@@ -91,15 +89,6 @@ public class CustomAuthorizationManager implements AuthorizationManager<RequestA
                     String basePath = operation.getModule().getBasePath();
                     Pattern pattern = Pattern.compile(basePath.concat(operation.getPath()));
                     Matcher matcher = pattern.matcher(url);
-
-                    System.out.println("INICIO");
-                    System.out.println("URL: " + url);
-                    System.out.println("BASE PATH: " + basePath);
-                    System.out.println("OPERATION PATH: " + operation.getPath());
-                    System.out.println("MATCHER: " + matcher.matches());
-                    System.out.println("HTTP METHOD: " + operation.getHttpMethod());
-                    System.out.println("HTTP METHOD: " + httpMethod);
-                    System.out.println("FIN");
 
                     return matcher.matches() && operation.getHttpMethod().equals(httpMethod);
                 }
