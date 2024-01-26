@@ -1,7 +1,6 @@
 package com.example.esperar_app.persistence.utils;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,16 +40,25 @@ public enum RoleEnum {
 
             RolePermissionEnum.GREETING,
             RolePermissionEnum.JS,
-            RolePermissionEnum.WEBSOCKET
+            RolePermissionEnum.WEBSOCKET,
+
+            RolePermissionEnum.CREATE_ONE_NOTICE,
+            RolePermissionEnum.READ_ALL_NOTICES,
+            RolePermissionEnum.READ_ONE_NOTICE,
+            RolePermissionEnum.UPDATE_ONE_NOTICE,
+            RolePermissionEnum.REMOVE_ONE_NOTICE,
+
+            RolePermissionEnum.CREATE_ONE_COMPANY,
+            RolePermissionEnum.READ_ALL_COMPANIES,
+            RolePermissionEnum.READ_ONE_COMPANY,
+            RolePermissionEnum.UPDATE_ONE_COMPANY,
+            RolePermissionEnum.REMOVE_ONE_COMPANY
     ));
 
-    private List<RolePermissionEnum> permissions;
+    private final List<RolePermissionEnum> permissions;
 
     RoleEnum(List<RolePermissionEnum> permissions) {
         this.permissions = permissions;
     }
 
-    public void setPermissions(List<RolePermissionEnum> permissions) {
-        this.permissions = permissions;
-    }
 }

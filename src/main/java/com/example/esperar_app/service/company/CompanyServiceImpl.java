@@ -1,0 +1,101 @@
+package com.example.esperar_app.service.company;
+
+import com.example.esperar_app.exception.ObjectNotFoundException;
+import com.example.esperar_app.mapper.CompanyMapper;
+import com.example.esperar_app.persistence.dto.inputs.company.CreateCompanyDto;
+import com.example.esperar_app.persistence.dto.inputs.company.UpdateCompanyDto;
+import com.example.esperar_app.persistence.entity.company.Company;
+import com.example.esperar_app.persistence.entity.security.User;
+import com.example.esperar_app.persistence.repository.CompanyRepository;
+import com.example.esperar_app.persistence.repository.security.UserRepository;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStrings;
+
+@Service
+public class CompanyServiceImpl implements CompanyService {
+
+    private final CompanyRepository companyRepository;
+    private final CompanyMapper companyMapper;
+    private final UserRepository userRepository;
+
+    @Autowired
+    public CompanyServiceImpl(
+            CompanyRepository companyRepository,
+            CompanyMapper companyMapper,
+            UserRepository userRepository) {
+        this.companyRepository = companyRepository;
+        this.companyMapper = companyMapper;
+        this.userRepository = userRepository;
+    }
+
+    /**
+     * Create a company
+     * @param createCompanyDto - company data to create
+     * @return created company
+     */
+    @Override
+    public Company create(CreateCompanyDto createCompanyDto) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User ceo = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ObjectNotFoundException("Ceo not found"));
+
+        Company company = companyMapper.createCompanyDtoToEntity(createCompanyDto);
+        company.setCeo(ceo);
+
+        return companyRepository.save(company);
+    }
+
+    /**
+     * Get all companies
+     * @param pageable - pagination
+     * @return page of companies
+     */
+    @Override
+    public Page<Company> findAll(Pageable pageable) {
+        return companyRepository.findAll(pageable);
+    }
+
+    /**
+     * Find company by id
+     * @param id - company id
+     * @return company
+     */
+    @Override
+    public Company findById(Long id) {
+        return companyRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Company not found"));
+    }
+
+    /**
+     * Update company
+     * @param id - company id
+     * @param updateCompanyDto - company data to update
+     * @return updated company
+     */
+    @Override
+    public Company update(Long id, UpdateCompanyDto updateCompanyDto) {
+        Company existingCompany = findById(id);
+
+        BeanUtils.copyProperties(updateCompanyDto, existingCompany, getStrings(updateCompanyDto));
+
+        return companyRepository.save(existingCompany);
+    }
+
+    /**
+     * Delete company
+     * @param id - company id
+     */
+    @Override
+    public void delete(Long id) {
+        Company company = findById(id);
+        companyRepository.delete(company);
+    }
+
+}

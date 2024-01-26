@@ -1,7 +1,8 @@
 package com.example.esperar_app.persistence.entity;
 
+import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.entity.security.User;
-import jakarta.persistence.CascadeType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -55,4 +56,9 @@ public class Vehicle {
     @OneToOne
     @JoinColumn(name = "driver_id", referencedColumnName = "id")
     private User driver;
+
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "company_id")
+    private Company company;
 }
