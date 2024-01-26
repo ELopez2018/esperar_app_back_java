@@ -70,15 +70,24 @@ public class VehicleServiceImpl implements VehicleService {
                     }
                 }
             }
+
+            vehicle.setDriver(userRepository.findById(createVehicleDto.getDriverId())
+                    .orElseThrow(() -> new ObjectNotFoundException("Driver not found")));
+
+            Vehicle newVehicle = vehicleRepository.save(vehicle);
+
+            if(createVehicleDto.getDriverId() != null) {
+                User driver = userRepository.findById(createVehicleDto.getDriverId())
+                        .orElseThrow(() -> new ObjectNotFoundException("Driver not found"));
+                driver.setDrivingVehicle(newVehicle);
+                userRepository.save(driver);
+            }
+
+            return newVehicle;
         } catch (Exception e) {
             throw new ObjectNotFoundException
                     ("No tienes una empresa creada, para crear un vehículo primero crea una empresa");
         }
-
-        vehicle.setDriver(userRepository.findById(createVehicleDto.getDriverId())
-                .orElseThrow(() -> new ObjectNotFoundException("Driver not found")));
-
-        return vehicleRepository.save(vehicle);
     }
 
     @Override

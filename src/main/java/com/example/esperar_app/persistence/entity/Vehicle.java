@@ -5,6 +5,7 @@ import com.example.esperar_app.persistence.entity.security.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -49,7 +50,8 @@ public class Vehicle {
     @Column
     private Integer occupancy;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "driver_id", referencedColumnName = "id")
     private User driver;
 
