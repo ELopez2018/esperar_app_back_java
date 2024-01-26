@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/coordinates")
 public class CoordinateController {
@@ -39,14 +41,13 @@ public class CoordinateController {
     @GetMapping
     public ResponseEntity<Page<Coordinate>> findAll(Pageable pageable) {
         Page<Coordinate> coordinates = coordinateService.findAll(pageable);
-        return ResponseEntity.ok(coordinates);
+        return ResponseEntity.ok(coordinates != null ? coordinates : Page.empty());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Coordinate> findById(@PathVariable Long id) {
         Coordinate coordinate = coordinateService.findById(id);
-        if(coordinate == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(coordinate);
+        return ResponseEntity.of(Optional.ofNullable(coordinate));
     }
 
     @PutMapping("/{id}")
@@ -54,14 +55,13 @@ public class CoordinateController {
             @PathVariable Long id,
             @RequestBody @Valid UpdateCoordinateDto updateCoordinateDto) {
         Coordinate coordinate = coordinateService.update(id, updateCoordinateDto);
-        if(coordinate == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(coordinate);
+        return ResponseEntity.of(Optional.ofNullable(coordinate));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         coordinateService.delete(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
 }

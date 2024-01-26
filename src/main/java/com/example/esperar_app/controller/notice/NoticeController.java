@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController()
 @RequestMapping("/notices")
 public class NoticeController {
@@ -38,19 +40,18 @@ public class NoticeController {
     @GetMapping
     public ResponseEntity<Page<Notice>> findAll(Pageable pageable) {
         Page<Notice> notices = noticeService.findAll(pageable);
-        return ResponseEntity.ok(notices);
+        return ResponseEntity.ok(notices != null ? notices : Page.empty());
     }
 
     @GetMapping("{id}")
     public ResponseEntity<Notice> findById(@PathVariable Long id) {
         Notice notice = noticeService.findById(id);
-        if(notice == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(notice);
+        return ResponseEntity.of(Optional.ofNullable(notice));
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<Void> remove(@PathVariable Long id) {
         noticeService.remove(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

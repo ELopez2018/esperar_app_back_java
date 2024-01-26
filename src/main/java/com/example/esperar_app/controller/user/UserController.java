@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -40,25 +42,19 @@ public class UserController {
     @GetMapping
     public ResponseEntity<Page<GetUser>> findAll(Pageable pageable) {
         Page<GetUser> usersPage = userService.findAll(pageable);
-
-        if(usersPage.hasContent()) return ResponseEntity.ok(usersPage);
-        else return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(usersPage != null ? usersPage : Page.empty());
     }
 
     @GetMapping("{id}")
     public ResponseEntity<GetUser> findById(@PathVariable Long id) {
         GetUser user = userService.findById(id);
-
-        if(user != null) return ResponseEntity.ok(user);
-        else return ResponseEntity.notFound().build();
+        return ResponseEntity.of(Optional.ofNullable(user));
     }
 
     @PutMapping("{id}")
     public ResponseEntity<GetUser> update(@PathVariable Long id, @RequestBody @Valid UpdateUserDto updateUserDto) {
         GetUser user = userService.update(id, updateUserDto);
-
-        if(user != null) return ResponseEntity.ok(user);
-        else return ResponseEntity.notFound().build();
+        return ResponseEntity.of(Optional.ofNullable(user));
     }
 
     @DeleteMapping("{id}")
@@ -71,8 +67,6 @@ public class UserController {
     public ResponseEntity<Page<DriverWithVehicleDto>> getDriversByCompany(
             @PathVariable Long companyId, Pageable pageable) {
         Page<DriverWithVehicleDto> drivers = userService.getDriversByCompany(companyId, pageable);
-
-        if(drivers.hasContent()) return ResponseEntity.ok(drivers);
-        else return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(drivers != null ? drivers : Page.empty());
     }
 }
