@@ -3,6 +3,7 @@ package com.example.esperar_app.controller.user;
 import com.example.esperar_app.persistence.dto.inputs.user.CreateUserDto;
 import com.example.esperar_app.persistence.dto.inputs.user.RegisteredUser;
 import com.example.esperar_app.persistence.dto.inputs.user.UpdateUserDto;
+import com.example.esperar_app.persistence.dto.responses.DriverWithVehicleDto;
 import com.example.esperar_app.persistence.dto.responses.GetUser;
 import com.example.esperar_app.service.user.UserService;
 import jakarta.validation.Valid;
@@ -64,5 +65,14 @@ public class UserController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/by-company/{companyId}")
+    public ResponseEntity<Page<DriverWithVehicleDto>> getDriversByCompany(
+            @PathVariable Long companyId, Pageable pageable) {
+        Page<DriverWithVehicleDto> drivers = userService.getDriversByCompany(companyId, pageable);
+
+        if(drivers.hasContent()) return ResponseEntity.ok(drivers);
+        else return ResponseEntity.notFound().build();
     }
 }

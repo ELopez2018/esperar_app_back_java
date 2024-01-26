@@ -6,6 +6,7 @@ import com.example.esperar_app.persistence.dto.inputs.vehicle.CreateVehicleDto;
 import com.example.esperar_app.persistence.dto.inputs.vehicle.GetVehicle;
 import com.example.esperar_app.persistence.dto.inputs.vehicle.UpdateVehicleDto;
 import com.example.esperar_app.persistence.entity.Vehicle;
+import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
@@ -50,9 +51,19 @@ public class VehicleServiceImpl implements VehicleService {
                 .orElseThrow(() -> new ObjectNotFoundException("Owner not found"));
 
         Vehicle vehicle = vehicleMapper.toEntity(createVehicleDto);
+
         vehicle.setOwner(owner);
+
         vehicle.setDriver(userRepository.findById(createVehicleDto.getDriverId())
                 .orElseThrow(() -> new ObjectNotFoundException("Driver not found")));
+
+        try {
+            Company company = owner.getCompanies().get(0);
+            vehicle.setCompany(company);
+        } catch (Exception e) {
+            throw new ObjectNotFoundException
+                    ("No tienes una empresa creada, para crear un vehículo primero crea una empresa");
+        }
 
         return vehicleRepository.save(vehicle);
     }

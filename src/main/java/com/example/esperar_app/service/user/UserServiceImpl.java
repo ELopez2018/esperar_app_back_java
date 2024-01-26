@@ -1,15 +1,19 @@
 package com.example.esperar_app.service.user;
 
+import com.example.esperar_app.mapper.VehicleMapper;
 import com.example.esperar_app.persistence.dto.inputs.user.CreateUserDto;
 import com.example.esperar_app.persistence.dto.inputs.user.RegisteredUser;
 import com.example.esperar_app.persistence.dto.inputs.user.UpdateUserDto;
+import com.example.esperar_app.persistence.dto.responses.DriverWithVehicleDto;
 import com.example.esperar_app.persistence.dto.responses.GetUser;
 import com.example.esperar_app.exception.InvalidPasswordException;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.UserMapper;
+import com.example.esperar_app.persistence.entity.Vehicle;
 import com.example.esperar_app.persistence.entity.security.Role;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
+import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
 import com.example.esperar_app.service.auth.RoleService;
@@ -27,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStrings;
 
@@ -39,6 +44,8 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final JwtService jwtService;
     private final UserAuthRepository userAuthRepository;
+    private final VehicleRepository vehicleRepository;
+    private final VehicleMapper vehicleMapper;
 
     public UserServiceImpl(
             UserRepository userRepository,
@@ -46,13 +53,17 @@ public class UserServiceImpl implements UserService {
             RoleService roleService,
             UserMapper userMapper,
             JwtService jwtService,
-            UserAuthRepository userAuthRepository) {
+            UserAuthRepository userAuthRepository,
+            VehicleRepository vehicleRepository,
+            VehicleMapper vehicleMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
         this.userMapper = userMapper;
         this.jwtService = jwtService;
         this.userAuthRepository = userAuthRepository;
+        this.vehicleRepository = vehicleRepository;
+        this.vehicleMapper = vehicleMapper;
     }
     @Override
     public RegisteredUser create(CreateUserDto createUserDto) {
@@ -133,6 +144,21 @@ public class UserServiceImpl implements UserService {
 
         userRepository.delete(user);
     }
+
+    @Override
+    public Page<DriverWithVehicleDto> getDriversByCompany(Long companyId, Pageable pageable) {
+        List<Vehicle> vehicles = vehicleRepository.findVehiclesWithDriverByCompanyId(companyId);
+
+        List<DriverWithVehicleDto> driverWithVehicleDtos = vehicles.stream()
+                .map(vehicle -> userMapper.mapToDriverWithVehicle(
+                        userMapper.toGetUser(vehicle.getDriver()),
+                        vehicleMapper.toGetVehicle(vehicle)
+                ))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(driverWithVehicleDtos, pageable, driverWithVehicleDtos.size());
+    }
+
 
     private String updateFullName(UpdateUserDto updateUserDto) {
         return updateUserDto.getFirstName() + " " +
