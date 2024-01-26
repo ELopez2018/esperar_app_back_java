@@ -8,6 +8,7 @@ import com.example.esperar_app.persistence.dto.inputs.vehicle.UpdateVehicleDto;
 import com.example.esperar_app.persistence.entity.Vehicle;
 import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.entity.security.User;
+import com.example.esperar_app.persistence.repository.CompanyRepository;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
 import org.springframework.beans.BeanUtils;
@@ -33,37 +34,49 @@ public class VehicleServiceImpl implements VehicleService {
     private final VehicleMapper vehicleMapper;
     private final UserRepository userRepository;
 
+    private final CompanyRepository companyRepository;
+
     @Autowired
     public VehicleServiceImpl(
             VehicleRepository vehicleRepository,
             VehicleMapper vehicleMapper,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            CompanyRepository companyRepository) {
         this.vehicleRepository = vehicleRepository;
         this.vehicleMapper = vehicleMapper;
         this.userRepository = userRepository;
+        this.companyRepository = companyRepository;
     }
 
     @Override
     public Vehicle create(CreateVehicleDto createVehicleDto) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        User owner = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ObjectNotFoundException("Owner not found"));
-
         Vehicle vehicle = vehicleMapper.toEntity(createVehicleDto);
 
-        vehicle.setOwner(owner);
-
-        vehicle.setDriver(userRepository.findById(createVehicleDto.getDriverId())
-                .orElseThrow(() -> new ObjectNotFoundException("Driver not found")));
-
         try {
-            Company company = owner.getCompanies().get(0);
-            vehicle.setCompany(company);
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+            User owner = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new ObjectNotFoundException("Owner not found"));
+
+            if(createVehicleDto.getCompanyId() != null) {
+                Long companyId = createVehicleDto.getCompanyId();
+                Company companyFound = companyRepository.findById(companyId)
+                        .orElseThrow(() -> new ObjectNotFoundException("Company not found"));
+
+                for(Company company : owner.getCompanies()) {
+                    if(company.getId().equals(companyFound.getId())) {
+                        vehicle.setCompany(company);
+                        break;
+                    }
+                }
+            }
         } catch (Exception e) {
             throw new ObjectNotFoundException
                     ("No tienes una empresa creada, para crear un vehículo primero crea una empresa");
         }
+
+        vehicle.setDriver(userRepository.findById(createVehicleDto.getDriverId())
+                .orElseThrow(() -> new ObjectNotFoundException("Driver not found")));
 
         return vehicleRepository.save(vehicle);
     }

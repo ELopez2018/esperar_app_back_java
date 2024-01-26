@@ -50,4 +50,6 @@ public class CreateUserDto implements Serializable {
 
     @NotNull
     private String phone;
+
+    private Long companyId;
 }

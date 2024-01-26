@@ -28,7 +28,5 @@ public class GetVehicle {
 
     private Integer occupancy;
 
-    private GetUser owner;
-
     private GetUser driver;
 }

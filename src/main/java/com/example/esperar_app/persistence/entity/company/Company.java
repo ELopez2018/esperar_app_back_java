@@ -51,6 +51,9 @@ public class Company {
     @JoinColumn(name = "ceo_id")
     private User ceo;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Vehicle> vehicles;
+
+    @OneToMany(mappedBy = "company", fetch = FetchType.EAGER)
+    private List<User> members;
 }
