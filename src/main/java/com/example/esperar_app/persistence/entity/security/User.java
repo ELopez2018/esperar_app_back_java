@@ -1,6 +1,7 @@
 package com.example.esperar_app.persistence.entity.security;
 
 import com.example.esperar_app.persistence.entity.Vehicle;
+import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.utils.DocumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
@@ -166,6 +167,9 @@ public class User implements UserDetails {
     @ToString.Exclude
     @JsonIgnore
     private List<UserAuth> userAuthList;
+
+    @OneToMany(mappedBy = "ceo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Company> companies;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
