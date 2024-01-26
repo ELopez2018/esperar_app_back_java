@@ -156,22 +156,21 @@ public class User implements UserDetails {
     @Column(name = "deleted_at")
     public String deletedAt;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "owner", cascade = CascadeType.MERGE, orphanRemoval = true)
-    @ToString.Exclude
-    @JsonIgnore
-    private List<Vehicle> ownedVehicles;
-
     @OneToOne(mappedBy = "driver", cascade = CascadeType.MERGE, orphanRemoval = true)
     private Vehicle drivingVehicle;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     @ToString.Exclude
     @JsonIgnore
     private List<UserAuth> userAuthList;
 
-    @OneToMany(mappedBy = "ceo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "ceo", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Company> companies;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

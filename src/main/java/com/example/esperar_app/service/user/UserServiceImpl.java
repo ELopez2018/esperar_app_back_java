@@ -13,6 +13,7 @@ import com.example.esperar_app.persistence.entity.Vehicle;
 import com.example.esperar_app.persistence.entity.security.Role;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
+import com.example.esperar_app.persistence.repository.CompanyRepository;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
@@ -46,6 +47,7 @@ public class UserServiceImpl implements UserService {
     private final UserAuthRepository userAuthRepository;
     private final VehicleRepository vehicleRepository;
     private final VehicleMapper vehicleMapper;
+    private final CompanyRepository companyRepository;
 
     public UserServiceImpl(
             UserRepository userRepository,
@@ -55,7 +57,8 @@ public class UserServiceImpl implements UserService {
             JwtService jwtService,
             UserAuthRepository userAuthRepository,
             VehicleRepository vehicleRepository,
-            VehicleMapper vehicleMapper) {
+            VehicleMapper vehicleMapper,
+            CompanyRepository companyRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
@@ -64,19 +67,29 @@ public class UserServiceImpl implements UserService {
         this.userAuthRepository = userAuthRepository;
         this.vehicleRepository = vehicleRepository;
         this.vehicleMapper = vehicleMapper;
+        this.companyRepository = companyRepository;
     }
     @Override
     public RegisteredUser create(CreateUserDto createUserDto) {
         validatePassword(createUserDto);
 
         User user = userMapper.createUserDtoToUser(createUserDto);
+
         user.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
+
         Role defaultRole = roleService.findDefaultRole()
                         .orElseThrow(() -> new ObjectNotFoundException("Default role not found"));
 
         user.setRole(defaultRole);
         user.setCreatedAt(String.valueOf(System.currentTimeMillis()));
         user.setFullName(userMapper.getFullName(user));
+
+        if(createUserDto.getCompanyId() != null) {
+            user.setCompany(
+                    companyRepository.findById(createUserDto.getCompanyId())
+                            .orElseThrow(() -> new ObjectNotFoundException("Company not found"))
+            );
+        }
 
         String accessToken = jwtService.generateToken(user, generateExtraClaims(user));
 

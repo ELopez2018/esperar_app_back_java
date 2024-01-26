@@ -49,10 +49,6 @@ public class Vehicle {
     @Column
     private Integer occupancy;
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private User owner;
-
     @OneToOne
     @JoinColumn(name = "driver_id", referencedColumnName = "id")
     private User driver;

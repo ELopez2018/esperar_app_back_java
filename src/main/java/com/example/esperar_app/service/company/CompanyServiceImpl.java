@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+
 import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStrings;
 
 @Service
@@ -49,7 +51,13 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = companyMapper.createCompanyDtoToEntity(createCompanyDto);
         company.setCeo(ceo);
 
-        return companyRepository.save(company);
+        Company newCompany = companyRepository.save(company);
+
+        ceo.setCompany(newCompany);
+        ceo.getCompanies().add(newCompany);
+        userRepository.save(ceo);
+
+        return newCompany;
     }
 
     /**

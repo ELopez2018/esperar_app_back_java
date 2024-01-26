@@ -30,10 +30,11 @@ public interface UserMapper {
             @Mapping(target = "fullName", ignore = true),
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "image", ignore = true),
-            @Mapping(target = "ownedVehicles", ignore = true),
             @Mapping(target = "role", ignore = true),
             @Mapping(target = "updatedAt", ignore = true),
-            @Mapping(target = "userAuthList", ignore = true)
+            @Mapping(target = "userAuthList", ignore = true),
+            @Mapping(target = "companies", ignore = true),
+            @Mapping(target = "company", ignore = true)
     })
     User createUserDtoToUser(CreateUserDto createUserDto);
 
