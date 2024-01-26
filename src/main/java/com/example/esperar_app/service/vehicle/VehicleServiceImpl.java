@@ -10,7 +10,6 @@ import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
-import com.example.esperar_app.persistence.utils.RoleEnum;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;

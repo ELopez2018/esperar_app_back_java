@@ -4,7 +4,6 @@ import com.example.esperar_app.mapper.VehicleMapper;
 import com.example.esperar_app.persistence.dto.inputs.user.CreateUserDto;
 import com.example.esperar_app.persistence.dto.inputs.user.RegisteredUser;
 import com.example.esperar_app.persistence.dto.inputs.user.UpdateUserDto;
-import com.example.esperar_app.persistence.dto.inputs.vehicle.GetVehicle;
 import com.example.esperar_app.persistence.dto.responses.DriverWithVehicleDto;
 import com.example.esperar_app.persistence.dto.responses.GetUser;
 import com.example.esperar_app.exception.InvalidPasswordException;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

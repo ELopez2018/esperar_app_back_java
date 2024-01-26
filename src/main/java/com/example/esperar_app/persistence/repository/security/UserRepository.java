@@ -10,8 +10,4 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
-
-    @Query("SELECT u FROM com.example.esperar_app.persistence.entity.security.User u JOIN u.companies c WHERE c.id = :companyId")
-    List<User> findDriversByCompanyId(@Param("companyId") Long companyId);
-
 }
