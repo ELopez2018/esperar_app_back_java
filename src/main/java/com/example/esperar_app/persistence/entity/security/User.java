@@ -158,6 +158,7 @@ public class User implements UserDetails {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "owner", cascade = CascadeType.MERGE, orphanRemoval = true)
     @ToString.Exclude
+    @JsonIgnore
     private List<Vehicle> ownedVehicles;
 
     @OneToOne(mappedBy = "driver", cascade = CascadeType.MERGE, orphanRemoval = true)
@@ -168,7 +169,8 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<UserAuth> userAuthList;
 
-    @OneToMany(mappedBy = "ceo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "ceo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<Company> companies;
 
     @Override

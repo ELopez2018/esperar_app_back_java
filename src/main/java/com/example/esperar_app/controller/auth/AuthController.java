@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,7 +51,6 @@ public class AuthController {
      * This method is used to get the current user data
      * @return the response entity that contains the current user data
      */
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'ASSISTANT', 'CUSTOMER')")
     @GetMapping("/profile")
     public ResponseEntity<User> currentUser() {
         User user = authService.currentUser();
