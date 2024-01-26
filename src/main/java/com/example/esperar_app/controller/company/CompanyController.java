@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/companies")
 public class CompanyController {
@@ -39,22 +41,19 @@ public class CompanyController {
     @GetMapping
     public ResponseEntity<Page<Company>> findAll(Pageable pageable) {
         Page<Company> companies = companyService.findAll(pageable);
-        if(companies.isEmpty()) return ResponseEntity.noContent().build();
-        return ResponseEntity.ok(companies);
+        return ResponseEntity.ok(companies != null ? companies : Page.empty());
     }
 
     @GetMapping("{id}")
     public ResponseEntity<Company> findById(@PathVariable Long id) {
         Company company = companyService.findById(id);
-        if(company == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(company);
+        return ResponseEntity.of(Optional.ofNullable(company));
     }
 
     @PutMapping("{id}")
     public ResponseEntity<Company> update(@PathVariable Long id, @RequestBody @Valid UpdateCompanyDto updateCompanyDto) {
         Company company = companyService.update(id, updateCompanyDto);
-        if(company == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(company);
+        return ResponseEntity.of(Optional.ofNullable(company));
     }
 
     @DeleteMapping("{id}")

@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/routes")
 public class RouteController {
@@ -39,22 +41,20 @@ public class RouteController {
     @GetMapping
     public ResponseEntity<Page<Route>> findAll(Pageable pageable) {
         Page<Route> routesPage = routeService.findAll(pageable);
-        if(routesPage.hasContent()) return ResponseEntity.ok(routesPage);
-        else return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(routesPage != null ? routesPage : Page.empty());
     }
+
 
     @GetMapping("{id}")
     public ResponseEntity<Route> findById(@PathVariable Long id) {
         Route route = routeService.findById(id);
-        if(route != null) return ResponseEntity.ok(route);
-        else return ResponseEntity.notFound().build();
+        return ResponseEntity.of(Optional.ofNullable(route));
     }
 
     @PutMapping("{id}")
     public ResponseEntity<Route> update (@PathVariable Long id, @RequestBody @Valid UpdateRouteDto updateRouteDto) {
         Route route = routeService.update(id, updateRouteDto);
-        if(route != null) return ResponseEntity.ok(route);
-        else return ResponseEntity.notFound().build();
+        return ResponseEntity.of(Optional.ofNullable(route));
     }
 
     @DeleteMapping("{id}")
