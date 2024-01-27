@@ -10,6 +10,9 @@ public class CreateVehicleDto {
     private String licensePlate;
 
     @NotNull
+    private String secondaryPlate;
+
+    @NotNull
     private String brand;
 
     @NotNull
