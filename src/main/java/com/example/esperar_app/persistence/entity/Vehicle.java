@@ -29,6 +29,9 @@ public class Vehicle {
     @Column(unique = true, name = "license_plate")
     private String licensePlate;
 
+    @Column(name = "secondary_plate")
+    private String secondaryPlate;
+
     @Column
     private String model;
 

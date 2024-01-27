@@ -92,7 +92,7 @@ public class User implements UserDetails {
     /**
      * User second name
      */
-    @Column(name = "second_name", nullable = true)
+    @Column(name = "second_name")
     private String secondName;
 
     /**
@@ -135,7 +135,7 @@ public class User implements UserDetails {
     /**
      * Address
      */
-    @Column(name = "current_country_id", nullable = true)
+    @Column(name = "current_country_id")
     private Long currentCountry;
 
     /**

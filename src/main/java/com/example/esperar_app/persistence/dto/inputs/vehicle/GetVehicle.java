@@ -14,6 +14,8 @@ public class GetVehicle {
 
     private String licensePlate;
 
+    private String secondaryPlate;
+
     private String model;
 
     private String brand;
@@ -27,6 +29,4 @@ public class GetVehicle {
     private Integer capacity;
 
     private Integer occupancy;
-
-    private GetUser driver;
 }

@@ -16,7 +16,6 @@ import java.util.List;
 public interface VehicleMapper {
 
     @Mappings({
-            @Mapping(source = "driver", target = "driver"),
             @Mapping(source = "id", target = "id"),
             @Mapping(source = "brand", target = "brand"),
             @Mapping(source = "model", target = "model"),
@@ -26,12 +25,12 @@ public interface VehicleMapper {
             @Mapping(source = "capacity", target = "capacity"),
             @Mapping(source = "occupancy", target = "occupancy"),
             @Mapping(source = "cylinderCapacity", target = "cylinderCapacity"),
+            @Mapping(source = "secondaryPlate", target = "secondaryPlate"),
     })
     GetVehicle toGetVehicle(Vehicle vehicle);
 
     @Mappings({
             @Mapping(target = "company", ignore = true),
-            @Mapping(target = "driver", ignore = true),
             @Mapping(target = "id", ignore = true)
     })
     Vehicle toEntity(CreateVehicleDto createVehicleDto);
