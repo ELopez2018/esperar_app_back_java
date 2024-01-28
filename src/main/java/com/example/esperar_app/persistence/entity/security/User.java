@@ -4,7 +4,6 @@ import com.example.esperar_app.persistence.entity.Vehicle;
 import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.utils.DocumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,7 +15,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -156,8 +154,10 @@ public class User implements UserDetails {
     @Column(name = "deleted_at")
     public String deletedAt;
 
-    @OneToOne(mappedBy = "driver", cascade = CascadeType.MERGE, orphanRemoval = true)
-    private Vehicle drivingVehicle;
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle vehicle;
 
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
@@ -228,5 +228,13 @@ public class User implements UserDetails {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
     }
 }

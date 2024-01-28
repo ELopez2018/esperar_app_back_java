@@ -67,6 +67,9 @@ INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('
 
 INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', false, 'DRIVERS_BY_COMPANY', '/by-company/[0-9]*', 1);
 
+INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', false, 'VEHICLE_DRIVERS', '/vehicle-drivers/[0-9]*', 3);
+INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', false, 'ASSIGN_DRIVER', '/assignDriver/[0-9]*/[0-9]*', 3);
+
 -- ADMINISTRATOR PERMISSIONS
 INSERT INTO permissions (operation_id, role_id) VALUES (1, 1);
 INSERT INTO permissions (operation_id, role_id) VALUES (2, 1);
@@ -107,6 +110,8 @@ INSERT INTO permissions (operation_id, role_id) VALUES (36, 1);
 INSERT INTO permissions (operation_id, role_id) VALUES (37, 1);
 INSERT INTO permissions (operation_id, role_id) VALUES (38, 1);
 INSERT INTO permissions (operation_id, role_id) VALUES (39, 1);
+INSERT INTO permissions (operation_id, role_id) VALUES (40, 1);
+INSERT INTO permissions (operation_id, role_id) VALUES (41, 1);
 
 -- CEO PERMISSIONS
 INSERT INTO permissions (operation_id, role_id) VALUES (1, 2); -- SIGNUP
@@ -146,6 +151,8 @@ INSERT INTO permissions (operation_id, role_id) VALUES (36, 2); -- CREATE_ONE_CO
 INSERT INTO permissions (operation_id, role_id) VALUES (37, 2); -- UPDATE_ONE_COMPANY
 INSERT INTO permissions (operation_id, role_id) VALUES (38, 2); -- REMOVE_ONE_COMPANY
 INSERT INTO permissions (operation_id, role_id) VALUES (39, 2); -- DRIVERS_BY_COMPANY
+INSERT INTO permissions (operation_id, role_id) VALUES (40, 2);
+INSERT INTO permissions (operation_id, role_id) VALUES (41, 2);
 
 -- DRIVER PERMISSIONS
 INSERT INTO permissions (operation_id, role_id) VALUES (1, 3); -- SIGNUP
@@ -170,6 +177,8 @@ INSERT INTO permissions (operation_id, role_id) VALUES (31, 3); -- CREATE_ONE_NO
 INSERT INTO permissions (operation_id, role_id) VALUES (32, 3); -- UPDATE_ONE_NOTICE
 INSERT INTO permissions (operation_id, role_id) VALUES (33, 3); -- REMOVE_ONE_NOTICE
 INSERT INTO permissions (operation_id, role_id) VALUES (39, 3); -- DRIVERS_BY_COMPANY
+INSERT INTO permissions (operation_id, role_id) VALUES (40, 3);
+INSERT INTO permissions (operation_id, role_id) VALUES (41, 3);
 
 
 INSERT INTO users (

@@ -5,6 +5,8 @@ import com.example.esperar_app.persistence.dto.inputs.vehicle.CreateVehicleDto;
 import com.example.esperar_app.persistence.dto.inputs.vehicle.GetVehicle;
 import com.example.esperar_app.persistence.dto.inputs.vehicle.UpdateVehicleDto;
 import com.example.esperar_app.persistence.entity.Vehicle;
+import com.example.esperar_app.persistence.entity.security.User;
+import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.service.vehicle.VehicleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +30,16 @@ public class VehicleController {
     private final VehicleService vehicleService;
     private final VehicleMapper vehicleMapper;
 
+    private final VehicleRepository vehicleRepository;
+
     @Autowired
     public VehicleController(
             VehicleService vehicleService,
-            VehicleMapper vehicleMapper) {
+            VehicleMapper vehicleMapper,
+            VehicleRepository vehicleRepository) {
         this.vehicleService = vehicleService;
         this.vehicleMapper = vehicleMapper;
+        this.vehicleRepository = vehicleRepository;
     }
 
     @PostMapping("/create")
@@ -73,5 +79,19 @@ public class VehicleController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         vehicleService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/assignDriver/{id}/{driverId}")
+    public ResponseEntity<Void> assignDriver(@PathVariable Long id, @PathVariable Long driverId) {
+        Vehicle vehicle = vehicleService.assignDriver(id, driverId);
+        System.out.println(vehicle.getDrivers().size());
+        vehicleRepository.save(vehicle);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/vehicle-drivers/{id}")
+    public ResponseEntity<List<User>> findVehicleDrivers(@PathVariable Long id) {
+        List<User> drivers = vehicleService.findVehicleDrivers(id);
+        return ResponseEntity.ok(drivers != null ? drivers : List.of());
     }
 }
