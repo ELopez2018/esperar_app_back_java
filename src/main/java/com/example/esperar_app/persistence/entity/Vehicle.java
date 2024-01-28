@@ -3,6 +3,7 @@ package com.example.esperar_app.persistence.entity;
 import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -18,6 +20,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "vehicles")
@@ -53,13 +58,19 @@ public class Vehicle {
     @Column
     private Integer occupancy;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    @JoinColumn(name = "driver_id", referencedColumnName = "id")
-    private User driver;
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<User> drivers = new ArrayList<>();
 
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "company_id")
     private Company company;
+
+    public List<User> getDrivers() {
+        System.out.println("Drivers: " + drivers.size());
+        return drivers;
+    }
+    public void setDrivers(List<User> drivers) {
+        this.drivers = drivers;
+    }
 }

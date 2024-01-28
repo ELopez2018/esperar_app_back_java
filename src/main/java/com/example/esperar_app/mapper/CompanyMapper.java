@@ -12,7 +12,9 @@ public interface CompanyMapper {
 
     @Mappings({
             @Mapping(target = "ceo", ignore = true),
-            @Mapping(target = "id", ignore = true)
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "members", ignore = true),
+            @Mapping(target = "vehicles", ignore = true)
     })
     Company createCompanyDtoToEntity(CreateCompanyDto createCompanyDto);
 

@@ -156,8 +156,10 @@ public class User implements UserDetails {
     @Column(name = "deleted_at")
     public String deletedAt;
 
-    @OneToOne(mappedBy = "driver", cascade = CascadeType.MERGE, orphanRemoval = true)
-    private Vehicle drivingVehicle;
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle vehicle;
 
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
@@ -228,5 +230,13 @@ public class User implements UserDetails {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
     }
 }

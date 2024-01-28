@@ -51,7 +51,8 @@ public class Company {
     @JoinColumn(name = "ceo_id")
     private User ceo;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Vehicle> vehicles;
 
     @OneToMany(mappedBy = "company")

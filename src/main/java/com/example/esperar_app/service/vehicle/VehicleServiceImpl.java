@@ -20,8 +20,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -33,7 +35,6 @@ public class VehicleServiceImpl implements VehicleService {
     private final VehicleRepository vehicleRepository;
     private final VehicleMapper vehicleMapper;
     private final UserRepository userRepository;
-
     private final CompanyRepository companyRepository;
 
     @Autowired
@@ -71,19 +72,7 @@ public class VehicleServiceImpl implements VehicleService {
                 }
             }
 
-            vehicle.setDriver(userRepository.findById(createVehicleDto.getDriverId())
-                    .orElseThrow(() -> new ObjectNotFoundException("Driver not found")));
-
-            Vehicle newVehicle = vehicleRepository.save(vehicle);
-
-            if(createVehicleDto.getDriverId() != null) {
-                User driver = userRepository.findById(createVehicleDto.getDriverId())
-                        .orElseThrow(() -> new ObjectNotFoundException("Driver not found"));
-                driver.setDrivingVehicle(newVehicle);
-                userRepository.save(driver);
-            }
-
-            return newVehicle;
+            return vehicleRepository.save(vehicle);
         } catch (Exception e) {
             throw new ObjectNotFoundException
                     ("No tienes una empresa creada, para crear un vehículo primero crea una empresa");
@@ -124,6 +113,55 @@ public class VehicleServiceImpl implements VehicleService {
     public void delete(Long id) {
         GetVehicle vehicleFound = findById(id);
         vehicleRepository.delete(vehicleMapper.toEntity(vehicleFound));
+    }
+
+    @Override
+    @Transactional
+    public Vehicle assignDriver(Long id, Long driverId) {
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Vehicle not found"));
+
+        User driver = userRepository.findById(driverId)
+                .orElseThrow(() -> new ObjectNotFoundException("Driver not found"));
+
+        for(User user : vehicle.getDrivers()) {
+            if(user.getId().equals(driver.getId())) {
+                throw new ObjectNotFoundException("Driver already assigned to this vehicle");
+            }
+        }
+        vehicle.getDrivers().add(driver);
+        Vehicle vehicleSaved = vehicleRepository.save(vehicle);
+
+        Company company = vehicleSaved.getCompany();
+        driver.setVehicle(vehicleSaved);
+        driver.setCompany(company);
+        User userSaved = userRepository.save(driver);
+
+        System.out.println("VEHICLE USER: " + userSaved.getVehicle().getId());
+
+        return vehicleSaved;
+    }
+
+    @Override
+    public List<User> findVehicleDrivers(Long id) {
+        List<User> drivers = userRepository.findVehicleDriversByVehicleId(id);
+
+        System.out.println("DRIVERS: " + drivers.size());
+
+        Vehicle vehicleFound = vehicleRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Vehicle not found"));
+
+        System.out.println("VEHICLE ID: " + vehicleFound.getId());
+
+        if(vehicleFound.getDrivers() == null) {
+            System.out.println("Drivers is null");
+        }
+
+        if(vehicleFound.getDrivers().isEmpty()) {
+            System.out.println("Drivers is empty");
+        }
+
+        return vehicleFound.getDrivers();
     }
 
     private String[] getNullPropertyNames(Object source) {

@@ -34,8 +34,5 @@ public class CreateVehicleDto {
     private Integer occupancy;
 
     @NotNull
-    private Long driverId;
-
-    @NotNull
     private Long companyId;
 }

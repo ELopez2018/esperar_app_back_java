@@ -1,10 +1,8 @@
 package com.example.esperar_app.service.user;
 
-import com.example.esperar_app.mapper.VehicleMapper;
 import com.example.esperar_app.persistence.dto.inputs.user.CreateUserDto;
 import com.example.esperar_app.persistence.dto.inputs.user.RegisteredUser;
 import com.example.esperar_app.persistence.dto.inputs.user.UpdateUserDto;
-import com.example.esperar_app.persistence.dto.responses.DriverWithVehicleDto;
 import com.example.esperar_app.persistence.dto.responses.GetUser;
 import com.example.esperar_app.exception.InvalidPasswordException;
 import com.example.esperar_app.exception.ObjectNotFoundException;
@@ -46,7 +44,6 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final UserAuthRepository userAuthRepository;
     private final VehicleRepository vehicleRepository;
-    private final VehicleMapper vehicleMapper;
     private final CompanyRepository companyRepository;
 
     public UserServiceImpl(
@@ -57,7 +54,6 @@ public class UserServiceImpl implements UserService {
             JwtService jwtService,
             UserAuthRepository userAuthRepository,
             VehicleRepository vehicleRepository,
-            VehicleMapper vehicleMapper,
             CompanyRepository companyRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -66,7 +62,6 @@ public class UserServiceImpl implements UserService {
         this.jwtService = jwtService;
         this.userAuthRepository = userAuthRepository;
         this.vehicleRepository = vehicleRepository;
-        this.vehicleMapper = vehicleMapper;
         this.companyRepository = companyRepository;
     }
     @Override
@@ -159,19 +154,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<DriverWithVehicleDto> getDriversByCompany(Long companyId, Pageable pageable) {
-        List<Vehicle> vehicles = vehicleRepository.findVehiclesWithDriverByCompanyId(companyId);
+    public List<User> findVehicleDrivers(Long id) {
+        Vehicle vehicleFound = vehicleRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Vehicle not found"));
 
-        List<DriverWithVehicleDto> driverWithVehicleDtos = vehicles.stream()
-                .map(vehicle -> userMapper.mapToDriverWithVehicle(
-                        userMapper.toGetUser(vehicle.getDriver()),
-                        vehicleMapper.toGetVehicle(vehicle)
-                ))
-                .collect(Collectors.toList());
+        System.out.println("VEHICLE ID: " + vehicleFound.getId());
 
-        return new PageImpl<>(driverWithVehicleDtos, pageable, driverWithVehicleDtos.size());
+        if(vehicleFound.getDrivers() == null) {
+            System.out.println("Drivers is null");
+        }
+
+        if(vehicleFound.getDrivers().isEmpty()) {
+            System.out.println("Drivers is empty");
+        }
+
+        return vehicleFound.getDrivers();
     }
-
 
     private String updateFullName(UpdateUserDto updateUserDto) {
         return updateUserDto.getFirstName() + " " +
