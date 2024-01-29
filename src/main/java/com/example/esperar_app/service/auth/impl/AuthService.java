@@ -1,8 +1,12 @@
 package com.example.esperar_app.service.auth.impl;
 
 import com.example.esperar_app.persistence.dto.inputs.user.LoginDto;
+import com.example.esperar_app.persistence.dto.responses.GetCompanyDto;
+import com.example.esperar_app.persistence.dto.responses.GetVehicleDto;
 import com.example.esperar_app.persistence.dto.responses.auth.AuthResponse;
 import com.example.esperar_app.exception.ObjectNotFoundException;
+import com.example.esperar_app.persistence.dto.responses.auth.CurrentUserDto;
+import com.example.esperar_app.persistence.entity.Vehicle;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
@@ -11,10 +15,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -132,6 +139,40 @@ public class AuthService {
         userAuth.setValid(true);
 
         userAuthRepository.save(userAuth);
+    }
+
+    public CurrentUserDto getCurrentUser() {
+        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        User userFound = userService.findOneByUsername(username)
+                .orElseThrow(() -> new ObjectNotFoundException("User not found"));
+
+        CurrentUserDto currentUserDto = new CurrentUserDto();
+        GetCompanyDto companyDto = new GetCompanyDto();
+
+        companyDto.setId(userFound.getCompany().getId());
+
+        if (userFound.getCompany().getVehicles() != null) {
+            List<Vehicle> vehicles = userFound.getCompany().getVehicles();
+            for (Vehicle vehicle : vehicles) {
+                GetVehicleDto vehicleDto = new GetVehicleDto();
+                vehicleDto.setId(vehicle.getId());
+                vehicleDto.setModel(vehicle.getModel());
+                vehicleDto.setLicensePlate(vehicle.getLicensePlate());
+                vehicleDto.setSecondaryPlate(vehicle.getSecondaryPlate());
+                companyDto.getVehicles().add(vehicleDto);
+            }
+        } else {
+            System.out.println("NULL");
+        }
+
+        currentUserDto.setId(userFound.getId());
+        currentUserDto.setUsername(userFound.getUsername());
+        currentUserDto.setCompany(companyDto);
+        currentUserDto.setAuthorities(userFound.getAuthorities());
+        currentUserDto.setRole(userFound.getRole());
+
+        return currentUserDto;
     }
 
 }

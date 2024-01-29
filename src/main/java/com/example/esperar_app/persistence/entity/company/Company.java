@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -50,11 +51,19 @@ public class Company {
     @JoinColumn(name = "ceo_id")
     private User ceo;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    @JsonIgnore
     private List<Vehicle> vehicles;
 
     @OneToMany(mappedBy = "company")
     @JsonIgnore
     private List<User> members;
+
+    public List<Vehicle> getVehicles() {
+        return vehicles;
+    }
+
+    public void setVehicles(List<Vehicle> vehicles) {
+        this.vehicles = vehicles;
+    }
 }
