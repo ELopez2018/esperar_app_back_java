@@ -52,7 +52,7 @@ public class User implements UserDetails {
     /**
      * Username
      */
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     /**

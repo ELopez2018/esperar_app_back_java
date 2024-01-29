@@ -2,6 +2,7 @@ package com.example.esperar_app.controller.auth;
 
 import com.example.esperar_app.persistence.dto.inputs.user.LoginDto;
 import com.example.esperar_app.persistence.dto.responses.auth.AuthResponse;
+import com.example.esperar_app.persistence.dto.responses.auth.CurrentUserDto;
 import com.example.esperar_app.persistence.dto.responses.auth.LogoutResponse;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.service.auth.impl.AuthService;
@@ -55,6 +56,12 @@ public class AuthController {
     public ResponseEntity<User> currentUser() {
         User user = authService.currentUser();
         return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/current-user")
+    public ResponseEntity<CurrentUserDto> getCurrentUser() {
+        CurrentUserDto currentUserDto = authService.getCurrentUser();
+        return ResponseEntity.ok(currentUserDto);
     }
 
     @PostMapping("/logout")

@@ -28,7 +28,7 @@ public class UserAuth {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 2048)
+    @Column(length = 5000)
     private String token;
 
     private Date expirationDate;
