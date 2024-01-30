@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +44,7 @@ public class VehicleController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<GetVehicle> create(@RequestBody @Valid CreateVehicleDto createVehicleDto) {
         Vehicle newVehicle = vehicleService.create(createVehicleDto);
         GetVehicle getVehicle = vehicleMapper.toGetVehicle(newVehicle);
@@ -50,6 +52,7 @@ public class VehicleController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<Page<GetVehicle>> findAll(Pageable pageable) {
         Page<GetVehicle> vehiclesPage = vehicleService.findAll(pageable);
 
@@ -58,6 +61,7 @@ public class VehicleController {
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<GetVehicle> findById(@PathVariable Long id) {
         GetVehicle vehicle = vehicleService.findById(id);
 
@@ -66,6 +70,7 @@ public class VehicleController {
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<GetVehicle> update(
             @PathVariable Long id,
             @RequestBody @Valid UpdateVehicleDto updateVehicleDto) {
@@ -76,12 +81,14 @@ public class VehicleController {
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         vehicleService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/assignDriver/{id}/{driverId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<Void> assignDriver(@PathVariable Long id, @PathVariable Long driverId) {
         Vehicle vehicle = vehicleService.assignDriver(id, driverId);
         System.out.println(vehicle.getDrivers().size());
@@ -90,6 +97,7 @@ public class VehicleController {
     }
 
     @GetMapping("/vehicle-drivers/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<List<User>> findVehicleDrivers(@PathVariable Long id) {
         List<User> drivers = vehicleService.findVehicleDrivers(id);
         return ResponseEntity.ok(drivers != null ? drivers : List.of());

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,31 +33,37 @@ public class CompanyController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<Company> create(@RequestBody @Valid CreateCompanyDto createCompanyDto) {
+        System.out.println("¿Entramos?");
         Company company = companyService.create(createCompanyDto);
         if(company == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(company);
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<Page<Company>> findAll(Pageable pageable) {
         Page<Company> companies = companyService.findAll(pageable);
         return ResponseEntity.ok(companies != null ? companies : Page.empty());
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<Company> findById(@PathVariable Long id) {
         Company company = companyService.findById(id);
         return ResponseEntity.of(Optional.ofNullable(company));
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<Company> update(@PathVariable Long id, @RequestBody @Valid UpdateCompanyDto updateCompanyDto) {
         Company company = companyService.update(id, updateCompanyDto);
         return ResponseEntity.of(Optional.ofNullable(company));
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public Void delete(@PathVariable Long id) {
         companyService.delete(id);
         return null;
