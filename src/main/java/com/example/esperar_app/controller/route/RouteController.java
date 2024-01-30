@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,7 @@ public class RouteController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<Route> create(@RequestBody @Valid CreateRouteDto createRouteDto) {
         Route route = routeService.create(createRouteDto);
         if(route != null) return ResponseEntity.ok(route);
@@ -39,6 +41,7 @@ public class RouteController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<Page<Route>> findAll(Pageable pageable) {
         Page<Route> routesPage = routeService.findAll(pageable);
         return ResponseEntity.ok(routesPage != null ? routesPage : Page.empty());
@@ -46,18 +49,21 @@ public class RouteController {
 
 
     @GetMapping("{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<Route> findById(@PathVariable Long id) {
         Route route = routeService.findById(id);
         return ResponseEntity.of(Optional.ofNullable(route));
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<Route> update (@PathVariable Long id, @RequestBody @Valid UpdateRouteDto updateRouteDto) {
         Route route = routeService.update(id, updateRouteDto);
         return ResponseEntity.of(Optional.ofNullable(route));
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         routeService.delete(id);
         return ResponseEntity.noContent().build();

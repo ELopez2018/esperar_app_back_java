@@ -45,6 +45,8 @@ public class CompanyServiceImpl implements CompanyService {
     public Company create(CreateCompanyDto createCompanyDto) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
+        System.out.println("USERNAME: " + username);
+
         User ceo = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ObjectNotFoundException("Ceo not found"));
 

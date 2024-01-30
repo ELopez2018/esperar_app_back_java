@@ -5,12 +5,14 @@ import com.example.esperar_app.config.security.handler.CustomAccessDeniedHandler
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,26 +30,23 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-public class HttpSecurityConfig {
+public class  HttpSecurityConfig {
 
     private final AuthenticationProvider daoAuthenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
-    private final AuthorizationManager<RequestAuthorizationContext> authorizationManager;
 
     @Autowired
     public HttpSecurityConfig(
             AuthenticationProvider daoAuthenticationProvider,
             JwtAuthenticationFilter jwtAuthenticationFilter,
             AuthenticationEntryPoint authenticationEntryPoint,
-            CustomAccessDeniedHandler customAccessDeniedHandler,
-            AuthorizationManager<RequestAuthorizationContext> authorizationManager) {
+            CustomAccessDeniedHandler customAccessDeniedHandler) {
         this.daoAuthenticationProvider = daoAuthenticationProvider;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.customAccessDeniedHandler = customAccessDeniedHandler;
-        this.authorizationManager = authorizationManager;
     }
 
     /**
@@ -65,9 +64,7 @@ public class HttpSecurityConfig {
                         sessionMangConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(daoAuthenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(authReqConfig -> {
-                    authReqConfig.anyRequest().access(authorizationManager);
-                })
+                .authorizeHttpRequests(this::buildRequestMatchers)
                 .exceptionHandling(exceptionHandlingConfig -> {
                     exceptionHandlingConfig.authenticationEntryPoint(authenticationEntryPoint);
                     exceptionHandlingConfig.accessDeniedHandler(customAccessDeniedHandler);
@@ -92,4 +89,20 @@ public class HttpSecurityConfig {
 
         return source;
     }
+
+    private void buildRequestMatchers(
+            AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authReqConfig) {
+        // Public endpoints authorization
+        authReqConfig.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.POST, "/auth/logout").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.POST, "/users/signup").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/auth/validate-token").permitAll();
+
+        authReqConfig.requestMatchers(HttpMethod.GET, "/websocket/index.html").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/websocket/app.js").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/websocket/ws").permitAll();
+
+        authReqConfig.anyRequest().authenticated();
+    }
+
 }

@@ -49,7 +49,7 @@ INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('
 -- WEBSOCKET OPERATIONS
 INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', true, 'GREETING', 'index.html', 6);
 INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', true, 'JS', 'app.js', 6);
-INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', true, 'WEBSOCKET', 'websocket', 6);
+INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', true, 'WEBSOCKET', 'ws', 6);
 
 -- NOTICES OPERATIONS
 INSERT INTO operations (http_method, is_public, name, path, module_id) VALUES ('GET', false, 'READ_ALL_NOTICES', '', 7);
