@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -16,7 +15,6 @@ import org.springframework.security.config.annotation.web.configurers.AuthorizeH
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -29,7 +27,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 public class  HttpSecurityConfig {
 
     private final AuthenticationProvider daoAuthenticationProvider;
@@ -73,34 +71,34 @@ public class  HttpSecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:8080",
-                "http://localhost:5701",
-                "http://localhost:4200"
-        ));
-        configuration.setAllowedMethods(List.of("*"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));  // Ajusta según tus necesidades
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/api/**", configuration);  // Ajusta según tus rutas de API
 
         return source;
     }
 
+
     private void buildRequestMatchers(
             AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authReqConfig) {
-        // Public endpoints authorization
+        // PUBLIC ENDPOINTS AUTHORIZATION
         authReqConfig.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
         authReqConfig.requestMatchers(HttpMethod.POST, "/auth/logout").permitAll();
         authReqConfig.requestMatchers(HttpMethod.POST, "/users/signup").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/auth/validate-token").permitAll();
 
-        authReqConfig.requestMatchers(HttpMethod.GET, "/websocket/index.html").permitAll();
-        authReqConfig.requestMatchers(HttpMethod.GET, "/websocket/app.js").permitAll();
-        authReqConfig.requestMatchers(HttpMethod.GET, "/websocket/ws").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/ws").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/ws/**").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/ws/info/**").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/ws/info").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/ws/info?").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/ws/info?**").permitAll();
 
         authReqConfig.anyRequest().authenticated();
     }
