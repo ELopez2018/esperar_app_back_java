@@ -75,4 +75,11 @@ public class UserController {
         List<User> drivers = userService.findVehicleDrivers(id);
         return ResponseEntity.ok(drivers != null ? drivers : List.of());
     }
+
+    @GetMapping("connectedUsers")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
+    public ResponseEntity<List<User>> findConnectedUsers() {
+        List<User> connectedUsers = userService.findConnectedUsers();
+        return ResponseEntity.ok(connectedUsers != null ? connectedUsers : List.of());
+    }
 }

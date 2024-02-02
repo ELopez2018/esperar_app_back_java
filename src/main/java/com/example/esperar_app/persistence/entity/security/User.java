@@ -3,6 +3,7 @@ package com.example.esperar_app.persistence.entity.security;
 import com.example.esperar_app.persistence.entity.Vehicle;
 import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.utils.DocumentType;
+import com.example.esperar_app.persistence.utils.UserChatStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -123,6 +124,10 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type")
     private DocumentType documentType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "chat_status")
+    private UserChatStatus chatStatus;
 
     /**
      * Phone number

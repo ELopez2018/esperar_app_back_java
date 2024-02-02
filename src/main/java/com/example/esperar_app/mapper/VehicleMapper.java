@@ -26,7 +26,7 @@ public interface VehicleMapper {
             @Mapping(source = "occupancy", target = "occupancy"),
             @Mapping(source = "cylinderCapacity", target = "cylinderCapacity"),
             @Mapping(source = "secondaryPlate", target = "secondaryPlate"),
-            @Mapping(source = "drivers", target = "drivers"),
+            @Mapping(target = "driversIds", ignore = true)
     })
     GetVehicle toGetVehicle(Vehicle vehicle);
 

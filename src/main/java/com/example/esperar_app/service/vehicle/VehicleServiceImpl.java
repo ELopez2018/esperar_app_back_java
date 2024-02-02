@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -93,7 +94,19 @@ public class VehicleServiceImpl implements VehicleService {
         Vehicle vehicleFound = vehicleRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Vehicle not found"));
 
-        return vehicleMapper.toGetVehicle(vehicleFound);
+        GetVehicle getVehicle = vehicleMapper.toGetVehicle(vehicleFound);
+
+        if(vehicleFound.getDrivers() != null) {
+            List<Long> driversIds = new ArrayList<>();
+
+            for(User driver : vehicleFound.getDrivers()) {
+                driversIds.add(driver.getId());
+            }
+
+            getVehicle.setDriversIds(driversIds);
+        }
+
+        return getVehicle;
     }
 
     @Override
