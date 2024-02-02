@@ -2,6 +2,7 @@ package com.example.esperar_app.controller.company;
 
 import com.example.esperar_app.persistence.dto.inputs.company.CreateCompanyDto;
 import com.example.esperar_app.persistence.dto.inputs.company.UpdateCompanyDto;
+import com.example.esperar_app.persistence.dto.responses.CompanyResponse;
 import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.service.company.CompanyService;
 import jakarta.validation.Valid;
@@ -50,8 +51,8 @@ public class CompanyController {
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
-    public ResponseEntity<Company> findById(@PathVariable Long id) {
-        Company company = companyService.findById(id);
+    public ResponseEntity<CompanyResponse> findById(@PathVariable Long id) {
+        CompanyResponse company = companyService.findById(id);
         return ResponseEntity.of(Optional.ofNullable(company));
     }
 

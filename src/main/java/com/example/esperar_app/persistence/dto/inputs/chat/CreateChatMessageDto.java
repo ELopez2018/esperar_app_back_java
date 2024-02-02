@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class CreateChatMessageDto {
     @NotEmpty
-    private String user;
+    private String sender;
 
     @NotEmpty
     private String message;
