@@ -11,8 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
-import java.time.LocalDate;
+import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Service
 public class NoticeServiceImpl implements NoticeService {
@@ -35,11 +37,16 @@ public class NoticeServiceImpl implements NoticeService {
     public Notice create(CreateNoticeDto createNoticeDto) {
         try {
             Notice newNotice = noticeMapper.toNotice(createNoticeDto);
-            newNotice.setCreatedAt(Date.valueOf(LocalDate.now()));
+
+            LocalDateTime myDateObj = LocalDateTime.now();
+            Instant instant = myDateObj.atZone(ZoneId.systemDefault()).toInstant();
+            Date date = Date.from(instant);
+
+            newNotice.setCreatedAt(date);
+
+            System.out.println("FECHA: " + newNotice.getCreatedAt());
 
             newNotice = noticeRepository.save(newNotice);
-
-            messagingTemplate.convertAndSend("/topic/new-notice", newNotice);
 
             return newNotice;
         } catch (Exception e) {
