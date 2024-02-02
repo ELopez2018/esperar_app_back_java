@@ -15,6 +15,7 @@ import com.example.esperar_app.persistence.repository.CompanyRepository;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
+import com.example.esperar_app.persistence.utils.UserChatStatus;
 import com.example.esperar_app.service.auth.RoleService;
 import com.example.esperar_app.service.auth.impl.JwtService;
 import org.springframework.beans.BeanUtils;
@@ -168,6 +169,35 @@ public class UserServiceImpl implements UserService {
         }
 
         return vehicleFound.getDrivers();
+    }
+
+    @Override
+    public void disconnectUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("User not found"));
+
+        user.setChatStatus(UserChatStatus.OFFLINE);
+        userRepository.save(user);
+    }
+
+    @Override
+    public List<User> findConnectedUsers() {
+        List<User> connectedUsers = userRepository.findByChatStatus(UserChatStatus.ONLINE);
+
+        for(User user : connectedUsers) {
+            System.out.println("Connected user: " + user.getUsername());
+        }
+
+        return connectedUsers;
+    }
+
+    @Override
+    public User connectUser(User user) {
+        User userFound = userRepository.findById(user.getId())
+                .orElseThrow(() -> new ObjectNotFoundException("User not found"));
+
+        userFound.setChatStatus(UserChatStatus.ONLINE);
+        return userRepository.save(userFound);
     }
 
     private String updateFullName(UpdateUserDto updateUserDto) {

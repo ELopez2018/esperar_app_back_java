@@ -2,21 +2,10 @@ package com.example.esperar_app.config.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.converter.DefaultContentTypeResolver;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
-import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.messaging.simp.stomp.StompCommand;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.messaging.support.MessageHeaderAccessor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -24,7 +13,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
-import java.security.Principal;
 import java.util.List;
 
 @Configuration
@@ -35,11 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer  {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // Este es el punto de entrada para el cliente, ejemplo "ws://yourdomain/portfolio"
         registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:5173").withSockJS();
-        registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:5173")
-                .addInterceptors(new HttpSessionHandshakeInterceptor())
-                .setHandshakeHandler(new DefaultHandshakeHandler());
-
+        registry.addEndpoint("/ws");
     }
 
     @Override

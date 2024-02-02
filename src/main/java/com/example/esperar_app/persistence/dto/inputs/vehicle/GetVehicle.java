@@ -32,5 +32,5 @@ public class GetVehicle {
 
     private Integer occupancy;
 
-    private List<User> drivers;
+    private List<Long> driversIds;
 }
