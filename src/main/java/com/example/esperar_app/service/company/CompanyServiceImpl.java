@@ -4,6 +4,9 @@ import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.CompanyMapper;
 import com.example.esperar_app.persistence.dto.inputs.company.CreateCompanyDto;
 import com.example.esperar_app.persistence.dto.inputs.company.UpdateCompanyDto;
+import com.example.esperar_app.persistence.dto.responses.CompanyResponse;
+import com.example.esperar_app.persistence.dto.responses.GetCompanyDto;
+import com.example.esperar_app.persistence.entity.Vehicle;
 import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.repository.CompanyRepository;
@@ -45,8 +48,6 @@ public class CompanyServiceImpl implements CompanyService {
     public Company create(CreateCompanyDto createCompanyDto) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        System.out.println("USERNAME: " + username);
-
         User ceo = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ObjectNotFoundException("Ceo not found"));
 
@@ -78,9 +79,20 @@ public class CompanyServiceImpl implements CompanyService {
      * @return company
      */
     @Override
-    public Company findById(Long id) {
-        return companyRepository.findById(id)
+    public CompanyResponse findById(Long id) {
+        Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Company not found"));
+
+        CompanyResponse companyResponse = companyMapper.companyToCompanyResponse(company);
+        companyResponse.setCeoId(company.getCeo().getId());
+
+        if(company.getVehicles() != null) {
+            for (Vehicle vehicle : company.getVehicles()) {
+                companyResponse.setVehiclesIds(Collections.singletonList(vehicle.getId()));
+            }
+        }
+
+        return companyResponse;
     }
 
     /**
@@ -91,7 +103,9 @@ public class CompanyServiceImpl implements CompanyService {
      */
     @Override
     public Company update(Long id, UpdateCompanyDto updateCompanyDto) {
-        Company existingCompany = findById(id);
+        Company existingCompany = companyRepository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Company not found"));
 
         BeanUtils.copyProperties(updateCompanyDto, existingCompany, getStrings(updateCompanyDto));
 
@@ -104,7 +118,10 @@ public class CompanyServiceImpl implements CompanyService {
      */
     @Override
     public void delete(Long id) {
-        Company company = findById(id);
+        Company company = companyRepository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Company not found"));
+
         companyRepository.delete(company);
     }
 
