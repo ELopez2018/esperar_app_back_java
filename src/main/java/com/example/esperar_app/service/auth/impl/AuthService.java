@@ -82,7 +82,7 @@ public class AuthService {
                 throw new ObjectNotFoundException("User not found");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
             throw e;
         }
     }
@@ -94,6 +94,7 @@ public class AuthService {
      */
     public boolean validateToken(String accessToken) {
         try {
+            // TODO: Revisar si es necesario recibir el username o si debo hacer algo con él
             String username = jwtService.extractUsername(accessToken);
             return true;
         } catch (Exception e) {

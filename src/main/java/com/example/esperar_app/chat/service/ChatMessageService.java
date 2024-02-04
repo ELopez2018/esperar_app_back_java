@@ -42,8 +42,7 @@ public class ChatMessageService {
                 recipientId,
                 false);
 
-        List<ChatMessage> messages = chatId.map(chatMessageRepository::findByChatId).orElse(new ArrayList<>());
-        return messages;
+        return chatId.map(chatMessageRepository::findByChatId).orElse(new ArrayList<>());
     }
 
 }

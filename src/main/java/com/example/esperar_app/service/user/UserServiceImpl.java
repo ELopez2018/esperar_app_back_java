@@ -18,7 +18,6 @@ import com.example.esperar_app.persistence.repository.security.UserRepository;
 import com.example.esperar_app.persistence.utils.UserChatStatus;
 import com.example.esperar_app.service.auth.RoleService;
 import com.example.esperar_app.service.auth.impl.JwtService;
-import org.hibernate.tool.schema.internal.exec.ScriptTargetOutputToFile;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

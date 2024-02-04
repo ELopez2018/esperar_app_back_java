@@ -13,7 +13,11 @@ public interface CoordinateMapper {
     @Mappings({
             @Mapping(source = "latitude", target = "latitude"),
             @Mapping(source = "longitude", target = "longitude"),
-            @Mapping(source = "routeId", target = "route.id")
+            @Mapping(source = "routeId", target = "route.id"),
+            @Mapping(target = "createdAt", ignore = true),
+            @Mapping(target = "deletedAt", ignore = true),
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "updatedAt", ignore = true)
     })
     Coordinate toEntity(CreateCoordinateDto createCoordinateDto);
 }

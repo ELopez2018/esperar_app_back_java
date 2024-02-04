@@ -14,7 +14,11 @@ public interface RouteMapper {
             @Mapping(source = "name", target = "name"),
             @Mapping(source = "from", target = "from"),
             @Mapping(source = "to", target = "to"),
-            @Mapping(target = "coordinates", ignore = true)
+            @Mapping(target = "coordinates", ignore = true),
+            @Mapping(target = "createdAt", ignore = true),
+            @Mapping(target = "deletedAt", ignore = true),
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "updatedAt", ignore = true)
     })
     Route toEntity(CreateRouteDto createRouteDto);
 

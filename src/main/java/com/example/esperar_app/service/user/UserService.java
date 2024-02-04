@@ -5,7 +5,6 @@ import com.example.esperar_app.persistence.dto.inputs.user.RegisteredUser;
 import com.example.esperar_app.persistence.dto.inputs.user.UpdateUserDto;
 import com.example.esperar_app.persistence.dto.responses.GetUser;
 import com.example.esperar_app.persistence.entity.security.User;
-import com.example.esperar_app.persistence.utils.UserChatStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
