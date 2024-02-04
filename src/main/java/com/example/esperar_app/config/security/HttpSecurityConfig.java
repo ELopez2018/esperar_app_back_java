@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -73,13 +74,20 @@ public class  HttpSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));  // Ajusta según tus necesidades
+        List<String> allowedOrigins = new ArrayList<>();
+        allowedOrigins.add("http://localhost:5173");
+        allowedOrigins.add("http://localhost:5173/**");
+        allowedOrigins.add("http://localhost:5173/src/pages/chat.html");
+
+        configuration.setAllowedOrigins(allowedOrigins);
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);  // Ajusta según tus rutas de API
+        source.registerCorsConfiguration("/api/**", configuration);
+        source.registerCorsConfiguration("**", configuration);
 
         return source;
     }
@@ -90,8 +98,11 @@ public class  HttpSecurityConfig {
         // PUBLIC ENDPOINTS AUTHORIZATION
         authReqConfig.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
         authReqConfig.requestMatchers(HttpMethod.POST, "/auth/logout").permitAll();
-        authReqConfig.requestMatchers(HttpMethod.POST, "/users/signup").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/auth/validate-token").permitAll();
+
+        authReqConfig.requestMatchers(HttpMethod.POST, "/users/signup").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/users/connectedUsers").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/messages/**").permitAll();
 
         authReqConfig.requestMatchers(HttpMethod.GET, "/ws").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/ws/**").permitAll();

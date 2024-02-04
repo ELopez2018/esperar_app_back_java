@@ -1,6 +1,6 @@
 package com.example.esperar_app.persistence.entity.company;
 
-import com.example.esperar_app.persistence.entity.Vehicle;
+import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
