@@ -2,7 +2,7 @@ package com.example.esperar_app.service.coordinate;
 
 import com.example.esperar_app.persistence.dto.inputs.coordinate.CreateCoordinateDto;
 import com.example.esperar_app.persistence.dto.inputs.coordinate.UpdateCoordinateDto;
-import com.example.esperar_app.persistence.entity.Coordinate;
+import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

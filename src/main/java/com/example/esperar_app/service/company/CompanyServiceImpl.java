@@ -5,7 +5,7 @@ import com.example.esperar_app.mapper.CompanyMapper;
 import com.example.esperar_app.persistence.dto.inputs.company.CreateCompanyDto;
 import com.example.esperar_app.persistence.dto.inputs.company.UpdateCompanyDto;
 import com.example.esperar_app.persistence.dto.responses.CompanyResponse;
-import com.example.esperar_app.persistence.entity.Vehicle;
+import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.repository.CompanyRepository;

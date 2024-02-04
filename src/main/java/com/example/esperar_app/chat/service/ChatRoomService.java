@@ -1,7 +1,7 @@
-package com.example.esperar_app.service.chat;
+package com.example.esperar_app.chat.service;
 
-import com.example.esperar_app.persistence.entity.chat.ChatRoom;
-import com.example.esperar_app.persistence.repository.chat.ChatRoomRepository;
+import com.example.esperar_app.chat.persistence.entity.ChatRoom;
+import com.example.esperar_app.chat.persistence.repository.ChatRoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +23,13 @@ public class ChatRoomService {
             boolean createNewRoomIfNotExists
     ) {
         return chatRoomRepository.findBySenderIdAndRecipientId(senderId, recipientId)
-                .map(ChatRoom::getId)
+                .map(ChatRoom::getChatId)
                 .or(() -> {
                     if(createNewRoomIfNotExists) {
-                        String chatId = createChatId(senderId, recipientId);
+                        var chatId = createChatId(senderId, recipientId);
                         return Optional.of(chatId);
                     }
+
                     return Optional.empty();
         });
     }
@@ -36,13 +37,15 @@ public class ChatRoomService {
     private String createChatId(String senderId, String recipientId) {
         var chatId = String.format("%s_%s", senderId, recipientId);
 
-        ChatRoom senderRecipient = ChatRoom.builder()
+        ChatRoom senderRecipient = ChatRoom
+                .builder()
                 .chatId(chatId)
                 .senderId(senderId)
                 .recipientId(recipientId)
                 .build();
 
-        ChatRoom recipientSender = ChatRoom.builder()
+        ChatRoom recipientSender = ChatRoom
+                .builder()
                 .chatId(chatId)
                 .senderId(recipientId)
                 .recipientId(senderId)

@@ -1,4 +1,4 @@
-package com.example.esperar_app.persistence.entity.chat;
+package com.example.esperar_app.chat.persistence.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,18 +11,20 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Date;
 
 @Entity
-@Table(name = "temp_chat_messages")
+@Table(name = "chat_messages")
 @Getter
 @Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TempChatMessage {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ChatMessage {
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @Column(name = "chat_id")

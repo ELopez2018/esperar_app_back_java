@@ -27,9 +27,9 @@ public interface UserService {
 
     List<User> findVehicleDrivers(Long id);
 
-    void disconnectUser(Long id);
+    User disconnectUser(String username);
 
     List<User> findConnectedUsers();
 
-    User connectUser(User user);
+    User connectUser(String username);
 }

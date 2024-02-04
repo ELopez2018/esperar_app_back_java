@@ -7,7 +7,7 @@ import com.example.esperar_app.persistence.dto.responses.GetUser;
 import com.example.esperar_app.exception.InvalidPasswordException;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.UserMapper;
-import com.example.esperar_app.persistence.entity.Vehicle;
+import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.entity.security.Role;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
@@ -18,6 +18,7 @@ import com.example.esperar_app.persistence.repository.security.UserRepository;
 import com.example.esperar_app.persistence.utils.UserChatStatus;
 import com.example.esperar_app.service.auth.RoleService;
 import com.example.esperar_app.service.auth.impl.JwtService;
+import org.hibernate.tool.schema.internal.exec.ScriptTargetOutputToFile;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -172,12 +173,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void disconnectUser(Long id) {
-        User user = userRepository.findById(id)
+    public User connectUser(String username) {
+        User userFound = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ObjectNotFoundException("User not found"));
+
+        userFound.setChatStatus(UserChatStatus.ONLINE);
+        return userRepository.save(userFound);
+    }
+
+    @Override
+    public User disconnectUser(String username) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
 
         user.setChatStatus(UserChatStatus.OFFLINE);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
@@ -189,15 +199,6 @@ public class UserServiceImpl implements UserService {
         }
 
         return connectedUsers;
-    }
-
-    @Override
-    public User connectUser(User user) {
-        User userFound = userRepository.findById(user.getId())
-                .orElseThrow(() -> new ObjectNotFoundException("User not found"));
-
-        userFound.setChatStatus(UserChatStatus.ONLINE);
-        return userRepository.save(userFound);
     }
 
     private String updateFullName(UpdateUserDto updateUserDto) {
