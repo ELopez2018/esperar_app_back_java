@@ -2,9 +2,9 @@ package com.example.esperar_app.service.company;
 
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.CompanyMapper;
+import com.example.esperar_app.persistence.dto.company.CreateCompanyDto;
 import com.example.esperar_app.persistence.dto.company.GetCompanyDto;
 import com.example.esperar_app.persistence.dto.company.UpdateCompanyDto;
-import com.example.esperar_app.persistence.dto.inputs.company.CreateCompanyDto;
 import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.repository.CompanyRepository;

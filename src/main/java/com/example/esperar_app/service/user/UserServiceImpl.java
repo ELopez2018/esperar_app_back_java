@@ -1,12 +1,12 @@
 package com.example.esperar_app.service.user;
 
-import com.example.esperar_app.persistence.dto.inputs.user.UpdateUserDto;
 import com.example.esperar_app.exception.InvalidPasswordException;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.UserMapper;
 import com.example.esperar_app.persistence.dto.user.CreateUserDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.user.RegisteredUser;
+import com.example.esperar_app.persistence.dto.user.UpdateUserDto;
 import com.example.esperar_app.persistence.entity.security.Role;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStrings;
 

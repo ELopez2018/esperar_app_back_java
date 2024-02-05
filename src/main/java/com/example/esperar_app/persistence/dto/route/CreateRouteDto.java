@@ -1,4 +1,4 @@
-package com.example.esperar_app.persistence.dto.inputs.route;
+package com.example.esperar_app.persistence.dto.route;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;

@@ -1,8 +1,6 @@
-package com.example.esperar_app.persistence.dto.inputs.user;
+package com.example.esperar_app.persistence.dto.user;
 
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,8 +1,8 @@
 package com.example.esperar_app.service.route;
 
-import com.example.esperar_app.persistence.dto.inputs.route.CreateRouteDto;
-import com.example.esperar_app.persistence.dto.inputs.route.UpdateRouteDto;
+import com.example.esperar_app.persistence.dto.route.CreateRouteDto;
 import com.example.esperar_app.persistence.dto.route.GetRouteDto;
+import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

@@ -2,8 +2,8 @@ package com.example.esperar_app.controller.auth;
 
 import com.example.esperar_app.persistence.dto.auth.AuthResponse;
 import com.example.esperar_app.persistence.dto.auth.LogoutResponse;
-import com.example.esperar_app.persistence.dto.inputs.user.LoginDto;
 import com.example.esperar_app.persistence.dto.user.CurrentUserDto;
+import com.example.esperar_app.persistence.dto.user.LoginDto;
 import com.example.esperar_app.service.auth.impl.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

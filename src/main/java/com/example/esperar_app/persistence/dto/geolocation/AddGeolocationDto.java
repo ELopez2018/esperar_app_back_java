@@ -1,4 +1,4 @@
-package com.example.esperar_app.persistence.dto.inputs.geolocation;
+package com.example.esperar_app.persistence.dto.geolocation;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

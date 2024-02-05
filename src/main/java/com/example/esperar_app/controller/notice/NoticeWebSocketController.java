@@ -1,6 +1,6 @@
 package com.example.esperar_app.controller.notice;
 
-import com.example.esperar_app.persistence.dto.inputs.notice.CreateNoticeDto;
+import com.example.esperar_app.persistence.dto.notice.CreateNoticeDto;
 import com.example.esperar_app.persistence.entity.notice.Notice;
 import com.example.esperar_app.service.notice.NoticeService;
 import jakarta.validation.Valid;

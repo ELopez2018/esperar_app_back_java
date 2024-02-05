@@ -1,6 +1,6 @@
 package com.example.esperar_app.mapper;
 
-import com.example.esperar_app.persistence.dto.inputs.route.CreateRouteDto;
+import com.example.esperar_app.persistence.dto.route.CreateRouteDto;
 import com.example.esperar_app.persistence.dto.route.GetRouteDto;
 import com.example.esperar_app.persistence.entity.route.Route;
 import org.mapstruct.Mapper;

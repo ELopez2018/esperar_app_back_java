@@ -1,4 +1,4 @@
-package com.example.esperar_app.persistence.dto.inputs.notice;
+package com.example.esperar_app.persistence.dto.notice;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;

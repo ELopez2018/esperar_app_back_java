@@ -1,8 +1,8 @@
 package com.example.esperar_app.controller.company;
 
+import com.example.esperar_app.persistence.dto.company.CreateCompanyDto;
 import com.example.esperar_app.persistence.dto.company.GetCompanyDto;
 import com.example.esperar_app.persistence.dto.company.UpdateCompanyDto;
-import com.example.esperar_app.persistence.dto.inputs.company.CreateCompanyDto;
 import com.example.esperar_app.service.company.CompanyService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

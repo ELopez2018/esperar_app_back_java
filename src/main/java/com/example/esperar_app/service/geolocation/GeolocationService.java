@@ -1,8 +1,8 @@
 package com.example.esperar_app.service.geolocation;
 
 import com.example.esperar_app.exception.ObjectNotFoundException;
+import com.example.esperar_app.persistence.dto.geolocation.AddGeolocationDto;
 import com.example.esperar_app.persistence.dto.geolocation.GeolocationResponse;
-import com.example.esperar_app.persistence.dto.inputs.geolocation.AddGeolocationDto;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;

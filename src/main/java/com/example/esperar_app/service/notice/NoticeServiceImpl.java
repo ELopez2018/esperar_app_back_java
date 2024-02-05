@@ -2,7 +2,7 @@ package com.example.esperar_app.service.notice;
 
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.NoticeMapper;
-import com.example.esperar_app.persistence.dto.inputs.notice.CreateNoticeDto;
+import com.example.esperar_app.persistence.dto.notice.CreateNoticeDto;
 import com.example.esperar_app.persistence.entity.notice.Notice;
 import com.example.esperar_app.persistence.repository.NoticeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +12,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.Date;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @Service
 public class NoticeServiceImpl implements NoticeService {

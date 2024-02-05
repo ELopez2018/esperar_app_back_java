@@ -1,4 +1,4 @@
-package com.example.esperar_app.persistence.dto.inputs.vehicle;
+package com.example.esperar_app.persistence.dto.vehicle;
 
 import lombok.Getter;
 import lombok.Setter;

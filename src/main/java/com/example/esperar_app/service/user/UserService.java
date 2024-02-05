@@ -1,6 +1,5 @@
 package com.example.esperar_app.service.user;
-
-import com.example.esperar_app.persistence.dto.inputs.user.UpdateUserDto;
+import com.example.esperar_app.persistence.dto.user.UpdateUserDto;
 import com.example.esperar_app.persistence.dto.user.CreateUserDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.user.RegisteredUser;

@@ -1,9 +1,8 @@
 package com.example.esperar_app.controller.route;
 
-import com.example.esperar_app.persistence.dto.inputs.route.CreateRouteDto;
-import com.example.esperar_app.persistence.dto.inputs.route.UpdateRouteDto;
+import com.example.esperar_app.persistence.dto.route.CreateRouteDto;
 import com.example.esperar_app.persistence.dto.route.GetRouteDto;
-import com.example.esperar_app.persistence.entity.route.Route;
+import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
 import com.example.esperar_app.service.route.RouteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

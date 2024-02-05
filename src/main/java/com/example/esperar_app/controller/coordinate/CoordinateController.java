@@ -3,7 +3,6 @@ package com.example.esperar_app.controller.coordinate;
 import com.example.esperar_app.persistence.dto.coordinate.CreateCoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.GetCoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.UpdateCoordinateDto;
-import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
 import com.example.esperar_app.service.coordinate.CoordinateService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

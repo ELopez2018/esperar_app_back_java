@@ -3,10 +3,10 @@ package com.example.esperar_app.service.vehicle;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.UserMapper;
 import com.example.esperar_app.mapper.VehicleMapper;
-import com.example.esperar_app.persistence.dto.inputs.vehicle.CreateVehicleDto;
-import com.example.esperar_app.persistence.dto.inputs.vehicle.UpdateVehicleDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
+import com.example.esperar_app.persistence.dto.vehicle.CreateVehicleDto;
 import com.example.esperar_app.persistence.dto.vehicle.GetVehicleDto;
+import com.example.esperar_app.persistence.dto.vehicle.UpdateVehicleDto;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.entity.security.User;
@@ -159,8 +159,6 @@ public class VehicleServiceImpl implements VehicleService {
         if(vehicleFound.getDrivers().isEmpty()) {
             System.out.println("Drivers is empty");
         }
-
-        List<User> users = vehicleFound.getDrivers();
 
         return userMapper.toGetUserDtos(drivers);
     }

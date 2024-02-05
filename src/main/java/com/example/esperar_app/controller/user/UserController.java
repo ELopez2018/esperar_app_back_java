@@ -1,9 +1,9 @@
 package com.example.esperar_app.controller.user;
 
-import com.example.esperar_app.persistence.dto.inputs.user.UpdateUserDto;
 import com.example.esperar_app.persistence.dto.user.CreateUserDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.user.RegisteredUser;
+import com.example.esperar_app.persistence.dto.user.UpdateUserDto;
 import com.example.esperar_app.service.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {
         RequestMethod.GET,
