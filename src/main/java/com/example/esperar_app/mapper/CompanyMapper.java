@@ -3,13 +3,10 @@ package com.example.esperar_app.mapper;
 import com.example.esperar_app.persistence.dto.company.CreateCompanyDto;
 import com.example.esperar_app.persistence.dto.company.GetCompanyDto;
 import com.example.esperar_app.persistence.entity.company.Company;
-import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Mappings;
-
-import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CompanyMapper {
