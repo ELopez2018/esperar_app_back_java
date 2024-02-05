@@ -44,7 +44,6 @@ public class Route {
     @Column(name="deleted_at")
     private Date deletedAt;
 
-    @OneToMany(mappedBy = "route", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Coordinate> coordinates;
-
 }

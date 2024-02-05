@@ -1,9 +1,8 @@
 package com.example.esperar_app.config.security.handler;
 
-import com.example.esperar_app.persistence.dto.responses.auth.ApiError;
+import com.example.esperar_app.persistence.dto.api.ApiError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,7 +18,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException
-    ) throws IOException, ServletException {
+    ) throws IOException {
         ApiError error = new ApiError();
         error.setMessage("Access denied, your not have permission to access this resource," +
                 "please contact the administrator if you think this is a mistake");

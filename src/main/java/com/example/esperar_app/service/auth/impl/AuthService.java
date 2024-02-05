@@ -1,11 +1,15 @@
 package com.example.esperar_app.service.auth.impl;
 
+import com.example.esperar_app.mapper.CompanyMapper;
+import com.example.esperar_app.mapper.UserMapper;
+import com.example.esperar_app.mapper.VehicleMapper;
+import com.example.esperar_app.persistence.dto.auth.AuthResponse;
+import com.example.esperar_app.persistence.dto.company.GetCompanyDto;
 import com.example.esperar_app.persistence.dto.inputs.user.LoginDto;
-import com.example.esperar_app.persistence.dto.responses.GetCompanyDto;
-import com.example.esperar_app.persistence.dto.responses.GetVehicleDto;
-import com.example.esperar_app.persistence.dto.responses.auth.AuthResponse;
 import com.example.esperar_app.exception.ObjectNotFoundException;
-import com.example.esperar_app.persistence.dto.responses.auth.CurrentUserDto;
+import com.example.esperar_app.persistence.dto.user.CurrentUserDto;
+import com.example.esperar_app.persistence.dto.vehicle.GetVehicleDto;
+import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
@@ -22,15 +26,25 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UserService userService;
+
     private final JwtService jwtService;
+
     private final AuthenticationManager authenticationManager;
+
     private final UserAuthRepository userAuthRepository;
+
+    private final UserMapper userMapper;
+
+    private final VehicleMapper vehicleMapper;
+
+    private final CompanyMapper companyMapper;
 
     /**
      * Generate extra claims for the JWT token
@@ -51,39 +65,23 @@ public class AuthService {
      * @return the access token
      */
     public AuthResponse login(LoginDto loginDto) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
 
-        System.out.println("Username: " + loginDto.getUsername());
-        System.out.println("Password: " + loginDto.getPassword());
+        Optional<User> user = userService.findOneByUsername(loginDto.getUsername());
 
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
+        if(user.isPresent()) {
+            String jwt = jwtService.generateToken(user.get(), generateExtraClaims(user.get()));
 
-            System.out.println("Pasamos?");
+            saveUserAuth(user.get(), jwt);
 
-            Optional<User> user = userService.findOneByUsername(loginDto.getUsername());
+            AuthResponse authRsp = new AuthResponse();
+            authRsp.setAccessToken(jwt);
+            authRsp.setId(user.get().getId());
 
-            if(user.isPresent()) {
-                System.out.println("User found: " + user);
-
-                String jwt = jwtService.generateToken(user.get(), generateExtraClaims(user.get()));
-
-                saveUserAuth(user.get(), jwt);
-
-                AuthResponse authRsp = new AuthResponse();
-                authRsp.setAccessToken(jwt);
-                authRsp.setId(user.get().getId());
-
-                System.out.println("User authenticated: " + loginDto.getUsername());
-
-                return authRsp;
-            } else {
-                System.out.println("User not found: " + loginDto.getUsername());
-                throw new ObjectNotFoundException("User not found");
-            }
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-            throw e;
+            return authRsp;
+        } else {
+            throw new ObjectNotFoundException("User not found");
         }
     }
 
@@ -94,23 +92,11 @@ public class AuthService {
      */
     public boolean validateToken(String accessToken) {
         try {
-            // TODO: Revisar si es necesario recibir el username o si debo hacer algo con él
-            String username = jwtService.extractUsername(accessToken);
+            jwtService.extractUsername(accessToken);
             return true;
         } catch (Exception e) {
             return false;
         }
-    }
-
-    /**
-     * Get the current user
-     * @return the current user
-     */
-    public User currentUser() {
-        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        return userService.findOneByUsername(username)
-                .orElseThrow(() -> new ObjectNotFoundException("User not found"));
     }
 
     /**
@@ -130,6 +116,11 @@ public class AuthService {
         }
     }
 
+    /**
+     * Save the user's authentication
+     * @param user is the user that will be saved
+     * @param accessToken is the JWT token
+     */
     public void saveUserAuth(User user, String accessToken) {
         UserAuth userAuth = new UserAuth();
         userAuth.setToken(accessToken);
@@ -140,38 +131,70 @@ public class AuthService {
         userAuthRepository.save(userAuth);
     }
 
+    /**
+     * Get the current user
+     * @return the current user
+     */
     public CurrentUserDto getCurrentUser() {
         String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         User userFound = userService.findOneByUsername(username)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
 
-        CurrentUserDto currentUserDto = new CurrentUserDto();
-        GetCompanyDto companyDto = new GetCompanyDto();
+        CurrentUserDto currentUserDtoMapper = userMapper.toCurrentUserDto(userFound);
 
-        companyDto.setId(userFound.getCompany().getId());
+        setVehicleInfo(userFound, currentUserDtoMapper);
+        setCompanyInfo(userFound, currentUserDtoMapper);
 
-        if (userFound.getCompany().getVehicles() != null) {
-            List<Vehicle> vehicles = userFound.getCompany().getVehicles();
-            for (Vehicle vehicle : vehicles) {
-                GetVehicleDto vehicleDto = new GetVehicleDto();
-                vehicleDto.setId(vehicle.getId());
-                vehicleDto.setModel(vehicle.getModel());
-                vehicleDto.setLicensePlate(vehicle.getLicensePlate());
-                vehicleDto.setSecondaryPlate(vehicle.getSecondaryPlate());
-                companyDto.getVehicles().add(vehicleDto);
-            }
-        } else {
-            System.out.println("NULL");
-        }
-
-        currentUserDto.setId(userFound.getId());
-        currentUserDto.setUsername(userFound.getUsername());
-        currentUserDto.setCompany(companyDto);
-        currentUserDto.setAuthorities(userFound.getAuthorities());
-        currentUserDto.setRole(userFound.getRole());
-
-        return currentUserDto;
+        return currentUserDtoMapper;
     }
 
+    /**
+     * Set the vehicle info to the current user
+     * @param user is the user
+     * @param currentUserDto is the current user
+     */
+    private void setVehicleInfo(User user, CurrentUserDto currentUserDto) {
+        if (user.getVehicle() != null) {
+            Vehicle vehicle = user.getVehicle();
+            GetVehicleDto vehicleDto = vehicleMapper.toGetVehicleDto(vehicle);
+            currentUserDto.setCurrentVehicle(vehicleDto);
+        }
+    }
+
+    /**
+     * Set the company info to the current user
+     * @param user is the user
+     * @param currentUserDto is the current user
+     */
+    private void setCompanyInfo(User user, CurrentUserDto currentUserDto) {
+        Company company = user.getCompany();
+        if (company != null) {
+            GetCompanyDto companyDto = companyMapper.companyToGetCompanyDto(company);
+            companyDto.setMembersIds(company.getMembers().stream().map(User::getId).collect(Collectors.toList()));
+            setCompanyVehicles(company, companyDto);
+
+            currentUserDto.setCurrentCompany(companyDto);
+        }
+    }
+
+    /**
+     * Set the company vehicles to the current user
+     * @param company is the company
+     * @param companyDto is the company DTO
+     */
+    private void setCompanyVehicles(Company company, GetCompanyDto companyDto) {
+        List<Vehicle> vehicles = company.getVehicles();
+
+        if (vehicles != null) {
+            for (Vehicle vehicleFor : vehicles) {
+                GetVehicleDto vehicleDtoFor = new GetVehicleDto();
+                vehicleDtoFor.setId(vehicleFor.getId());
+                vehicleDtoFor.setModel(vehicleFor.getModel());
+                vehicleDtoFor.setLicensePlate(vehicleFor.getLicensePlate());
+                vehicleDtoFor.setSecondaryPlate(vehicleFor.getSecondaryPlate());
+                companyDto.getVehicles().add(vehicleDtoFor);
+            }
+        }
+    }
 }

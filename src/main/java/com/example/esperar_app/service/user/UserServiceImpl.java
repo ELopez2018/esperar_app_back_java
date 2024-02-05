@@ -1,18 +1,16 @@
 package com.example.esperar_app.service.user;
 
-import com.example.esperar_app.persistence.dto.inputs.user.CreateUserDto;
-import com.example.esperar_app.persistence.dto.inputs.user.RegisteredUser;
 import com.example.esperar_app.persistence.dto.inputs.user.UpdateUserDto;
-import com.example.esperar_app.persistence.dto.responses.GetUser;
 import com.example.esperar_app.exception.InvalidPasswordException;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.UserMapper;
-import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
+import com.example.esperar_app.persistence.dto.user.CreateUserDto;
+import com.example.esperar_app.persistence.dto.user.GetUserDto;
+import com.example.esperar_app.persistence.dto.user.RegisteredUser;
 import com.example.esperar_app.persistence.entity.security.Role;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
 import com.example.esperar_app.persistence.repository.CompanyRepository;
-import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
 import com.example.esperar_app.persistence.utils.UserChatStatus;
@@ -20,17 +18,18 @@ import com.example.esperar_app.service.auth.RoleService;
 import com.example.esperar_app.service.auth.impl.JwtService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStrings;
 
@@ -38,12 +37,17 @@ import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStri
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
     private final PasswordEncoder passwordEncoder;
+
     private final RoleService roleService;
+
     private final UserMapper userMapper;
+
     private final JwtService jwtService;
+
     private final UserAuthRepository userAuthRepository;
-    private final VehicleRepository vehicleRepository;
+
     private final CompanyRepository companyRepository;
 
     public UserServiceImpl(
@@ -53,7 +57,6 @@ public class UserServiceImpl implements UserService {
             UserMapper userMapper,
             JwtService jwtService,
             UserAuthRepository userAuthRepository,
-            VehicleRepository vehicleRepository,
             CompanyRepository companyRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -61,7 +64,6 @@ public class UserServiceImpl implements UserService {
         this.userMapper = userMapper;
         this.jwtService = jwtService;
         this.userAuthRepository = userAuthRepository;
-        this.vehicleRepository = vehicleRepository;
         this.companyRepository = companyRepository;
     }
     @Override
@@ -76,7 +78,7 @@ public class UserServiceImpl implements UserService {
                         .orElseThrow(() -> new ObjectNotFoundException("Default role not found"));
 
         user.setRole(defaultRole);
-        user.setCreatedAt(String.valueOf(System.currentTimeMillis()));
+        user.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         user.setFullName(userMapper.getFullName(user));
 
         if(createUserDto.getCompanyId() != null) {
@@ -103,25 +105,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<GetUser> findAll(Pageable pageable) {
+    public Page<GetUserDto> findAll(Pageable pageable) {
         Page<User> usersPage = userRepository.findAll(pageable);
-        List<User> users = usersPage.getContent();
-        List<GetUser> dtos = users.isEmpty() ? List.of() : userMapper.toGetUsers(users);
-
-        return new PageImpl<>(dtos, pageable, usersPage.getTotalElements());
+        return usersPage.map(userMapper::toGetUserDto);
     }
 
     @Override
-    public GetUser findById(Long id) {
+    public GetUserDto findById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
 
-        return userMapper.toGetUser(user);
+        return userMapper.toGetUserDto(user);
     }
 
     @Override
-    public GetUser update(Long id, UpdateUserDto updateUserDto) {
+    public GetUserDto update(Long id, UpdateUserDto updateUserDto) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
 
@@ -142,7 +140,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(existingUser);
 
-        return userMapper.toGetUser(existingUser);
+        return userMapper.toGetUserDto(existingUser);
     }
 
     @Override
@@ -151,24 +149,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
 
         userRepository.delete(user);
-    }
-
-    @Override
-    public List<User> findVehicleDrivers(Long id) {
-        Vehicle vehicleFound = vehicleRepository.findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Vehicle not found"));
-
-        System.out.println("VEHICLE ID: " + vehicleFound.getId());
-
-        if(vehicleFound.getDrivers() == null) {
-            System.out.println("Drivers is null");
-        }
-
-        if(vehicleFound.getDrivers().isEmpty()) {
-            System.out.println("Drivers is empty");
-        }
-
-        return vehicleFound.getDrivers();
     }
 
     @Override
@@ -190,14 +170,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findConnectedUsers() {
+    public List<GetUserDto> findConnectedUsers() {
         List<User> connectedUsers = userRepository.findByChatStatus(UserChatStatus.ONLINE);
 
-        for(User user : connectedUsers) {
-            System.out.println("Connected user: " + user.getUsername());
-        }
-
-        return connectedUsers;
+        return userMapper.toGetUserDtos(connectedUsers);
     }
 
     private String updateFullName(UpdateUserDto updateUserDto) {

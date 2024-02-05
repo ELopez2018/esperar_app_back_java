@@ -1,7 +1,7 @@
 package com.example.esperar_app.controller.geolocation;
 
+import com.example.esperar_app.persistence.dto.geolocation.GeolocationResponse;
 import com.example.esperar_app.persistence.dto.inputs.geolocation.AddGeolocationDto;
-import com.example.esperar_app.persistence.dto.inputs.geolocation.GeolocationResponse;
 import com.example.esperar_app.service.geolocation.GeolocationService;
 import jakarta.validation.Valid;
 import org.springframework.messaging.handler.annotation.MessageMapping;

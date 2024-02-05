@@ -1,9 +1,8 @@
 package com.example.esperar_app.config.security.handler;
 
-import com.example.esperar_app.persistence.dto.responses.auth.ApiError;
+import com.example.esperar_app.persistence.dto.api.ApiError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException
-    ) throws IOException, ServletException {
+    ) throws IOException {
         ApiError error = new ApiError();
         error.setMessage("You are not logged in, please login or register.");
         error.setBackedMessage(authException.getLocalizedMessage());

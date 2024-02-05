@@ -1,7 +1,8 @@
 package com.example.esperar_app.controller.coordinate;
 
-import com.example.esperar_app.persistence.dto.inputs.coordinate.CreateCoordinateDto;
-import com.example.esperar_app.persistence.dto.inputs.coordinate.UpdateCoordinateDto;
+import com.example.esperar_app.persistence.dto.coordinate.CreateCoordinateDto;
+import com.example.esperar_app.persistence.dto.coordinate.GetCoordinateDto;
+import com.example.esperar_app.persistence.dto.coordinate.UpdateCoordinateDto;
 import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
 import com.example.esperar_app.service.coordinate.CoordinateService;
 import jakarta.validation.Valid;
@@ -34,32 +35,32 @@ public class CoordinateController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
-    public ResponseEntity<Coordinate> create(@RequestBody @Valid CreateCoordinateDto createCoordinateDto) {
-        Coordinate coordinate = coordinateService.create(createCoordinateDto);
+    public ResponseEntity<GetCoordinateDto> create(@RequestBody @Valid CreateCoordinateDto createCoordinateDto) {
+        GetCoordinateDto coordinate = coordinateService.create(createCoordinateDto);
         if(coordinate == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(coordinate);
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
-    public ResponseEntity<Page<Coordinate>> findAll(Pageable pageable) {
-        Page<Coordinate> coordinates = coordinateService.findAll(pageable);
+    public ResponseEntity<Page<GetCoordinateDto>> findAll(Pageable pageable) {
+        Page<GetCoordinateDto> coordinates = coordinateService.findAll(pageable);
         return ResponseEntity.ok(coordinates != null ? coordinates : Page.empty());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
-    public ResponseEntity<Coordinate> findById(@PathVariable Long id) {
-        Coordinate coordinate = coordinateService.findById(id);
+    public ResponseEntity<GetCoordinateDto> findById(@PathVariable Long id) {
+        GetCoordinateDto coordinate = coordinateService.findById(id);
         return ResponseEntity.of(Optional.ofNullable(coordinate));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
-    public ResponseEntity<Coordinate> update(
+    public ResponseEntity<GetCoordinateDto> update(
             @PathVariable Long id,
             @RequestBody @Valid UpdateCoordinateDto updateCoordinateDto) {
-        Coordinate coordinate = coordinateService.update(id, updateCoordinateDto);
+        GetCoordinateDto coordinate = coordinateService.update(id, updateCoordinateDto);
         return ResponseEntity.of(Optional.ofNullable(coordinate));
     }
 

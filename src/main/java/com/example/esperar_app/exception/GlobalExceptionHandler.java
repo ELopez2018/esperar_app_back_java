@@ -1,6 +1,6 @@
 package com.example.esperar_app.exception;
 
-import com.example.esperar_app.persistence.dto.responses.auth.ApiError;
+import com.example.esperar_app.persistence.dto.api.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handlerGenericException(Exception exception, HttpServletRequest request) {
+    public ResponseEntity<?> handlerGenericException(Exception exception) {
         ApiError error = new ApiError();
         error.setMessage("ERROR, PLEASE CHECK SERVER LOGS");
         error.setBackedMessage(exception.getLocalizedMessage());
@@ -26,8 +26,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<?> handlerAccessDeniedException( AccessDeniedException exception,
-            HttpServletRequest request) {
+    public ResponseEntity<?> handlerAccessDeniedException( AccessDeniedException exception) {
         ApiError error = new ApiError();
         error.setMessage("Access denied, your not have permission to access this resource," +
                 "please contact the administrator if you think this is a mistake");
@@ -39,9 +38,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handlerMethodArgumentNotValidException(
-            MethodArgumentNotValidException exception,
-            HttpServletRequest request) {
+    public ResponseEntity<?> handlerMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         ApiError error = new ApiError();
 
         error.setMessage("ERROR: The request body is invalid or missing some fields");

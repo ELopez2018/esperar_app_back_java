@@ -1,6 +1,7 @@
 package com.example.esperar_app.mapper;
 
 import com.example.esperar_app.persistence.dto.inputs.route.CreateRouteDto;
+import com.example.esperar_app.persistence.dto.route.GetRouteDto;
 import com.example.esperar_app.persistence.entity.route.Route;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -22,4 +23,8 @@ public interface RouteMapper {
     })
     Route toEntity(CreateRouteDto createRouteDto);
 
+    @Mappings({
+            @Mapping(target = "coordinates", ignore = true),
+    })
+    GetRouteDto routeToGetRouteDto(Route routeSaved);
 }

@@ -2,10 +2,9 @@ package com.example.esperar_app.service.company;
 
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.CompanyMapper;
+import com.example.esperar_app.persistence.dto.company.GetCompanyDto;
+import com.example.esperar_app.persistence.dto.company.UpdateCompanyDto;
 import com.example.esperar_app.persistence.dto.inputs.company.CreateCompanyDto;
-import com.example.esperar_app.persistence.dto.inputs.company.UpdateCompanyDto;
-import com.example.esperar_app.persistence.dto.responses.CompanyResponse;
-import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.repository.CompanyRepository;
@@ -17,7 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStrings;
 
@@ -44,7 +45,7 @@ public class CompanyServiceImpl implements CompanyService {
      * @return created company
      */
     @Override
-    public Company create(CreateCompanyDto createCompanyDto) {
+    public GetCompanyDto create(CreateCompanyDto createCompanyDto) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User ceo = userRepository.findByUsername(username)
@@ -59,7 +60,7 @@ public class CompanyServiceImpl implements CompanyService {
         ceo.getCompanies().add(newCompany);
         userRepository.save(ceo);
 
-        return newCompany;
+        return companyMapper.companyToGetCompanyDto(newCompany);
     }
 
     /**
@@ -68,8 +69,20 @@ public class CompanyServiceImpl implements CompanyService {
      * @return page of companies
      */
     @Override
-    public Page<Company> findAll(Pageable pageable) {
-        return companyRepository.findAll(pageable);
+    public Page<GetCompanyDto> findAll(Pageable pageable) {
+        Page<Company> companies = companyRepository.findAll(pageable);
+
+        return companies.map(company -> {
+            GetCompanyDto dto = companyMapper.companyToGetCompanyDto(company);
+            List<Long> membersIds = new ArrayList<>();
+
+            for (User member : company.getMembers()) {
+                membersIds.add(member.getId());
+            }
+
+            dto.setMembersIds(membersIds);
+            return dto;
+        });
     }
 
     /**
@@ -78,20 +91,23 @@ public class CompanyServiceImpl implements CompanyService {
      * @return company
      */
     @Override
-    public CompanyResponse findById(Long id) {
+    public GetCompanyDto findById(Long id) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Company not found"));
 
-        CompanyResponse companyResponse = companyMapper.companyToCompanyResponse(company);
-        companyResponse.setCeoId(company.getCeo().getId());
+        GetCompanyDto getCompanyDto = companyMapper.companyToGetCompanyDto(company);
 
-        if(company.getVehicles() != null) {
-            for (Vehicle vehicle : company.getVehicles()) {
-                companyResponse.setVehiclesIds(Collections.singletonList(vehicle.getId()));
+        List<Long> membersIds = new ArrayList<>();
+
+        if(company.getMembers() != null) {
+            for(User member : company.getMembers()) {
+                membersIds.add(member.getId());
             }
         }
 
-        return companyResponse;
+        getCompanyDto.setMembersIds(membersIds);
+
+        return getCompanyDto;
     }
 
     /**
@@ -101,15 +117,26 @@ public class CompanyServiceImpl implements CompanyService {
      * @return updated company
      */
     @Override
-    public Company update(Long id, UpdateCompanyDto updateCompanyDto) {
+    public GetCompanyDto update(Long id, UpdateCompanyDto updateCompanyDto) {
         Company existingCompany = companyRepository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Company not found"));
 
         BeanUtils.copyProperties(updateCompanyDto, existingCompany, getStrings(updateCompanyDto));
 
-        return companyRepository.save(existingCompany);
+        Company companyUpdated = companyRepository.save(existingCompany);
+
+        GetCompanyDto companyDto = companyMapper.companyToGetCompanyDto(companyUpdated);
+
+        List<Long> membersIds = companyUpdated.getMembers().stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
+
+        companyDto.setMembersIds(membersIds);
+
+        return companyDto;
     }
+
 
     /**
      * Delete company

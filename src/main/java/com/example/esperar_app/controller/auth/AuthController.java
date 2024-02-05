@@ -1,16 +1,14 @@
 package com.example.esperar_app.controller.auth;
 
+import com.example.esperar_app.persistence.dto.auth.AuthResponse;
+import com.example.esperar_app.persistence.dto.auth.LogoutResponse;
 import com.example.esperar_app.persistence.dto.inputs.user.LoginDto;
-import com.example.esperar_app.persistence.dto.responses.auth.AuthResponse;
-import com.example.esperar_app.persistence.dto.responses.auth.CurrentUserDto;
-import com.example.esperar_app.persistence.dto.responses.auth.LogoutResponse;
-import com.example.esperar_app.persistence.entity.security.User;
+import com.example.esperar_app.persistence.dto.user.CurrentUserDto;
 import com.example.esperar_app.service.auth.impl.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,21 +48,20 @@ public class AuthController {
     }
 
     /**
-     * This method is used to get the current user data
-     * @return the response entity that contains the current user data
+     * This method is used to get the current user
+     * @return the response entity that contains the current user
      */
-    @GetMapping("/profile")
-    public ResponseEntity<User> currentUser() {
-        User user = authService.currentUser();
-        return ResponseEntity.ok(user);
-    }
-
     @GetMapping("/current-user")
     public ResponseEntity<CurrentUserDto> getCurrentUser() {
         CurrentUserDto currentUserDto = authService.getCurrentUser();
         return ResponseEntity.ok(currentUserDto);
     }
 
+    /**
+     * This method is used to log out the user
+     * @param request is the request that contains the access token
+     * @return the response entity that contains the logout response
+     */
     @PostMapping("/logout")
     public ResponseEntity<LogoutResponse> logout(HttpServletRequest request) {
         authService.logout(request);

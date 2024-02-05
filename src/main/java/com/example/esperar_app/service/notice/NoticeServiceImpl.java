@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -35,24 +36,10 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     public Notice create(CreateNoticeDto createNoticeDto) {
-        try {
-            Notice newNotice = noticeMapper.toNotice(createNoticeDto);
-
-            LocalDateTime myDateObj = LocalDateTime.now();
-            Instant instant = myDateObj.atZone(ZoneId.systemDefault()).toInstant();
-            Date date = Date.from(instant);
-
-            newNotice.setCreatedAt(date);
-
-            System.out.println("FECHA: " + newNotice.getCreatedAt());
-
-            newNotice = noticeRepository.save(newNotice);
-
-            return newNotice;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw e;
-        }
+        Notice newNotice = noticeMapper.toNotice(createNoticeDto);
+        newNotice.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        newNotice = noticeRepository.save(newNotice);
+        return newNotice;
     }
 
     @Override

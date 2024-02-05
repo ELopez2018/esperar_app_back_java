@@ -28,7 +28,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -145,7 +147,7 @@ public class User implements UserDetails {
      * Created at date
      */
     @Column(name = "created_at")
-    public String createdAt;
+    public Date createdAt;
 
     /**
      * Updated at date
@@ -183,10 +185,7 @@ public class User implements UserDetails {
 
         if (role.getPermissions() == null) return null;
 
-        List<SimpleGrantedAuthority> authorities = role.getPermissions().stream()
-                .map(each -> each.getOperation().getName())
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
         authorities.add(new SimpleGrantedAuthority("ROLE_" + this.role.getName()));
         return authorities;
