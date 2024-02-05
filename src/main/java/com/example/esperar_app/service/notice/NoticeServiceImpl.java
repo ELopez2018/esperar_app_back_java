@@ -2,7 +2,7 @@ package com.example.esperar_app.service.notice;
 
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.NoticeMapper;
-import com.example.esperar_app.persistence.dto.inputs.notice.CreateNoticeDto;
+import com.example.esperar_app.persistence.dto.notice.CreateNoticeDto;
 import com.example.esperar_app.persistence.entity.notice.Notice;
 import com.example.esperar_app.persistence.repository.NoticeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.time.Instant;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @Service
 public class NoticeServiceImpl implements NoticeService {
@@ -35,24 +33,10 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     public Notice create(CreateNoticeDto createNoticeDto) {
-        try {
-            Notice newNotice = noticeMapper.toNotice(createNoticeDto);
-
-            LocalDateTime myDateObj = LocalDateTime.now();
-            Instant instant = myDateObj.atZone(ZoneId.systemDefault()).toInstant();
-            Date date = Date.from(instant);
-
-            newNotice.setCreatedAt(date);
-
-            System.out.println("FECHA: " + newNotice.getCreatedAt());
-
-            newNotice = noticeRepository.save(newNotice);
-
-            return newNotice;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw e;
-        }
+        Notice newNotice = noticeMapper.toNotice(createNoticeDto);
+        newNotice.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        newNotice = noticeRepository.save(newNotice);
+        return newNotice;
     }
 
     @Override

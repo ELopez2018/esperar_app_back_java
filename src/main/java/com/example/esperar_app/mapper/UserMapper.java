@@ -1,10 +1,12 @@
 package com.example.esperar_app.mapper;
 
-import com.example.esperar_app.persistence.dto.inputs.user.CreateUserDto;
-import com.example.esperar_app.persistence.dto.inputs.user.RegisteredUser;
-import com.example.esperar_app.persistence.dto.responses.GetUser;
+import com.example.esperar_app.persistence.dto.user.CreateUserDto;
+import com.example.esperar_app.persistence.dto.user.CurrentUserDto;
+import com.example.esperar_app.persistence.dto.user.GetUserDto;
+import com.example.esperar_app.persistence.dto.user.RegisteredUser;
 import com.example.esperar_app.persistence.entity.security.Role;
 import com.example.esperar_app.persistence.entity.security.User;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -15,6 +17,14 @@ import java.util.StringJoiner;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
+
+    @Mappings({
+            @Mapping(source = "documentNumber", target = "identificationData.documentNumber"),
+            @Mapping(source = "documentType", target = "identificationData.documentType"),
+            @Mapping(target = "currentVehicle", ignore = true),
+            @Mapping(target = "currentCompany", ignore = true),
+    })
+    CurrentUserDto toCurrentUserDto(User user);
 
     @Mappings({
             @Mapping(source = "confirmPassword", target = "password"),
@@ -31,7 +41,8 @@ public interface UserMapper {
             @Mapping(target = "userAuthList", ignore = true),
             @Mapping(target = "companies", ignore = true),
             @Mapping(target = "company", ignore = true),
-            @Mapping(target = "vehicle", ignore = true)
+            @Mapping(target = "vehicle", ignore = true),
+            @Mapping(target = "chatStatus", ignore = true)
     })
     User createUserDtoToUser(CreateUserDto createUserDto);
 
@@ -48,20 +59,6 @@ public interface UserMapper {
             @Mapping(source = "birthdate", target = "birthdate"),
     })
     RegisteredUser toRegisteredUser(User user);
-
-
-    @Mappings({
-            @Mapping(source = "id", target = "id"),
-            @Mapping(source = "currentCountry", target = "currentCountry"),
-            @Mapping(source = "username", target = "username"),
-            @Mapping(source = "fullName", target = "fullName"),
-            @Mapping(source = "documentNumber", target = "documentNumber"),
-            @Mapping(source = "documentType", target = "documentType"),
-            @Mapping(source = "email", target = "email"),
-    })
-    GetUser toGetUser(User user);
-
-    List<GetUser> toGetUsers(List<User> users);
 
     default String mapRole(Role role) {
         return role != null ? role.getName() : null;
@@ -85,4 +82,15 @@ public interface UserMapper {
             joiner.add(value);
         }
     }
+
+    @Mappings({
+            @Mapping(source = "documentNumber", target = "identificationData.documentNumber"),
+            @Mapping(source = "documentType", target = "identificationData.documentType"),
+            @Mapping(target = "currentVehicle", ignore = true),
+            @Mapping(target = "currentCompany", ignore = true),
+    })
+    GetUserDto toGetUserDto(User user);
+
+    @InheritConfiguration
+    List<GetUserDto> toGetUserDtos(List<User> connectedUsers);
 }

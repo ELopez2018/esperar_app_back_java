@@ -52,11 +52,9 @@ public class Company {
     private User ceo;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    @JsonIgnore
     private List<Vehicle> vehicles;
 
-    @OneToMany(mappedBy = "company")
-    @JsonIgnore
+    @OneToMany(mappedBy = "company", fetch = FetchType.EAGER)
     private List<User> members;
 
     public List<Vehicle> getVehicles() {
@@ -65,5 +63,13 @@ public class Company {
 
     public void setVehicles(List<Vehicle> vehicles) {
         this.vehicles = vehicles;
+    }
+
+    public List<User> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<User> members) {
+        this.members = members;
     }
 }

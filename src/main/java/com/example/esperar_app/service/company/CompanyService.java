@@ -1,20 +1,19 @@
 package com.example.esperar_app.service.company;
 
-import com.example.esperar_app.persistence.dto.inputs.company.CreateCompanyDto;
-import com.example.esperar_app.persistence.dto.inputs.company.UpdateCompanyDto;
-import com.example.esperar_app.persistence.dto.responses.CompanyResponse;
-import com.example.esperar_app.persistence.entity.company.Company;
+import com.example.esperar_app.persistence.dto.company.CreateCompanyDto;
+import com.example.esperar_app.persistence.dto.company.GetCompanyDto;
+import com.example.esperar_app.persistence.dto.company.UpdateCompanyDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CompanyService {
-    Company create(CreateCompanyDto createCompanyDto);
+    GetCompanyDto create(CreateCompanyDto createCompanyDto);
 
-    Page<Company> findAll(Pageable pageable);
+    Page<GetCompanyDto> findAll(Pageable pageable);
 
-    CompanyResponse findById(Long id);
+    GetCompanyDto findById(Long id);
 
-    Company update(Long id, UpdateCompanyDto updateCompanyDto);
+    GetCompanyDto update(Long id, UpdateCompanyDto updateCompanyDto);
 
     void delete(Long id);
 }

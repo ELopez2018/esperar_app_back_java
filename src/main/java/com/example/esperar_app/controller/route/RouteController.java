@@ -1,8 +1,8 @@
 package com.example.esperar_app.controller.route;
 
-import com.example.esperar_app.persistence.dto.inputs.route.CreateRouteDto;
-import com.example.esperar_app.persistence.dto.inputs.route.UpdateRouteDto;
-import com.example.esperar_app.persistence.entity.route.Route;
+import com.example.esperar_app.persistence.dto.route.CreateRouteDto;
+import com.example.esperar_app.persistence.dto.route.GetRouteDto;
+import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
 import com.example.esperar_app.service.route.RouteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,31 +34,31 @@ public class RouteController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
-    public ResponseEntity<Route> create(@RequestBody @Valid CreateRouteDto createRouteDto) {
-        Route route = routeService.create(createRouteDto);
+    public ResponseEntity<GetRouteDto> create(@RequestBody @Valid CreateRouteDto createRouteDto) {
+        GetRouteDto route = routeService.create(createRouteDto);
         if(route != null) return ResponseEntity.ok(route);
         else return ResponseEntity.badRequest().build();
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
-    public ResponseEntity<Page<Route>> findAll(Pageable pageable) {
-        Page<Route> routesPage = routeService.findAll(pageable);
+    public ResponseEntity<Page<GetRouteDto>> findAll(Pageable pageable) {
+        Page<GetRouteDto> routesPage = routeService.findAll(pageable);
         return ResponseEntity.ok(routesPage != null ? routesPage : Page.empty());
     }
 
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
-    public ResponseEntity<Route> findById(@PathVariable Long id) {
-        Route route = routeService.findById(id);
+    public ResponseEntity<GetRouteDto> findById(@PathVariable Long id) {
+        GetRouteDto route = routeService.findById(id);
         return ResponseEntity.of(Optional.ofNullable(route));
     }
 
     @PutMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
-    public ResponseEntity<Route> update (@PathVariable Long id, @RequestBody @Valid UpdateRouteDto updateRouteDto) {
-        Route route = routeService.update(id, updateRouteDto);
+    public ResponseEntity<GetRouteDto> update (@PathVariable Long id, @RequestBody @Valid UpdateRouteDto updateRouteDto) {
+        GetRouteDto route = routeService.update(id, updateRouteDto);
         return ResponseEntity.of(Optional.ofNullable(route));
     }
 
