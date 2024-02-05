@@ -27,7 +27,4 @@ public interface CompanyMapper {
             @Mapping(target = "membersIds", ignore = true),
     })
     GetCompanyDto companyToGetCompanyDto(Company company);
-
-    @InheritConfiguration
-    List<GetCompanyDto> companiesToGetCompanyDto(List<Company> companies);
 }
