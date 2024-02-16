@@ -3,6 +3,7 @@ package com.example.esperar_app.service.notice;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.NoticeMapper;
 import com.example.esperar_app.persistence.dto.notice.CreateNoticeDto;
+import com.example.esperar_app.persistence.dto.notice.GetNoticeDto;
 import com.example.esperar_app.persistence.entity.notice.Notice;
 import com.example.esperar_app.persistence.repository.NoticeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +33,11 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
-    public Notice create(CreateNoticeDto createNoticeDto) {
+    public GetNoticeDto create(CreateNoticeDto createNoticeDto) {
         Notice newNotice = noticeMapper.toNotice(createNoticeDto);
         newNotice.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         newNotice = noticeRepository.save(newNotice);
-        return newNotice;
+        return noticeMapper.getNoticeDtoToNotice(newNotice);
     }
 
     @Override

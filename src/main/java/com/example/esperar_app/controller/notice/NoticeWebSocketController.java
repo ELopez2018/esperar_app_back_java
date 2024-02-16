@@ -1,6 +1,7 @@
 package com.example.esperar_app.controller.notice;
 
 import com.example.esperar_app.persistence.dto.notice.CreateNoticeDto;
+import com.example.esperar_app.persistence.dto.notice.GetNoticeDto;
 import com.example.esperar_app.persistence.entity.notice.Notice;
 import com.example.esperar_app.service.notice.NoticeService;
 import jakarta.validation.Valid;
@@ -24,7 +25,7 @@ public class NoticeWebSocketController {
 
     @MessageMapping("/createNews")
     @SendTo("/topic/news")
-    public Notice create(@Payload @Valid CreateNoticeDto createNoticeDto) {
+    public GetNoticeDto create(@Payload @Valid CreateNoticeDto createNoticeDto) {
         return noticeService.create(createNoticeDto);
     }
 

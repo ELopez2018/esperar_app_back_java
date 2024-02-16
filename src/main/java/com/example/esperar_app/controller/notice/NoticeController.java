@@ -30,14 +30,14 @@ public class NoticeController {
         this.noticeService = noticeService;
     }
 
-    @PostMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
-    public ResponseEntity<Notice> create(
-            @RequestBody @Valid CreateNoticeDto createNoticeDto) {
-        Notice notice = noticeService.create(createNoticeDto);
-        if(notice == null) return ResponseEntity.badRequest().build();
-        return ResponseEntity.ok(notice);
-    }
+//    @PostMapping
+//    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
+//    public ResponseEntity<Notice> create(
+//            @RequestBody @Valid CreateNoticeDto createNoticeDto) {
+//        Notice notice = noticeService.create(createNoticeDto);
+//        if(notice == null) return ResponseEntity.badRequest().build();
+//        return ResponseEntity.ok(notice);
+//    }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
