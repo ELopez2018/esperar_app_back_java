@@ -74,7 +74,7 @@ public class Vehicle {
     }
 
     public void setSoatExpirationDate(String soatExpirationDate) {
-        SimpleDateFormat sdf = new SimpleDateFormat("mm-dd-yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
         try {
             this.soatExpirationDate = sdf.parse(soatExpirationDate);
         } catch (ParseException e) {
@@ -86,7 +86,7 @@ public class Vehicle {
     }
 
     public void setTecnoMechanicalExpirationDate(String tecnoMechanicalExpirationDate) {
-        SimpleDateFormat sdf = new SimpleDateFormat("mm-dd-yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
         try {
             this.tecnoMechanicalExpirationDate = sdf.parse(tecnoMechanicalExpirationDate);
         } catch (ParseException e) {

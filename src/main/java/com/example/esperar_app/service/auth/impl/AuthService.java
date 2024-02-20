@@ -1,15 +1,15 @@
 package com.example.esperar_app.service.auth.impl;
 
+import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.UserMapper;
 import com.example.esperar_app.mapper.VehicleMapper;
 import com.example.esperar_app.persistence.dto.auth.AuthResponse;
-import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.persistence.dto.user.CurrentUserDto;
 import com.example.esperar_app.persistence.dto.user.LoginDto;
 import com.example.esperar_app.persistence.dto.vehicle.GetVehicleDto;
-import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
+import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
 import com.example.esperar_app.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,10 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

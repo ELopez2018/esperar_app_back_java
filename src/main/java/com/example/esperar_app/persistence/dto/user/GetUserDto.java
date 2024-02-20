@@ -83,11 +83,6 @@ public class GetUserDto {
     private String phone;
 
     /**
-     * The user's current country id
-     */
-    private Long currentCountry;
-
-    /**
      * When the user was created
      */
     private Date createdAt;

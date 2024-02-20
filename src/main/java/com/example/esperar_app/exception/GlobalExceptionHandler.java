@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -72,13 +73,14 @@ public class GlobalExceptionHandler {
      */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handlerMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
-        Map<String, String> map =  new HashMap<>();
-        exception.getBindingResult().getFieldErrors().forEach(fieldError -> {
-            map.put(fieldError.getField(), fieldError.getDefaultMessage());
-        });
-
-        return map;
+    public Function<MethodArgumentNotValidException, Map<String, String>> handleMethodArgumentNotValidException() {
+        return exception -> {
+            Map<String, String> map = new HashMap<>();
+            exception.getBindingResult().getFieldErrors().forEach(fieldError -> {
+                map.put(fieldError.getField(), fieldError.getDefaultMessage());
+            });
+            return map;
+        };
     }
 
     /**
