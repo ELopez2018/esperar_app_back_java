@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -68,19 +67,16 @@ public class GlobalExceptionHandler {
 
     /**
      * Handle the MethodArgumentNotValidException
-     * @param exception the exception
      * @return a map with the errors in the request and response status 400
      */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Function<MethodArgumentNotValidException, Map<String, String>> handleMethodArgumentNotValidException() {
-        return exception -> {
-            Map<String, String> map = new HashMap<>();
-            exception.getBindingResult().getFieldErrors().forEach(fieldError -> {
-                map.put(fieldError.getField(), fieldError.getDefaultMessage());
-            });
-            return map;
-        };
+    public Map<String, String> handlerMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+        Map<String, String> map =  new HashMap<>();
+        exception.getBindingResult().getFieldErrors()
+                .forEach(fieldError -> map.put(fieldError.getField(), fieldError.getDefaultMessage()));
+
+        return map;
     }
 
     /**
