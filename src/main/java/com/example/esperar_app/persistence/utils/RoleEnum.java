@@ -46,13 +46,7 @@ public enum RoleEnum {
             RolePermissionEnum.READ_ALL_NOTICES,
             RolePermissionEnum.READ_ONE_NOTICE,
             RolePermissionEnum.UPDATE_ONE_NOTICE,
-            RolePermissionEnum.REMOVE_ONE_NOTICE,
-
-            RolePermissionEnum.CREATE_ONE_COMPANY,
-            RolePermissionEnum.READ_ALL_COMPANIES,
-            RolePermissionEnum.READ_ONE_COMPANY,
-            RolePermissionEnum.UPDATE_ONE_COMPANY,
-            RolePermissionEnum.REMOVE_ONE_COMPANY
+            RolePermissionEnum.REMOVE_ONE_NOTICE
     )),
     CEO(Arrays.asList(
             RolePermissionEnum.SIGNUP,
@@ -91,13 +85,7 @@ public enum RoleEnum {
             RolePermissionEnum.READ_ALL_NOTICES,
             RolePermissionEnum.READ_ONE_NOTICE,
             RolePermissionEnum.UPDATE_ONE_NOTICE,
-            RolePermissionEnum.REMOVE_ONE_NOTICE,
-
-            RolePermissionEnum.CREATE_ONE_COMPANY,
-            RolePermissionEnum.READ_ALL_COMPANIES,
-            RolePermissionEnum.READ_ONE_COMPANY,
-            RolePermissionEnum.UPDATE_ONE_COMPANY,
-            RolePermissionEnum.REMOVE_ONE_COMPANY
+            RolePermissionEnum.REMOVE_ONE_NOTICE
     )),
     DRIVER(Arrays.asList(
             RolePermissionEnum.SIGNUP,

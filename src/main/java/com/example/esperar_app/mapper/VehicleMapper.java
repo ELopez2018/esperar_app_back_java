@@ -16,7 +16,6 @@ public interface VehicleMapper {
     GetVehicleDto toGetVehicleDto(Vehicle vehicle);
 
     @Mappings({
-            @Mapping(target = "company", ignore = true),
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "drivers", ignore = true)
     })

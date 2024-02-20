@@ -2,7 +2,9 @@ package com.example.esperar_app.service.user;
 
 import com.example.esperar_app.exception.InvalidPasswordException;
 import com.example.esperar_app.exception.ObjectNotFoundException;
+import com.example.esperar_app.exception.TermsAndConditionsException;
 import com.example.esperar_app.mapper.UserMapper;
+import com.example.esperar_app.persistence.dto.user.CreateLegalPersonDto;
 import com.example.esperar_app.persistence.dto.user.CreateUserDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.user.RegisteredUser;
@@ -10,13 +12,14 @@ import com.example.esperar_app.persistence.dto.user.UpdateUserDto;
 import com.example.esperar_app.persistence.entity.security.Role;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
-import com.example.esperar_app.persistence.repository.CompanyRepository;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
 import com.example.esperar_app.persistence.utils.UserChatStatus;
+import com.example.esperar_app.persistence.utils.UserType;
 import com.example.esperar_app.service.auth.RoleService;
 import com.example.esperar_app.service.auth.impl.JwtService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,45 +50,47 @@ public class UserServiceImpl implements UserService {
 
     private final UserAuthRepository userAuthRepository;
 
-    private final CompanyRepository companyRepository;
-
+    @Autowired
     public UserServiceImpl(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             RoleService roleService,
             UserMapper userMapper,
             JwtService jwtService,
-            UserAuthRepository userAuthRepository,
-            CompanyRepository companyRepository) {
+            UserAuthRepository userAuthRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
         this.userMapper = userMapper;
         this.jwtService = jwtService;
         this.userAuthRepository = userAuthRepository;
-        this.companyRepository = companyRepository;
     }
+
+    /**
+     * Create a new user
+     * @param createUserDto is the object with the data to create the user
+     * @return the user created
+     */
     @Override
     public RegisteredUser create(CreateUserDto createUserDto) {
-        validatePassword(createUserDto);
+        if(!createUserDto.getTermsAndConditions()) {
+            throw new TermsAndConditionsException("Terms and conditions must be accepted");
+        }
+
+        validatePassword(createUserDto.getPassword(), createUserDto.getConfirmPassword());
 
         User user = userMapper.createUserDtoToUser(createUserDto);
 
-        user.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
+        user.setPassword(encodePassword(createUserDto.getPassword()));
 
         Role defaultRole = roleService.findDefaultRole()
-                        .orElseThrow(() -> new ObjectNotFoundException("Default role not found"));
+                .orElseThrow(() -> new ObjectNotFoundException("Default role not found"));
 
         user.setRole(defaultRole);
         user.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        user.setAcceptedTermsAt(Timestamp.valueOf(LocalDateTime.now()));
         user.setFullName(userMapper.getFullName(user));
-
-        if(createUserDto.getCompanyId() != null) {
-            user.setCompany(
-                    companyRepository.findById(createUserDto.getCompanyId())
-                            .orElseThrow(() -> new ObjectNotFoundException("Company not found"))
-            );
-        }
+        user.setUserType(UserType.NATURAL_PERSON);
 
         String accessToken = jwtService.generateToken(user, generateExtraClaims(user));
 
@@ -98,17 +103,72 @@ public class UserServiceImpl implements UserService {
         return registeredUser;
     }
 
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
+    }
+
+    /**
+     * Create a legal person
+     * @param createLegalPersonDto is the object with the data to create the legal person
+     * @return the legal person created
+     */
+    @Override
+    public RegisteredUser createLegalPerson(CreateLegalPersonDto createLegalPersonDto) {
+        if(!createLegalPersonDto.getTermsAndConditions()) {
+            throw new TermsAndConditionsException("Terms and conditions must be accepted");
+        }
+
+        validatePassword(createLegalPersonDto.getPassword(), createLegalPersonDto.getConfirmPassword());
+
+        User user = userMapper.createLegalPersonDtoToUser(createLegalPersonDto);
+
+        encodePassword(createLegalPersonDto.getPassword());
+
+        Role defaultRole = roleService.findDefaultRole()
+                .orElseThrow(() -> new ObjectNotFoundException("Default role not found"));
+
+        user.setRole(defaultRole);
+        user.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        user.setAcceptedTermsAt(Timestamp.valueOf(LocalDateTime.now()));
+        user.setUserType(UserType.LEGAL_PERSON);
+
+        String accessToken = jwtService.generateToken(user, generateExtraClaims(user));
+
+        user = userRepository.save(user);
+
+        saveUserAuth(user, accessToken);
+
+        RegisteredUser registeredUser = userMapper.toRegisteredUser(user);
+        registeredUser.setAccessToken(accessToken);
+        return registeredUser;
+    }
+
+    /**
+     * Find a user by username
+     * @param username is the username of the user to be found
+     * @return the user found
+     */
     @Override
     public Optional<User> findOneByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
+    /**
+     * Find all the users
+     * @param pageable is the object with the pagination data
+     * @return a page with the users found
+     */
     @Override
     public Page<GetUserDto> findAll(Pageable pageable) {
         Page<User> usersPage = userRepository.findAll(pageable);
         return usersPage.map(userMapper::toGetUserDto);
     }
 
+    /**
+     * Find a user by identifier
+     * @param id is the id of the user to be found
+     * @return the user found
+     */
     @Override
     public GetUserDto findById(Long id) {
         User user = userRepository.findById(id)
@@ -117,6 +177,12 @@ public class UserServiceImpl implements UserService {
         return userMapper.toGetUserDto(user);
     }
 
+    /**
+     * Update a user by identifier
+     * @param id is the id of the user to be updated
+     * @param updateUserDto is the object with the new data
+     * @return the updated user
+     */
     @Override
     public GetUserDto update(Long id, UpdateUserDto updateUserDto) {
         User existingUser = userRepository.findById(id)
@@ -142,6 +208,10 @@ public class UserServiceImpl implements UserService {
         return userMapper.toGetUserDto(existingUser);
     }
 
+    /**
+     * Delete a user by identifier
+     * @param id is the id of the user to be deleted
+     */
     @Override
     public void delete(Long id) {
         User user = userRepository.findById(id)
@@ -150,6 +220,11 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
+    /**
+     * Connect the user to the chat
+     * @param username is the username of the user to be connected
+     * @return the user with the chat status updated
+     */
     @Override
     public User connectUser(String username) {
         User userFound = userRepository.findByUsername(username)
@@ -159,6 +234,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(userFound);
     }
 
+    /**
+     * Disconnect the user from the chat
+     * @param username is the username of the user to be disconnected
+     * @return the user with the chat status updated
+     */
     @Override
     public User disconnectUser(String username) {
         User user = userRepository.findByUsername(username)
@@ -168,6 +248,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Find all the connected users
+     * @return a list with the connected users
+     */
     @Override
     public List<GetUserDto> findConnectedUsers() {
         List<User> connectedUsers = userRepository.findByChatStatus(UserChatStatus.ONLINE);
@@ -175,24 +259,37 @@ public class UserServiceImpl implements UserService {
         return userMapper.toGetUserDtos(connectedUsers);
     }
 
+    /**
+     * Update the full name of the user
+     * @param updateUserDto is the object with the new data
+     * @return the new full name
+     */
     private String updateFullName(UpdateUserDto updateUserDto) {
         return updateUserDto.getFirstName() + " " +
                 (updateUserDto.getSecondName() != null ? updateUserDto.getSecondName() + " " : "") +
                 updateUserDto.getLastName();
     }
 
-
+    /**
+     * Get the null property names from the source object
+     * @param source is the object to get the null property names
+     * @return an array with the null property names
+     */
     private String[] getNullPropertyNames(Object source) {
         return getStrings(source);
     }
 
-    private void validatePassword(CreateUserDto createUserDto) {
-        if(!StringUtils.hasText(createUserDto.getPassword()) ||
-                !StringUtils.hasText(createUserDto.getConfirmPassword())) {
+    /**
+     * Validate the password and confirm password
+     * @param password is the password to be validated
+     * @param confirmPassword is the confirm password to be validated
+     */
+    private void validatePassword(String password, String confirmPassword) {
+        if(!StringUtils.hasText(password) || !StringUtils.hasText(confirmPassword)) {
             throw new InvalidPasswordException("Password and confirm password are required");
         }
 
-        if(!createUserDto.getPassword().equals(createUserDto.getConfirmPassword())) {
+        if(!password.equals(confirmPassword)) {
             throw new InvalidPasswordException("Password and confirm password must match");
         }
     }
@@ -210,6 +307,11 @@ public class UserServiceImpl implements UserService {
         );
     }
 
+    /**
+     * Save the user auth in the database
+     * @param user is the user that will be used to generate the claims
+     * @param accessToken is the token that will be saved
+     */
     public void saveUserAuth(User user, String accessToken) {
         UserAuth userAuth = new UserAuth();
         userAuth.setToken(accessToken);

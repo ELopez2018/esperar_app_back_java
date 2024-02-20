@@ -2,6 +2,7 @@ package com.example.esperar_app.persistence.dto.user;
 
 import com.example.esperar_app.persistence.utils.DocumentType;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,5 +42,6 @@ public class CreateUserDto implements Serializable {
 
     private String phone;
 
-    private Long companyId;
+    @NotNull
+    private Boolean termsAndConditions;
 }

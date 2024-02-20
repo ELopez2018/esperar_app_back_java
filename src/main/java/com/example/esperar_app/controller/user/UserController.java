@@ -1,5 +1,6 @@
 package com.example.esperar_app.controller.user;
 
+import com.example.esperar_app.persistence.dto.user.CreateLegalPersonDto;
 import com.example.esperar_app.persistence.dto.user.CreateUserDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.user.RegisteredUser;
@@ -45,9 +46,16 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/signup")
+    @PostMapping("sign-up/natural-person")
     public ResponseEntity<RegisteredUser> signUp(@RequestBody @Valid CreateUserDto createUserDto) {
         RegisteredUser newUser = userService.create(createUserDto);
+        return ResponseEntity.ok(newUser);
+    }
+
+    @PostMapping("sign-up/legal-person")
+    public ResponseEntity<RegisteredUser> createLegalPerson(
+            @RequestBody @Valid CreateLegalPersonDto createLegalPersonDto) {
+        RegisteredUser newUser = userService.createLegalPerson(createLegalPersonDto);
         return ResponseEntity.ok(newUser);
     }
 
