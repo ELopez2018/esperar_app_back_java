@@ -111,6 +111,8 @@ public class  HttpSecurityConfig {
         authReqConfig.requestMatchers(HttpMethod.GET, "/ws/info?").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/ws/info?**").permitAll();
 
+        authReqConfig.requestMatchers(HttpMethod.POST, "/files/**").permitAll();
+
         authReqConfig.anyRequest().authenticated();
     }
 
