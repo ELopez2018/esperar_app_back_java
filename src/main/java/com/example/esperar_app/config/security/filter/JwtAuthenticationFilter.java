@@ -45,12 +45,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        System.out.println("STEP 1");
-
         // STEP 1. Get the token from the header
         String accessToken = jwtService.extractJwtFromRequest(request);
-
-        System.out.println("Token: " + accessToken);
 
         if (!StringUtils.hasText(accessToken)) {
             filterChain.doFilter(request, response);
@@ -60,17 +56,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // STEP 1.1 Obtain the token from the database
         Optional<UserAuth> userAuth = userAuthRepository.findByToken(accessToken);
 
-        System.out.println("UserAuth: " + userAuth);
-
         if (userAuth.isPresent()) {
-            System.out.println("Token is present");
             boolean isValid = validateToken(userAuth);
             if (!isValid) {
                 System.out.println("Token is not valid");
                 filterChain.doFilter(request, response);
                 return;
-            } else {
-                System.out.println("Token is valid");
             }
         } else {
             filterChain.doFilter(request, response);
@@ -80,28 +71,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // STEP 2. Validate the token with the subject and the expiration date
         String username = jwtService.extractUsername(accessToken);
 
-        System.out.println("Username: " + username);
-
         // STEP 3. Set the authentication in the context
         User userDetails = userService.findOneByUsername(username)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
 
-        System.out.println("UserDetails: " + userDetails.getId());
-
         UsernamePasswordAuthenticationToken authToken = new
                 UsernamePasswordAuthenticationToken(username, null, userDetails.getAuthorities());
 
-        System.out.println("AuthToken: " + authToken);
-
-        System.out.println("pre");
-
         authToken.setDetails(new WebAuthenticationDetails(request));
 
-        System.out.println("post");
-
         SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        System.out.println("finish");
 
         // STEP 4. Continue the filter chain
         filterChain.doFilter(request, response);

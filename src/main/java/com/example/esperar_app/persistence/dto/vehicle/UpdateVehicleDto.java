@@ -22,4 +22,8 @@ public class UpdateVehicleDto {
     private Integer occupancy;
 
     private Long driverId;
+
+    private String soatExpirationDate;
+
+    private String tecnoMechanicalExpirationDate;
 }

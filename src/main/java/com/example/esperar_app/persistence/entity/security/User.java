@@ -1,15 +1,14 @@
 package com.example.esperar_app.persistence.entity.security;
 
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
-import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.utils.DocumentType;
 import com.example.esperar_app.persistence.utils.UserChatStatus;
+import com.example.esperar_app.persistence.utils.UserType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -130,17 +129,15 @@ public class User implements UserDetails {
     @Column(name = "chat_status")
     private UserChatStatus chatStatus;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_type", nullable = false)
+    private UserType userType;
+
     /**
      * Phone number
      */
     @Column(name = "phone")
     private String phone;
-
-    /**
-     * Address
-     */
-    @Column(name = "current_country_id")
-    private Long currentCountry;
 
     /**
      * Created at date
@@ -170,13 +167,38 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<UserAuth> userAuthList;
 
-    @OneToMany(mappedBy = "ceo", fetch = FetchType.EAGER)
-    @JsonIgnore
-    private List<Company> companies;
+    @Column
+    private String nit;
 
-    @ManyToOne
-    @JoinColumn(name = "company_id")
-    private Company company;
+    @Column
+    private String address;
+
+    @Column
+    private String neighborhood;
+
+    @Column
+    private String city;
+
+    @Column
+    private String department;
+
+    @Column
+    private String country;
+
+    @Column
+    private String cellPhone;
+
+    @Column
+    private String whatsapp;
+
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
+    @Column(name = "accepted_terms_at", nullable = false)
+    private Date acceptedTermsAt;
+
+    @Column(name = "confirmed_account_at")
+    private Date confirmedAccountAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

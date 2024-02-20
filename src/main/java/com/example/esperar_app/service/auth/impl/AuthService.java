@@ -1,18 +1,15 @@
 package com.example.esperar_app.service.auth.impl;
 
-import com.example.esperar_app.mapper.CompanyMapper;
+import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.UserMapper;
 import com.example.esperar_app.mapper.VehicleMapper;
 import com.example.esperar_app.persistence.dto.auth.AuthResponse;
-import com.example.esperar_app.persistence.dto.company.GetCompanyDto;
-import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.persistence.dto.user.CurrentUserDto;
 import com.example.esperar_app.persistence.dto.user.LoginDto;
 import com.example.esperar_app.persistence.dto.vehicle.GetVehicleDto;
-import com.example.esperar_app.persistence.entity.company.Company;
-import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
+import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
 import com.example.esperar_app.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,10 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +38,6 @@ public class AuthService {
     private final UserMapper userMapper;
 
     private final VehicleMapper vehicleMapper;
-
-    private final CompanyMapper companyMapper;
 
     /**
      * Generate extra claims for the JWT token
@@ -144,7 +137,6 @@ public class AuthService {
         CurrentUserDto currentUserDtoMapper = userMapper.toCurrentUserDto(userFound);
 
         setVehicleInfo(userFound, currentUserDtoMapper);
-        setCompanyInfo(userFound, currentUserDtoMapper);
 
         return currentUserDtoMapper;
     }
@@ -159,42 +151,6 @@ public class AuthService {
             Vehicle vehicle = user.getVehicle();
             GetVehicleDto vehicleDto = vehicleMapper.toGetVehicleDto(vehicle);
             currentUserDto.setCurrentVehicle(vehicleDto);
-        }
-    }
-
-    /**
-     * Set the company info to the current user
-     * @param user is the user
-     * @param currentUserDto is the current user
-     */
-    private void setCompanyInfo(User user, CurrentUserDto currentUserDto) {
-        Company company = user.getCompany();
-        if (company != null) {
-            GetCompanyDto companyDto = companyMapper.companyToGetCompanyDto(company);
-            companyDto.setMembersIds(company.getMembers().stream().map(User::getId).collect(Collectors.toList()));
-            setCompanyVehicles(company, companyDto);
-
-            currentUserDto.setCurrentCompany(companyDto);
-        }
-    }
-
-    /**
-     * Set the company vehicles to the current user
-     * @param company is the company
-     * @param companyDto is the company DTO
-     */
-    private void setCompanyVehicles(Company company, GetCompanyDto companyDto) {
-        List<Vehicle> vehicles = company.getVehicles();
-
-        if (vehicles != null) {
-            for (Vehicle vehicleFor : vehicles) {
-                GetVehicleDto vehicleDtoFor = new GetVehicleDto();
-                vehicleDtoFor.setId(vehicleFor.getId());
-                vehicleDtoFor.setModel(vehicleFor.getModel());
-                vehicleDtoFor.setLicensePlate(vehicleFor.getLicensePlate());
-                vehicleDtoFor.setSecondaryPlate(vehicleFor.getSecondaryPlate());
-                companyDto.getVehicles().add(vehicleDtoFor);
-            }
         }
     }
 }

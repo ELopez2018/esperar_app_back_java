@@ -1,4 +1,5 @@
 package com.example.esperar_app.service.user;
+import com.example.esperar_app.persistence.dto.user.CreateLegalPersonDto;
 import com.example.esperar_app.persistence.dto.user.UpdateUserDto;
 import com.example.esperar_app.persistence.dto.user.CreateUserDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
@@ -28,4 +29,6 @@ public interface UserService {
     List<GetUserDto> findConnectedUsers();
 
     User connectUser(String username);
+
+    RegisteredUser createLegalPerson(CreateLegalPersonDto createLegalPersonDto);
 }

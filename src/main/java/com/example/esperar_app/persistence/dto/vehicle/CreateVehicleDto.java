@@ -1,10 +1,12 @@
 package com.example.esperar_app.persistence.dto.vehicle;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class CreateVehicleDto {
     @NotNull
     private String licensePlate;
@@ -33,6 +35,17 @@ public class CreateVehicleDto {
     @NotNull
     private Integer occupancy;
 
-    @NotNull
-    private Long companyId;
+    private String soatExpirationDate;
+
+    private String tecnoMechanicalExpirationDate;
+
+    public String getSoatExpirationDate() {
+        if(soatExpirationDate == null) return null;
+        return soatExpirationDate;
+    }
+
+    public String getTecnoMechanicalExpirationDate() {
+        if(tecnoMechanicalExpirationDate == null) return null;
+        return tecnoMechanicalExpirationDate;
+    }
 }

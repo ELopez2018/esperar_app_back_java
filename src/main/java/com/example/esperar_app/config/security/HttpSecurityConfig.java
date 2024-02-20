@@ -100,7 +100,7 @@ public class  HttpSecurityConfig {
         authReqConfig.requestMatchers(HttpMethod.POST, "/auth/logout").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/auth/validate-token").permitAll();
 
-        authReqConfig.requestMatchers(HttpMethod.POST, "/users/signup").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.POST, "/users/sign-up/**").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/users/connectedUsers").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/messages/**").permitAll();
 

@@ -1,6 +1,5 @@
 package com.example.esperar_app.persistence.dto.user;
 
-import com.example.esperar_app.persistence.dto.company.GetCompanyDto;
 import com.example.esperar_app.persistence.dto.vehicle.GetVehicleDto;
 import com.example.esperar_app.persistence.entity.security.Role;
 import com.example.esperar_app.persistence.utils.UserChatStatus;
@@ -84,11 +83,6 @@ public class GetUserDto {
     private String phone;
 
     /**
-     * The user's current country id
-     */
-    private Long currentCountry;
-
-    /**
      * When the user was created
      */
     private Date createdAt;
@@ -107,9 +101,4 @@ public class GetUserDto {
      * The user's current vehicle information
      */
     private GetVehicleDto currentVehicle;
-
-    /**
-     * Information about the current user company
-     */
-    private GetCompanyDto currentCompany;
 }
