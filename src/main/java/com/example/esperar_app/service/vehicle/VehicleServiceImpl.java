@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.beans.PropertyDescriptor;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +40,6 @@ public class VehicleServiceImpl implements VehicleService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final Pattern DATE_PATTERN = Pattern.compile("^\\d{2}-\\d{2}-\\d{4}$");
-    private static final SimpleDateFormat dateFormatToSchedulingTasks = new SimpleDateFormat("HH:mm:ss");
 
     @Autowired
     public VehicleServiceImpl(
@@ -295,7 +296,29 @@ public class VehicleServiceImpl implements VehicleService {
      * needs to renew it.
      */
     @Scheduled(fixedRate = 5000)
-    public void validateVehiclesExpirationDates() {
-        System.out.println("The time is now {}" + dateFormatToSchedulingTasks.format(new Date()));
+    public void checkExpiringDates() {
+        List<Vehicle> vehicles = findVehiclesWithExpiringDates();
+
+        System.out.println("Vehículos con expiración próxima: " + vehicles.size());
+
+        for (Vehicle vehicle : vehicles) {
+            System.out.println("Vehículo con expiración próxima: " + vehicle.getLicensePlate());
+        }
+    }
+
+    /**
+     * Find vehicles with expiring dates
+     * @return List of vehicles with expiring dates
+     */
+    public List<Vehicle> findVehiclesWithExpiringDates() {
+        Date currentDate = Date.from(LocalDate.now()
+                .atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date sevenDaysLater = Date.from(LocalDate.now()
+                .plusDays(7).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        return vehicleRepository.findBySoatExpirationDateBetweenOrTecnoMechanicalExpirationDateBetween(
+                currentDate, sevenDaysLater,
+                currentDate, sevenDaysLater
+        );
     }
 }
