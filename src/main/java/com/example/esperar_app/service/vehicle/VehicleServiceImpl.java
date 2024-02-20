@@ -295,7 +295,7 @@ public class VehicleServiceImpl implements VehicleService {
      * it will send a notification to the owner of the vehicle to notify that the expiration date is today and he
      * needs to renew it.
      */
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(cron = "0 50 9 * * *")
     public void checkExpiringDates() {
         List<Vehicle> vehicles = findVehiclesWithExpiringDates();
 
