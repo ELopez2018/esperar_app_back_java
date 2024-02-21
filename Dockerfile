@@ -1,4 +1,4 @@
-FROM openjdk:21 as builder
+FROM openjdk:19-alpine as builder
 
 WORKDIR /app
 
@@ -10,12 +10,12 @@ RUN ./mvnw clean package -Dmaven.test.skip -Dmaven.main.skip -Dspring-boot.repac
 COPY ./src ./src
 
 RUN ./mvnw clean package -DskipTests
-FROM openjdk:21
+FROM openjdk:19-alpine
 
 WORKDIR /app
 
 COPY --from=builder /app/target/esperar_app-0.0.1-SNAPSHOT.jar .
-ENV PORT 7000
+ENV PORT 8080
 EXPOSE $PORT
 
 ENTRYPOINT ["java", "-jar", "./esperar_app-0.0.1-SNAPSHOT.jar"]
