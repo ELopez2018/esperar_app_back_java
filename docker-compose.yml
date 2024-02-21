@@ -1,5 +1,4 @@
-version: '3.8'
-
+version: '3.9'
 services:
   esperar-app-db:
     image: mysql:8.0
@@ -8,6 +7,7 @@ services:
     ports:
       - "3306:3306"
     environment:
+      MYSQL_URL: esperar_app_db
       MYSQL_DATABASE: esperar_app_db
       MYSQL_USER: esteban
       MYSQL_PASSWORD: S3CR3T
@@ -17,7 +17,25 @@ services:
       - esperar_app_net
     volumes:
       - esperar_db:/var/lib/mysql
-
+  esperar-app:
+    container_name: esperar-app
+    image: estarlinlopez/esperar_app:1.0.0
+    #    build:
+    #      context: ./
+    #      dockerfile: ./Dockerfile
+    ports:
+      - "8000:7000"
+    environment:
+      DB_HOST: esperar-app-db
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: R0OT_S3CR3T #S3CR3T
+      DB_DATABASE: esperar_app_db
+    networks:
+      - esperar_app_net
+    depends_on:
+      - esperar-app-db
+    restart: always
 networks:
   esperar_app_net:
 
