@@ -1,5 +1,6 @@
 package com.example.esperar_app.mapper;
 
+import com.example.esperar_app.persistence.dto.user.CreateLegalPersonDto;
 import com.example.esperar_app.persistence.dto.user.CreateUserDto;
 import com.example.esperar_app.persistence.dto.user.CurrentUserDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
@@ -22,7 +23,6 @@ public interface UserMapper {
             @Mapping(source = "documentNumber", target = "identificationData.documentNumber"),
             @Mapping(source = "documentType", target = "identificationData.documentType"),
             @Mapping(target = "currentVehicle", ignore = true),
-            @Mapping(target = "currentCompany", ignore = true),
     })
     CurrentUserDto toCurrentUserDto(User user);
 
@@ -31,7 +31,6 @@ public interface UserMapper {
             @Mapping(source = "username", target = "username"),
             @Mapping(target = "lastName", source = "lastName"),
             @Mapping(target = "createdAt", ignore = true),
-            @Mapping(target = "currentCountry", ignore = true),
             @Mapping(target = "deletedAt", ignore = true),
             @Mapping(target = "fullName", ignore = true),
             @Mapping(target = "id", ignore = true),
@@ -39,10 +38,20 @@ public interface UserMapper {
             @Mapping(target = "role", ignore = true),
             @Mapping(target = "updatedAt", ignore = true),
             @Mapping(target = "userAuthList", ignore = true),
-            @Mapping(target = "companies", ignore = true),
-            @Mapping(target = "company", ignore = true),
             @Mapping(target = "vehicle", ignore = true),
-            @Mapping(target = "chatStatus", ignore = true)
+            @Mapping(target = "chatStatus", ignore = true),
+            @Mapping(target = "address", ignore = true),
+            @Mapping(target = "acceptedTermsAt", ignore = true),
+            @Mapping(target = "cellPhone", ignore = true),
+            @Mapping(target = "city", ignore = true),
+            @Mapping(target = "confirmedAccountAt", ignore = true),
+            @Mapping(target = "country", ignore = true),
+            @Mapping(target = "department", ignore = true),
+            @Mapping(target = "neighborhood", ignore = true),
+            @Mapping(target = "nit", ignore = true),
+            @Mapping(target = "profileImageUrl", ignore = true),
+            @Mapping(target = "userType", ignore = true),
+            @Mapping(target = "whatsapp", ignore = true)
     })
     User createUserDtoToUser(CreateUserDto createUserDto);
 
@@ -87,10 +96,31 @@ public interface UserMapper {
             @Mapping(source = "documentNumber", target = "identificationData.documentNumber"),
             @Mapping(source = "documentType", target = "identificationData.documentType"),
             @Mapping(target = "currentVehicle", ignore = true),
-            @Mapping(target = "currentCompany", ignore = true),
     })
     GetUserDto toGetUserDto(User user);
 
     @InheritConfiguration
     List<GetUserDto> toGetUserDtos(List<User> connectedUsers);
+
+    @Mappings({
+            @Mapping(target = "birthdate", ignore = true),
+            @Mapping(target = "chatStatus", ignore = true),
+            @Mapping(target = "createdAt", ignore = true),
+            @Mapping(target = "deletedAt", ignore = true),
+            @Mapping(target = "documentNumber", ignore = true),
+            @Mapping(target = "documentType", ignore = true),
+            @Mapping(target = "firstName", ignore = true),
+            @Mapping(target = "fullName", source = "name"),
+            @Mapping(target = "gender", ignore = true),
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "image", ignore = true),
+            @Mapping(target = "lastName", ignore = true),
+            @Mapping(target = "role", ignore = true),
+            @Mapping(target = "secondName", ignore = true),
+            @Mapping(target = "updatedAt", ignore = true),
+            @Mapping(target = "userAuthList", ignore = true),
+            @Mapping(target = "vehicle", ignore = true),
+            @Mapping(target = "profileImageUrl", ignore = true)
+    })
+    User createLegalPersonDtoToUser(CreateLegalPersonDto createLegalPersonDto);
 }

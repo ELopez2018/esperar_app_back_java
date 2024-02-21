@@ -1,6 +1,7 @@
 package com.example.esperar_app.mapper;
 
 import com.example.esperar_app.persistence.dto.notice.CreateNoticeDto;
+import com.example.esperar_app.persistence.dto.notice.GetNoticeDto;
 import com.example.esperar_app.persistence.entity.notice.Notice;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,5 +18,10 @@ public interface NoticeMapper {
             @Mapping(target = "id", ignore = true)
     })
     Notice toNotice(CreateNoticeDto createNoticeDto);
+
+    @Mappings({
+
+    })
+    GetNoticeDto getNoticeDtoToNotice(Notice getNoticeDto);
 
 }

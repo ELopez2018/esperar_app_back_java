@@ -7,10 +7,8 @@ import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.vehicle.CreateVehicleDto;
 import com.example.esperar_app.persistence.dto.vehicle.GetVehicleDto;
 import com.example.esperar_app.persistence.dto.vehicle.UpdateVehicleDto;
-import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
-import com.example.esperar_app.persistence.entity.company.Company;
 import com.example.esperar_app.persistence.entity.security.User;
-import com.example.esperar_app.persistence.repository.CompanyRepository;
+import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
 import org.springframework.beans.BeanUtils;
@@ -19,14 +17,20 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.beans.PropertyDescriptor;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 @Service
 public class VehicleServiceImpl implements VehicleService {
@@ -34,52 +38,52 @@ public class VehicleServiceImpl implements VehicleService {
     private final VehicleRepository vehicleRepository;
     private final VehicleMapper vehicleMapper;
     private final UserRepository userRepository;
-    private final CompanyRepository companyRepository;
-
     private final UserMapper userMapper;
+    private final Pattern DATE_PATTERN = Pattern.compile("^\\d{2}-\\d{2}-\\d{4}$");
 
     @Autowired
     public VehicleServiceImpl(
             VehicleRepository vehicleRepository,
             VehicleMapper vehicleMapper,
             UserRepository userRepository,
-            CompanyRepository companyRepository,
             UserMapper userMapper) {
         this.vehicleRepository = vehicleRepository;
         this.vehicleMapper = vehicleMapper;
         this.userRepository = userRepository;
-        this.companyRepository = companyRepository;
         this.userMapper = userMapper;
     }
 
+    /**
+     * Create a new vehicle
+     * @param createVehicleDto Vehicle DTO to create a new vehicle
+     * @return vehicle created
+     */
     @Override
     public GetVehicleDto create(CreateVehicleDto createVehicleDto) {
         Vehicle vehicle = vehicleMapper.toEntity(createVehicleDto);
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        validateUserExists();
 
-        User owner = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ObjectNotFoundException("Owner not found"));
+        validateAndSetDate(createVehicleDto.getSoatExpirationDate(),
+                "Invalid SOAT expiration date format",
+                vehicle
+        );
 
-        if(createVehicleDto.getCompanyId() != null) {
-            Long companyId = createVehicleDto.getCompanyId();
-
-            Company companyFound = companyRepository.findById(companyId)
-                    .orElseThrow(() -> new ObjectNotFoundException("Company not found"));
-
-            for(Company company : owner.getCompanies()) {
-                if(company.getId().equals(companyFound.getId())) {
-                    vehicle.setCompany(company);
-                    break;
-                }
-            }
-        }
+        validateAndSetDate(createVehicleDto.getTecnoMechanicalExpirationDate(),
+                "Invalid technomecanical date format",
+                vehicle
+        );
 
         Vehicle vehicleSaved = vehicleRepository.save(vehicle);
 
         return vehicleMapper.toGetVehicleDto(vehicleSaved);
     }
 
+    /**
+     * Get all vehicles paginated
+     * @param pageable Pageable object
+     * @return Page of vehicles
+     */
     @Override
     public Page<GetVehicleDto> findAll(Pageable pageable) {
         Page<Vehicle> vehiclesPage = vehicleRepository.findAll(pageable);
@@ -87,6 +91,11 @@ public class VehicleServiceImpl implements VehicleService {
         return vehiclesPage.map(vehicleMapper::toGetVehicleDto);
     }
 
+    /**
+     * Get vehicle by identifier
+     * @param id Vehicle identifier
+     * @return Vehicle found
+     */
     @Override
     public GetVehicleDto findById(Long id) {
         Vehicle vehicleFound = vehicleRepository.findById(id)
@@ -95,6 +104,12 @@ public class VehicleServiceImpl implements VehicleService {
         return vehicleMapper.toGetVehicle(vehicleFound);
     }
 
+    /**
+     * Update vehicle by identifier
+     * @param id Vehicle identifier
+     * @param updateVehicleDto Vehicle DTO to update
+     * @return Vehicle updated
+     */
     @Override
     public GetVehicleDto update(Long id, UpdateVehicleDto updateVehicleDto) {
         Vehicle existingVehicle = vehicleRepository.findById(id)
@@ -102,11 +117,23 @@ public class VehicleServiceImpl implements VehicleService {
 
         BeanUtils.copyProperties(updateVehicleDto, existingVehicle, getNullPropertyNames(updateVehicleDto));
 
+        if(updateVehicleDto.getSoatExpirationDate() != null) {
+            existingVehicle.setSoatExpirationDate(updateVehicleDto.getSoatExpirationDate());
+        }
+
+        if(updateVehicleDto.getTecnoMechanicalExpirationDate() != null) {
+            existingVehicle.setTecnoMechanicalExpirationDate(updateVehicleDto.getTecnoMechanicalExpirationDate());
+        }
+
         vehicleRepository.save(existingVehicle);
 
         return vehicleMapper.toGetVehicle(existingVehicle);
     }
 
+    /**
+     * Delete vehicle by identifier
+     * @param id Vehicle identifier
+     */
     @Override
     public void delete(Long id) {
         Vehicle vehicleFound = vehicleRepository.findById(id)
@@ -119,6 +146,12 @@ public class VehicleServiceImpl implements VehicleService {
         }
     }
 
+    /**
+     * Assign driver to vehicle
+     * @param id Vehicle identifier
+     * @param driverId Driver identifier
+     * @return Vehicle updated
+     */
     @Override
     @Transactional
     public Vehicle assignDriver(Long id, Long driverId) {
@@ -137,14 +170,17 @@ public class VehicleServiceImpl implements VehicleService {
         vehicle.getDrivers().add(driver);
         Vehicle vehicleSaved = vehicleRepository.save(vehicle);
 
-        Company company = vehicleSaved.getCompany();
         driver.setVehicle(vehicleSaved);
-        driver.setCompany(company);
         userRepository.save(driver);
 
         return vehicleSaved;
     }
 
+    /**
+     * Find vehicle drivers
+     * @param id Vehicle identifier
+     * @return Vehicle updated
+     */
     @Override
     public List<GetUserDto> findVehicleDrivers(Long id) {
         List<User> drivers = userRepository.findVehicleDriversByVehicleId(id);
@@ -163,10 +199,20 @@ public class VehicleServiceImpl implements VehicleService {
         return userMapper.toGetUserDtos(drivers);
     }
 
+    /**
+     * Get null properties of an object
+     * @param source Object to get null properties
+     * @return Array of null properties
+     */
     private String[] getNullPropertyNames(Object source) {
         return getStrings(source);
     }
 
+    /**
+     * Get properties of an object
+     * @param source Object to get properties
+     * @return Array of properties
+     */
     public static String[] getStrings(Object source) {
         final BeanWrapper src = new BeanWrapperImpl(source);
         PropertyDescriptor[] pds = src.getPropertyDescriptors();
@@ -180,4 +226,99 @@ public class VehicleServiceImpl implements VehicleService {
         return emptyNames.toArray(result);
     }
 
+    /**
+     * Validate date format
+     * @param date Date to validate
+     * @return True if date format is valid, false otherwise
+     */
+    private boolean isValidDateFormat(String date) {
+        return DATE_PATTERN.matcher(date).matches();
+    }
+
+    /**
+     * Validate date
+     * @param date Date to validate
+     * @return True if date is valid, false otherwise
+     */
+    private boolean isValidDate(String date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+        try {
+            simpleDateFormat.parse(date);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Validate user exists
+     */
+    private void validateUserExists() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        userRepository.findByUsername(username)
+                .orElseThrow(() -> new ObjectNotFoundException("Owner not found"));
+    }
+
+    /**
+     * Validate and set date to create or update SOAT or technomecanical expiration date of a vehicle
+     * @param date Date to validate
+     * @param errorMessage Error message
+     * @param vehicle Vehicle to set date
+     */
+    private void validateAndSetDate(String date, String errorMessage, Vehicle vehicle) {
+        if (date != null) {
+            if (isValidDateFormat(date) && isValidDate(date)) {
+                setExpirationDate(date, errorMessage.contains("SOAT") ? "soat" : "technomecanical", vehicle);
+            } else {
+                throw new IllegalArgumentException(errorMessage + ", the correct format is dd-MM-yyyy");
+            }
+        }
+    }
+
+    /**
+     * Set expiration date of a vehicle (SOAT or technomecanical)
+     * @param date Date to set
+     * @param type Type of expiration date (SOAT or technomecanical)
+     * @param vehicle Vehicle to set date
+     */
+    private void setExpirationDate(String date, String type, Vehicle vehicle) {
+        if ("soat".equals(type)) {
+            vehicle.setSoatExpirationDate(date);
+        } else if ("technomecanical".equals(type)) {
+            vehicle.setTecnoMechanicalExpirationDate(date);
+        }
+    }
+
+    /**
+     * Cron job to validate expirations dates of vehicles every 5 seconds, if vehicle's expiration date is today
+     * it will send a notification to the owner of the vehicle to notify that the expiration date is today and he
+     * needs to renew it.
+     */
+    @Scheduled(cron = "0 50 9 * * *")
+    public void checkExpiringDates() {
+        List<Vehicle> vehicles = findVehiclesWithExpiringDates();
+
+        System.out.println("Vehículos con expiración próxima: " + vehicles.size());
+
+        for (Vehicle vehicle : vehicles) {
+            System.out.println("Vehículo con expiración próxima: " + vehicle.getLicensePlate());
+        }
+    }
+
+    /**
+     * Find vehicles with expiring dates
+     * @return List of vehicles with expiring dates
+     */
+    public List<Vehicle> findVehiclesWithExpiringDates() {
+        Date currentDate = Date.from(LocalDate.now()
+                .atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date sevenDaysLater = Date.from(LocalDate.now()
+                .plusDays(7).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        return vehicleRepository.findBySoatExpirationDateBetweenOrTecnoMechanicalExpirationDateBetween(
+                currentDate, sevenDaysLater,
+                currentDate, sevenDaysLater
+        );
+    }
 }
