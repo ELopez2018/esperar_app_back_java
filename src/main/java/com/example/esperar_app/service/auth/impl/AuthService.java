@@ -1,6 +1,7 @@
 package com.example.esperar_app.service.auth.impl;
 
 import com.example.esperar_app.exception.IncorrectPasswordException;
+import com.example.esperar_app.exception.InvalidPasswordException;
 import com.example.esperar_app.exception.InvalidTokenException;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.exception.PasswordMismatchException;
@@ -29,6 +30,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +54,21 @@ public class AuthService {
     private final MailerService mailerService;
 
     private final PasswordEncoder passwordEncoder;
+
+    private static final String PASSWORD_PATTERN =
+            "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$";
+
+    private final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
+
+    /**
+     * Validate the password pattern
+     * @param password is the password that will be validated
+     * @return true if the password is valid, false otherwise
+     */
+    public boolean validatePassword(String password) {
+        Matcher matcher = pattern.matcher(password);
+        return matcher.matches();
+    }
 
     /**
      * Generate extra claims for the JWT token
@@ -210,6 +228,10 @@ public class AuthService {
     ) {
         User currentUser = userRepository.findByChangePasswordToken(token)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
+
+        if (!validatePassword(newPassword)) {
+            throw new InvalidPasswordException("The password does not meet the requirements");
+        }
 
         if (!newPassword.equals(confirmPassword)) {
             throw new PasswordMismatchException("The new password and the confirmation password are not the same");

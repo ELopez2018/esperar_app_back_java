@@ -141,4 +141,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<?> handleInvalidPasswordException(InvalidPasswordException exception) {
+        ApiError error = new ApiError();
+        error.setMessage("The password is invalid, it must contain at least 8 characters," +
+                "1 uppercase letter, 1 lowercase letter, 1 number and 1 special character");
+        error.setBackedMessage(exception.getLocalizedMessage());
+        error.setTime(LocalDateTime.now());
+        error.setHttpCode(400);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
 }
