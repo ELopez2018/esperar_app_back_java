@@ -1,5 +1,6 @@
 package com.example.esperar_app.service.user;
 
+import com.example.esperar_app.exception.AlreadyExistError;
 import com.example.esperar_app.exception.InvalidPasswordException;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.exception.TermsAndConditionsException;
@@ -103,10 +104,6 @@ public class UserServiceImpl implements UserService {
         return registeredUser;
     }
 
-    private String encodePassword(String password) {
-        return passwordEncoder.encode(password);
-    }
-
     /**
      * Create a legal person
      * @param createLegalPersonDto is the object with the data to create the legal person
@@ -114,6 +111,23 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public RegisteredUser createLegalPerson(CreateLegalPersonDto createLegalPersonDto) {
+        String nit = createLegalPersonDto.getNit();
+        String email = createLegalPersonDto.getEmail();
+        String username = createLegalPersonDto.getUsername();
+
+        List<User> usersFound = userRepository.findByUsernameOrEmailOrNit(username, email, nit);
+
+        for (User existingUser : usersFound) {
+            String duplicateField =
+                    existingUser.getUsername().equals(username) ? "Username" :
+                            existingUser.getEmail().equals(email) ? "Email" :
+                                    existingUser.getNit().equals(nit) ? "NIT" : null;
+
+            if (duplicateField != null) {
+                throw new AlreadyExistError(duplicateField);
+            }
+        }
+
         if(!createLegalPersonDto.getTermsAndConditions()) {
             throw new TermsAndConditionsException("Terms and conditions must be accepted");
         }
@@ -122,12 +136,13 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.createLegalPersonDtoToUser(createLegalPersonDto);
 
-        encodePassword(createLegalPersonDto.getPassword());
+        user.setPassword(encodePassword(createLegalPersonDto.getPassword()));
 
         Role defaultRole = roleService.findDefaultRole()
                 .orElseThrow(() -> new ObjectNotFoundException("Default role not found"));
 
         user.setRole(defaultRole);
+
         user.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         user.setAcceptedTermsAt(Timestamp.valueOf(LocalDateTime.now()));
         user.setUserType(UserType.LEGAL_PERSON);
@@ -140,6 +155,7 @@ public class UserServiceImpl implements UserService {
 
         RegisteredUser registeredUser = userMapper.toRegisteredUser(user);
         registeredUser.setAccessToken(accessToken);
+
         return registeredUser;
     }
 
@@ -282,7 +298,7 @@ public class UserServiceImpl implements UserService {
     /**
      * Validate the password and confirm password
      * @param password is the password to be validated
-     * @param confirmPassword is the confirm password to be validated
+     * @param confirmPassword is the confirmation password to be validated
      */
     private void validatePassword(String password, String confirmPassword) {
         if(!StringUtils.hasText(password) || !StringUtils.hasText(confirmPassword)) {
@@ -320,5 +336,14 @@ public class UserServiceImpl implements UserService {
         userAuth.setValid(true);
 
         userAuthRepository.save(userAuth);
+    }
+
+    /**
+     * Encode the password
+     * @param password is the password to be encoded
+     * @return the encoded password
+     */
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
     }
 }

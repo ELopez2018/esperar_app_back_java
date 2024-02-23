@@ -1,5 +1,6 @@
 package com.example.esperar_app.service.auth.impl;
 
+import com.example.esperar_app.persistence.entity.security.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -76,7 +77,7 @@ public class JwtService {
     /**
      * Check if the JWT token is expired
      * @param request is the request from which the token will be extracted
-     * @return true if the token is expired, false otherwise
+     * @return token obtained from the request
      */
     public String extractJwtFromRequest(HttpServletRequest request) {
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -95,5 +96,28 @@ public class JwtService {
      */
     public Date extractExpiration(String accessToken) {
         return extractAllClaims(accessToken).getExpiration();
+    }
+
+    public String encryptTokenToChangePassword(User currentUser) {
+        Date issuedAt = new Date(System.currentTimeMillis());
+        Date expiration = new Date(issuedAt.getTime() + EXPIRATION_IN_MINUTES * 60 * 1000);
+
+        return Jwts.builder()
+                .header()
+                .type("JWT")
+                .and()
+                .subject(currentUser.getEmail())
+                .issuedAt(issuedAt)
+                .expiration(expiration)
+                .signWith(generateKey(), Jwts.SIG.HS256)
+                .compact();
+    }
+
+    public boolean validateTokenToChangePassword(User currentUser, String token) {
+        Claims claims = extractAllClaims(token);
+
+        if(claims.getExpiration().before(new Date())) return false;
+
+        return claims.getSubject().equals(currentUser.getEmail());
     }
 }
