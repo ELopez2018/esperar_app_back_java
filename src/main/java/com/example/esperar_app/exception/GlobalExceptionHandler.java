@@ -94,4 +94,63 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    @ExceptionHandler(PasswordMismatchException.class)
+    public ResponseEntity<?> handlerPasswordMismatchException(PasswordMismatchException exception) {
+        ApiError error = new ApiError();
+        error.setMessage("The password does not match the confirm password");
+        error.setBackedMessage(exception.getLocalizedMessage());
+        error.setTime(LocalDateTime.now());
+        error.setHttpCode(400);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<?> handlerInvalidTokenException(InvalidTokenException exception) {
+        ApiError error = new ApiError();
+        error.setMessage("The token is invalid");
+        error.setBackedMessage(exception.getLocalizedMessage());
+        error.setTime(LocalDateTime.now());
+        error.setHttpCode(400);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(IncorrectPasswordException.class)
+    public ResponseEntity<?> handlerIncorrectPasswordException(IncorrectPasswordException exception) {
+        ApiError error = new ApiError();
+        error.setMessage("The password is incorrect");
+        error.setBackedMessage(exception.getLocalizedMessage());
+        error.setTime(LocalDateTime.now());
+        error.setHttpCode(400);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(AlreadyExistError.class)
+    public ResponseEntity<?> handleAlreadyExistError(AlreadyExistError exception) {
+        String resourceName = exception.getResourceName();
+
+        ApiError error = new ApiError();
+        error.setMessage("Duplicate entry or data integrity violation, check info: [" + resourceName + "]");
+        error.setBackedMessage(exception.getLocalizedMessage());
+        error.setTime(LocalDateTime.now());
+        error.setHttpCode(400);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<?> handleInvalidPasswordException(InvalidPasswordException exception) {
+        ApiError error = new ApiError();
+        error.setMessage("The password is invalid, it must contain at least 8 characters," +
+                "1 uppercase letter, 1 lowercase letter, 1 number and 1 special character");
+        error.setBackedMessage(exception.getLocalizedMessage());
+        error.setTime(LocalDateTime.now());
+        error.setHttpCode(400);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
 }

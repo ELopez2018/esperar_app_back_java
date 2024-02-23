@@ -1,5 +1,6 @@
 package com.example.esperar_app.service.user;
 
+import com.example.esperar_app.exception.AlreadyExistError;
 import com.example.esperar_app.exception.InvalidPasswordException;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.exception.TermsAndConditionsException;
@@ -32,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStrings;
 
@@ -49,6 +52,11 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
 
     private final UserAuthRepository userAuthRepository;
+
+    private static final String PASSWORD_PATTERN =
+            "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$";
+
+    private final Pattern pattern = Pattern.compile(PASSWORD_PATTERN, Pattern.CASE_INSENSITIVE);
 
     @Autowired
     public UserServiceImpl(
@@ -79,6 +87,12 @@ public class UserServiceImpl implements UserService {
 
         validatePassword(createUserDto.getPassword(), createUserDto.getConfirmPassword());
 
+//        if (!validatePasswordRegex(createUserDto.getPassword())) {
+//            throw new InvalidPasswordException("Password must have at least 8 characters," +
+//                    "1 uppercase letter, 1 lowercase letter, 1 number and 1 special character");
+//        }
+
+
         User user = userMapper.createUserDtoToUser(createUserDto);
 
         user.setPassword(encodePassword(createUserDto.getPassword()));
@@ -103,10 +117,6 @@ public class UserServiceImpl implements UserService {
         return registeredUser;
     }
 
-    private String encodePassword(String password) {
-        return passwordEncoder.encode(password);
-    }
-
     /**
      * Create a legal person
      * @param createLegalPersonDto is the object with the data to create the legal person
@@ -114,6 +124,29 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public RegisteredUser createLegalPerson(CreateLegalPersonDto createLegalPersonDto) {
+        String nit = createLegalPersonDto.getNit();
+        String email = createLegalPersonDto.getEmail();
+        String username = createLegalPersonDto.getUsername();
+        String password = createLegalPersonDto.getPassword();
+
+//        if(!validatePasswordRegex(password)) {
+//            throw new InvalidPasswordException("Password must have at least 8 characters," +
+//                    "1 uppercase letter, 1 lowercase letter, 1 number and 1 special character");
+//        }
+
+        List<User> usersFound = userRepository.findByUsernameOrEmailOrNit(username, email, nit);
+
+        for (User existingUser : usersFound) {
+            String duplicateField =
+                    existingUser.getUsername().equals(username) ? "Username" :
+                            existingUser.getEmail().equals(email) ? "Email" :
+                                    existingUser.getNit().equals(nit) ? "NIT" : null;
+
+            if (duplicateField != null) {
+                throw new AlreadyExistError(duplicateField);
+            }
+        }
+
         if(!createLegalPersonDto.getTermsAndConditions()) {
             throw new TermsAndConditionsException("Terms and conditions must be accepted");
         }
@@ -122,12 +155,13 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.createLegalPersonDtoToUser(createLegalPersonDto);
 
-        encodePassword(createLegalPersonDto.getPassword());
+        user.setPassword(encodePassword(createLegalPersonDto.getPassword()));
 
         Role defaultRole = roleService.findDefaultRole()
                 .orElseThrow(() -> new ObjectNotFoundException("Default role not found"));
 
         user.setRole(defaultRole);
+
         user.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         user.setAcceptedTermsAt(Timestamp.valueOf(LocalDateTime.now()));
         user.setUserType(UserType.LEGAL_PERSON);
@@ -140,6 +174,7 @@ public class UserServiceImpl implements UserService {
 
         RegisteredUser registeredUser = userMapper.toRegisteredUser(user);
         registeredUser.setAccessToken(accessToken);
+
         return registeredUser;
     }
 
@@ -187,6 +222,13 @@ public class UserServiceImpl implements UserService {
     public GetUserDto update(Long id, UpdateUserDto updateUserDto) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
+
+        String password = updateUserDto.getPassword();
+
+//        if(!validatePasswordRegex(password)) {
+//            throw new InvalidPasswordException("Password must have at least 8 characters," +
+//                    "1 uppercase letter, 1 lowercase letter, 1 number and 1 special character");
+//        }
 
         boolean namesChanged = !Objects.equals(existingUser.getFirstName(), updateUserDto.getFirstName()) ||
                 !Objects.equals(existingUser.getSecondName(), updateUserDto.getSecondName()) ||
@@ -282,7 +324,7 @@ public class UserServiceImpl implements UserService {
     /**
      * Validate the password and confirm password
      * @param password is the password to be validated
-     * @param confirmPassword is the confirm password to be validated
+     * @param confirmPassword is the confirmation password to be validated
      */
     private void validatePassword(String password, String confirmPassword) {
         if(!StringUtils.hasText(password) || !StringUtils.hasText(confirmPassword)) {
@@ -321,4 +363,25 @@ public class UserServiceImpl implements UserService {
 
         userAuthRepository.save(userAuth);
     }
+
+    /**
+     * Encode the password
+     * @param password is the password to be encoded
+     * @return the encoded password
+     */
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
+    }
+
+    /**
+     * Validate the password pattern
+     * @param password is the password that will be validated
+     * @return true if the password is valid, false otherwise
+     */
+    public boolean validatePasswordRegex(String password) {
+        Matcher matcher = pattern.matcher(password);
+        System.out.println(matcher.matches());
+        return matcher.matches();
+    }
+
 }

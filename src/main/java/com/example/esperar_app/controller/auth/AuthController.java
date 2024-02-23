@@ -1,6 +1,7 @@
 package com.example.esperar_app.controller.auth;
 
 import com.example.esperar_app.persistence.dto.auth.AuthResponse;
+import com.example.esperar_app.persistence.dto.auth.ChangePasswordDto;
 import com.example.esperar_app.persistence.dto.auth.LogoutResponse;
 import com.example.esperar_app.persistence.dto.user.CurrentUserDto;
 import com.example.esperar_app.persistence.dto.user.LoginDto;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +29,11 @@ public class AuthController {
         this.authService = authService;
     }
 
+    /**
+     * This method is used to authenticate the user
+     * @param loginDto is the login data that contains the username and the password
+     * @return the response entity that contains the authentication response
+     */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> authenticate(
             @RequestBody @Valid LoginDto loginDto){
@@ -67,4 +74,28 @@ public class AuthController {
         authService.logout(request);
         return ResponseEntity.ok(new LogoutResponse("Logout successful"));
     }
+
+    @PostMapping("/req-change-password")
+    public ResponseEntity<String> sendEmailToChangePassword(
+            @RequestParam String email
+    ) {
+        authService.sendEmailToChangePassword(email);
+        return ResponseEntity.ok("Email sent successfully");
+    }
+
+    @PostMapping("/change-password/{token}")
+    public ResponseEntity<String> changePassword(
+            @PathVariable String token,
+            @RequestBody ChangePasswordDto changePasswordDto
+    ) {
+        authService.changePassword(
+                token,
+                changePasswordDto.getOldPassword(),
+                changePasswordDto.getNewPassword(),
+                changePasswordDto.getConfirmPassword());
+
+
+        return ResponseEntity.ok("Password changed successfully");
+    }
+
 }

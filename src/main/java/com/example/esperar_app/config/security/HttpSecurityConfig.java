@@ -97,19 +97,22 @@ public class  HttpSecurityConfig {
             AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authReqConfig) {
         // PUBLIC ENDPOINTS AUTHORIZATION
         authReqConfig.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
-        authReqConfig.requestMatchers(HttpMethod.POST, "/auth/logout").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/auth/validate-token").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.POST, "/auth/req-change-password").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.POST, "/auth/change-password/**").permitAll();
 
+        // PRIVATE ENDPOINTS USERS
         authReqConfig.requestMatchers(HttpMethod.POST, "/users/sign-up/**").permitAll();
-        authReqConfig.requestMatchers(HttpMethod.GET, "/users/connectedUsers").permitAll();
-        authReqConfig.requestMatchers(HttpMethod.GET, "/messages/**").permitAll();
 
+        // PRIVATE ENDPOINTS WS
         authReqConfig.requestMatchers(HttpMethod.GET, "/ws").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/ws/**").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/ws/info/**").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/ws/info").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/ws/info?").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/ws/info?**").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/users/connectedUsers").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/messages/**").permitAll();
 
         authReqConfig.requestMatchers(HttpMethod.POST, "/files/**").permitAll();
 

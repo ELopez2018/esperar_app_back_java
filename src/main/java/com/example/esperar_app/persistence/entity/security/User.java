@@ -5,6 +5,7 @@ import com.example.esperar_app.persistence.utils.DocumentType;
 import com.example.esperar_app.persistence.utils.UserChatStatus;
 import com.example.esperar_app.persistence.utils.UserType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -37,90 +38,49 @@ import java.util.Objects;
 @Table(name = "users")
 @AllArgsConstructor @NoArgsConstructor @Getter @Setter @Builder
 public class User implements UserDetails {
-    /**
-     * Unique identifier
-     */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * Email
-     */
     @Column(unique = true)
     private String email;
 
-    /**
-     * Username
-     */
     @Column(nullable = false, unique = true)
     private String username;
 
-    /**
-     * Password
-     */
     @JsonIgnore
     @Column()
     private String password;
 
-    /**
-     * Associated role to user
-     */
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
 
-    /**
-     * Full name
-     */
     @Column(name = "full_name")
     private String fullName;
 
-    /**
-     * User profile image
-     */
     @Column(name = "image")
     private String image;
 
-    /**
-     * User first name
-     */
     @Column(name = "first_name")
     private String firstName;
 
-    /**
-     * User second name
-     */
     @Column(name = "second_name")
     private String secondName;
 
-    /**
-     * User last name
-     */
     @Column(name = "last_name")
     private String lastName;
 
-    /**
-     * Birthdate date
-     */
     @Column(name = "birthdate")
     private String birthdate;
 
-    /**
-     * Gender
-     */
     @Column(name = "gender")
     private String gender;
 
-    /**
-     * Document number
-     */
     @Column(name = "document_number", unique = true)
     private Long documentNumber;
 
-    /**
-     * Document type
-     */
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type")
     private DocumentType documentType;
@@ -133,27 +93,15 @@ public class User implements UserDetails {
     @Column(name = "user_type", nullable = false)
     private UserType userType;
 
-    /**
-     * Phone number
-     */
     @Column(name = "phone")
     private String phone;
 
-    /**
-     * Created at date
-     */
     @Column(name = "created_at")
     public Date createdAt;
 
-    /**
-     * Updated at date
-     */
     @Column(name = "updated_at")
     public String updatedAt;
 
-    /**
-     * Deleted at date
-     */
     @Column(name = "deleted_at")
     public String deletedAt;
 
@@ -162,12 +110,12 @@ public class User implements UserDetails {
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @JsonIgnore
     private List<UserAuth> userAuthList;
 
-    @Column
+    @Column(unique = true)
     private String nit;
 
     @Column
@@ -200,11 +148,12 @@ public class User implements UserDetails {
     @Column(name = "confirmed_account_at")
     private Date confirmedAccountAt;
 
+    @Column(name = "change_password_token")
+    private String changePasswordToken;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (role == null) return null;
-
-        if (role.getPermissions() == null) return null;
 
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 

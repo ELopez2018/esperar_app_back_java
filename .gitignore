@@ -1,5 +1,6 @@
 # Project
 .env
+secrets.yml
 
 HELP.md
 target/
