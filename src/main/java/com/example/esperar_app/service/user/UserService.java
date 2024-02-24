@@ -1,7 +1,7 @@
 package com.example.esperar_app.service.user;
 import com.example.esperar_app.persistence.dto.user.CreateLegalPersonDto;
+import com.example.esperar_app.persistence.dto.user.CreateNaturalPersonDto;
 import com.example.esperar_app.persistence.dto.user.UpdateUserDto;
-import com.example.esperar_app.persistence.dto.user.CreateUserDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.user.RegisteredUser;
 import com.example.esperar_app.persistence.entity.security.User;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    RegisteredUser create(CreateUserDto createUserDto);
+    RegisteredUser create(CreateNaturalPersonDto createNaturalPersonDto);
 
     Optional<User> findOneByUsername(String username);
 
@@ -31,4 +31,6 @@ public interface UserService {
     User connectUser(String username);
 
     RegisteredUser createLegalPerson(CreateLegalPersonDto createLegalPersonDto);
+
+    Page<GetUserDto> findDriversWithLicenseSoonToExpire(Pageable pageable);
 }

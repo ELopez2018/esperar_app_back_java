@@ -6,7 +6,7 @@ import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.exception.TermsAndConditionsException;
 import com.example.esperar_app.mapper.UserMapper;
 import com.example.esperar_app.persistence.dto.user.CreateLegalPersonDto;
-import com.example.esperar_app.persistence.dto.user.CreateUserDto;
+import com.example.esperar_app.persistence.dto.user.CreateNaturalPersonDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.user.RegisteredUser;
 import com.example.esperar_app.persistence.dto.user.UpdateUserDto;
@@ -23,11 +23,13 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +60,8 @@ public class UserServiceImpl implements UserService {
 
     private final Pattern pattern = Pattern.compile(PASSWORD_PATTERN, Pattern.CASE_INSENSITIVE);
 
+    private final Pattern DATE_PATTERN = Pattern.compile("^\\d{2}-\\d{2}-\\d{4}$");
+
     @Autowired
     public UserServiceImpl(
             UserRepository userRepository,
@@ -76,26 +80,31 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Create a new user
-     * @param createUserDto is the object with the data to create the user
+     * @param createNaturalPersonDto is the object with the data to create the user
      * @return the user created
      */
     @Override
-    public RegisteredUser create(CreateUserDto createUserDto) {
-        if(!createUserDto.getTermsAndConditions()) {
+    public RegisteredUser create(CreateNaturalPersonDto createNaturalPersonDto) {
+        if(!createNaturalPersonDto.getTermsAndConditions()) {
             throw new TermsAndConditionsException("Terms and conditions must be accepted");
         }
 
-        validatePassword(createUserDto.getPassword(), createUserDto.getConfirmPassword());
+        validatePassword(createNaturalPersonDto.getPassword(), createNaturalPersonDto.getConfirmPassword());
 
-//        if (!validatePasswordRegex(createUserDto.getPassword())) {
+//        if (!validatePasswordRegex(createNaturalPersonDto.getPassword())) {
 //            throw new InvalidPasswordException("Password must have at least 8 characters," +
 //                    "1 uppercase letter, 1 lowercase letter, 1 number and 1 special character");
 //        }
 
 
-        User user = userMapper.createUserDtoToUser(createUserDto);
+        User user = userMapper.createUserDtoToUser(createNaturalPersonDto);
 
-        user.setPassword(encodePassword(createUserDto.getPassword()));
+        validateAndSetDate(createNaturalPersonDto.getLicenseExpirationDate(),
+                "Invalid license expiration date",
+                user
+        );
+
+        user.setPassword(encodePassword(createNaturalPersonDto.getPassword()));
 
         Role defaultRole = roleService.findDefaultRole()
                 .orElseThrow(() -> new ObjectNotFoundException("Default role not found"));
@@ -223,12 +232,17 @@ public class UserServiceImpl implements UserService {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
 
-        String password = updateUserDto.getPassword();
+//        String password = updateUserDto.getPassword();
 
 //        if(!validatePasswordRegex(password)) {
 //            throw new InvalidPasswordException("Password must have at least 8 characters," +
 //                    "1 uppercase letter, 1 lowercase letter, 1 number and 1 special character");
 //        }
+
+        validateAndSetDate(updateUserDto.getLicenseExpirationDate(),
+                "Invalid license expiration date",
+                existingUser
+        );
 
         boolean namesChanged = !Objects.equals(existingUser.getFirstName(), updateUserDto.getFirstName()) ||
                 !Objects.equals(existingUser.getSecondName(), updateUserDto.getSecondName()) ||
@@ -302,6 +316,17 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * Find all the drivers with the license soon to expire paginated
+     * @param pageable is the object with the pagination data
+     * @return a page with the drivers found
+     */
+    @Override
+    public Page<GetUserDto> findDriversWithLicenseSoonToExpire(Pageable pageable) {
+        Page<User> driversFound = userRepository.findDriversWithLicenseSoonToExpire(pageable);
+        return driversFound.map(userMapper::toGetUserDto);
+    }
+
+    /**
      * Update the full name of the user
      * @param updateUserDto is the object with the new data
      * @return the new full name
@@ -341,7 +366,7 @@ public class UserServiceImpl implements UserService {
      * @param user is the user that will be used to generate the claims
      * @return a map with the claims
      */
-    public Map<String, Object> generateExtraClaims(User user) {
+    private Map<String, Object> generateExtraClaims(User user) {
         return Map.of(
                 "name", user.getFullName(),
                 "role", user.getRole().getName(),
@@ -354,7 +379,7 @@ public class UserServiceImpl implements UserService {
      * @param user is the user that will be used to generate the claims
      * @param accessToken is the token that will be saved
      */
-    public void saveUserAuth(User user, String accessToken) {
+    private void saveUserAuth(User user, String accessToken) {
         UserAuth userAuth = new UserAuth();
         userAuth.setToken(accessToken);
         userAuth.setUser(user);
@@ -378,10 +403,50 @@ public class UserServiceImpl implements UserService {
      * @param password is the password that will be validated
      * @return true if the password is valid, false otherwise
      */
-    public boolean validatePasswordRegex(String password) {
+    private boolean validatePasswordRegex(String password) {
         Matcher matcher = pattern.matcher(password);
         System.out.println(matcher.matches());
         return matcher.matches();
     }
 
+    private void validateAndSetDate(String date, String errorMessage, User user) {
+        if (date != null) {
+            if (isValidDateFormat(date) && isValidDate(date)) {
+                user.setLicenseExpirationDate(date);
+            } else {
+                throw new IllegalArgumentException(errorMessage + ", the correct format is dd-MM-yyyy");
+            }
+        }
+    }
+
+    private boolean isValidDateFormat(String date) {
+        return DATE_PATTERN.matcher(date).matches();
+    }
+
+    private boolean isValidDate(String date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+        try {
+            simpleDateFormat.parse(date);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Scheduled(cron = "0 50 9 * * *")
+    public void checkLicensesToExpireDate() {
+        Page<User> users = findUsersWithLicenseSoonToExpire();
+
+        System.out.println("Usuarios con expiración de su licencia próxima: " + users.getTotalElements());
+
+        for (User user : users) {
+            System.out.println("Email del usuario con licencia próxima a expirar: " + user.getEmail());
+        }
+    }
+
+    public Page<User> findUsersWithLicenseSoonToExpire() {
+        Pageable pageable = Pageable.unpaged();
+        return userRepository.findDriversWithLicenseSoonToExpire(pageable);
+    }
 }

@@ -1,7 +1,10 @@
 package com.example.esperar_app.persistence.repository;
 
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Date;
 import java.util.List;
@@ -13,4 +16,14 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
             Date tecnoMechanicalExpirationDate,
             Date tecnoMechanicalExpirationDate2
     );
+
+    @Query("SELECT v FROM Vehicle v " +
+            "WHERE MONTH(v.soatExpirationDate) = MONTH(CURRENT_DATE) " +
+            "AND YEAR(v.soatExpirationDate) = YEAR(CURRENT_DATE)")
+    Page<Vehicle> findVehiclesWithSoatSoonToExpire(Pageable pageable);
+
+    @Query("SELECT v FROM Vehicle v " +
+            "WHERE MONTH(v.tecnoMechanicalExpirationDate) = MONTH(CURRENT_DATE) " +
+            "AND YEAR(v.tecnoMechanicalExpirationDate) = YEAR(CURRENT_DATE)")
+    Page<Vehicle> findVehiclesWithTechnoMechanicalSoonToExpire(Pageable pageable);
 }

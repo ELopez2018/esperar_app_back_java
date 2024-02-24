@@ -153,4 +153,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(ExpirationDateException.class)
+    public ResponseEntity<?> handleExpirationDateException(ExpirationDateException exception) {
+        ApiError error = new ApiError();
+        error.setMessage("The expiration date is invalid");
+        error.setBackedMessage(exception.getLocalizedMessage());
+        error.setTime(LocalDateTime.now());
+        error.setHttpCode(400);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
 }

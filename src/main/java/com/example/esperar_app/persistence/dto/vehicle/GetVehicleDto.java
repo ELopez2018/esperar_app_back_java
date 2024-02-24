@@ -1,5 +1,6 @@
 package com.example.esperar_app.persistence.dto.vehicle;
 
+import com.example.esperar_app.persistence.utils.VehicleStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,4 +33,9 @@ public class GetVehicleDto {
      * The license plate of the vehicle
      */
     private String licensePlate;
+
+    /**
+     * The status of the vehicle
+     */
+    private VehicleStatus status;
 }

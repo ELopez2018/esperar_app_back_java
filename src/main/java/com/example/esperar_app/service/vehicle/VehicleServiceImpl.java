@@ -200,6 +200,28 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     /**
+     * Find vehicles with SOAT soon to expire paginated
+     * @param pageable Pageable object
+     * @return Page of vehicles with SOAT soon to expire
+     */
+    @Override
+    public Page<GetVehicleDto> findVehiclesWithSoatSoonToExpire(Pageable pageable) {
+        Page<Vehicle> vehiclesFound = vehicleRepository.findVehiclesWithSoatSoonToExpire(pageable);
+        return vehiclesFound.map(vehicleMapper::toGetVehicleDto);
+    }
+
+    /**
+     * Find vehicles with technomechanical soon to expire paginated
+     * @param pageable Pageable object
+     * @return Page of vehicles with technomechanical soon to expire
+     */
+    @Override
+    public Page<GetVehicleDto> findVehiclesWithTecnomechanicalSoonToExpire(Pageable pageable) {
+        Page<Vehicle> vehiclesFound = vehicleRepository.findVehiclesWithTechnoMechanicalSoonToExpire(pageable);
+        return vehiclesFound.map(vehicleMapper::toGetVehicleDto);
+    }
+
+    /**
      * Get null properties of an object
      * @param source Object to get null properties
      * @return Array of null properties

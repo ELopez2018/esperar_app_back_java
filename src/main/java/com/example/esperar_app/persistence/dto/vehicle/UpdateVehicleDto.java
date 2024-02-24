@@ -1,5 +1,6 @@
 package com.example.esperar_app.persistence.dto.vehicle;
 
+import com.example.esperar_app.persistence.utils.VehicleStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,4 +27,6 @@ public class UpdateVehicleDto {
     private String soatExpirationDate;
 
     private String tecnoMechanicalExpirationDate;
+
+    private VehicleStatus status;
 }

@@ -1,7 +1,7 @@
 package com.example.esperar_app.mapper;
 
 import com.example.esperar_app.persistence.dto.user.CreateLegalPersonDto;
-import com.example.esperar_app.persistence.dto.user.CreateUserDto;
+import com.example.esperar_app.persistence.dto.user.CreateNaturalPersonDto;
 import com.example.esperar_app.persistence.dto.user.CurrentUserDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.user.RegisteredUser;
@@ -53,7 +53,7 @@ public interface UserMapper {
             @Mapping(target = "userType", ignore = true),
             @Mapping(target = "whatsapp", ignore = true)
     })
-    User createUserDtoToUser(CreateUserDto createUserDto);
+    User createUserDtoToUser(CreateNaturalPersonDto createNaturalPersonDto);
 
     @Mappings({
             @Mapping(source = "id", target = "id"),

@@ -10,7 +10,7 @@ import lombok.Setter;
 import java.io.Serializable;
 
 @Getter @Setter
-public class CreateUserDto implements Serializable {
+public class CreateNaturalPersonDto implements Serializable {
     @Email
     private String email;
 
@@ -44,4 +44,11 @@ public class CreateUserDto implements Serializable {
 
     @NotNull
     private Boolean termsAndConditions;
+
+    private String licenseExpirationDate;
+
+    public String getLicenseExpirationDate() {
+        if(licenseExpirationDate == null) return null;
+        return licenseExpirationDate;
+    }
 }
