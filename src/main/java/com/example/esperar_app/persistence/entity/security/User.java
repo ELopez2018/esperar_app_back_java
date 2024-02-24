@@ -1,5 +1,6 @@
 package com.example.esperar_app.persistence.entity.security;
 
+import com.example.esperar_app.exception.ExpirationDateException;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.utils.DocumentType;
 import com.example.esperar_app.persistence.utils.UserChatStatus;
@@ -28,6 +29,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -151,6 +153,9 @@ public class User implements UserDetails {
     @Column(name = "change_password_token")
     private String changePasswordToken;
 
+    @Column(name = "license_expiration_date")
+    private Date licenseExpirationDate;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (role == null) return null;
@@ -210,5 +215,18 @@ public class User implements UserDetails {
 
     public void setVehicle(Vehicle vehicle) {
         this.vehicle = vehicle;
+    }
+
+    public void setLicenseExpirationDate(String licenseExpirationDate) {
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+        try {
+            this.licenseExpirationDate = sdf.parse(licenseExpirationDate);
+        } catch (Exception e) {
+            throw new ExpirationDateException(
+                    "Fecha de expiración de la licencia de conducción inválida: "
+                            + licenseExpirationDate
+                            + "El formato correcto es: MM-dd-yyyy"
+            );
+        }
     }
 }

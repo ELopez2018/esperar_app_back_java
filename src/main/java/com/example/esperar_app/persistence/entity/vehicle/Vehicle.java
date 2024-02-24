@@ -1,9 +1,12 @@
 package com.example.esperar_app.persistence.entity.vehicle;
 
 import com.example.esperar_app.persistence.entity.security.User;
+import com.example.esperar_app.persistence.utils.VehicleStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -65,6 +68,9 @@ public class Vehicle {
     @Column(name = "tecno_mechanical_expiration_date")
     private Date tecnoMechanicalExpirationDate;
 
+    @Enumerated(EnumType.STRING)
+    private VehicleStatus status;
+
     public List<User> getDrivers() {
         System.out.println("Drivers: " + drivers.size());
         return drivers;
@@ -81,7 +87,7 @@ public class Vehicle {
             throw new IllegalArgumentException(
                     "Fecha de expiración del SOAT inválida: "
                             + soatExpirationDate
-                            + "El formato correcto es: mm-DD-yyyy");
+                            + "El formato correcto es: MM-dd-yyyy");
         }
     }
 

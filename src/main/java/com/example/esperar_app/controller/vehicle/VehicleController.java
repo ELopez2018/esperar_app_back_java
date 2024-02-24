@@ -88,4 +88,18 @@ public class VehicleController {
         List<GetUserDto> drivers = vehicleService.findVehicleDrivers(id);
         return ResponseEntity.ok(drivers != null ? drivers : List.of());
     }
+
+    @GetMapping("/soat-expiration-soon")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
+    public ResponseEntity<Page<GetVehicleDto>> findVehiclesWithSoatSoonToExpire(Pageable pageable) {
+        Page<GetVehicleDto> vehiclesPage = vehicleService.findVehiclesWithSoatSoonToExpire(pageable);
+        return ResponseEntity.ok(vehiclesPage != null ? vehiclesPage : Page.empty());
+    }
+
+    @GetMapping("/tecnomechanical-expiration-soon")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
+    public ResponseEntity<Page<GetVehicleDto>> findVehiclesWithTecnomechanicalSoonToExpire(Pageable pageable) {
+        Page<GetVehicleDto> vehiclesPage = vehicleService.findVehiclesWithTecnomechanicalSoonToExpire(pageable);
+        return ResponseEntity.ok(vehiclesPage != null ? vehiclesPage : Page.empty());
+    }
 }

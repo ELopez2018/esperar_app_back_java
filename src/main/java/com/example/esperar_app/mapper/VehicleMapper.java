@@ -17,9 +17,13 @@ public interface VehicleMapper {
 
     @Mappings({
             @Mapping(target = "id", ignore = true),
-            @Mapping(target = "drivers", ignore = true)
+            @Mapping(target = "drivers", ignore = true),
+            @Mapping(target = "status", ignore = true)
     })
     Vehicle toEntity(CreateVehicleDto createVehicleDto);
 
+    @Mappings({
+            @Mapping(source = "status", target = "status")
+    })
     GetVehicleDto toGetVehicle(Vehicle vehicle);
 }

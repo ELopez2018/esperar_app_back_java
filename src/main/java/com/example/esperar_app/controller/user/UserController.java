@@ -1,7 +1,7 @@
 package com.example.esperar_app.controller.user;
 
 import com.example.esperar_app.persistence.dto.user.CreateLegalPersonDto;
-import com.example.esperar_app.persistence.dto.user.CreateUserDto;
+import com.example.esperar_app.persistence.dto.user.CreateNaturalPersonDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.user.RegisteredUser;
 import com.example.esperar_app.persistence.dto.user.UpdateUserDto;
@@ -50,12 +50,12 @@ public class UserController {
 
     /**
      * Create a new natural person user
-     * @param createUserDto the user to be created
+     * @param createNaturalPersonDto the user to be created
      * @return the created user
      */
     @PostMapping("sign-up/natural-person")
-    public ResponseEntity<RegisteredUser> signUp(@RequestBody @Valid CreateUserDto createUserDto) {
-        RegisteredUser newUser = userService.create(createUserDto);
+    public ResponseEntity<RegisteredUser> signUp(@RequestBody @Valid CreateNaturalPersonDto createNaturalPersonDto) {
+        RegisteredUser newUser = userService.create(createNaturalPersonDto);
         return ResponseEntity.ok(newUser);
     }
 
@@ -138,5 +138,12 @@ public class UserController {
         System.out.println("El fichero es: " + file.getOriginalFilename());
         System.out.println("El usuario es: " + userId);
         return ResponseEntity.ok("Successfully uploaded the file");
+    }
+
+    @GetMapping("license-soon-to-expire")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
+    public ResponseEntity<Page<GetUserDto>> findDriversWithLicenseSoonToExpire(Pageable pageable) {
+        Page<GetUserDto> drivers = userService.findDriversWithLicenseSoonToExpire(pageable);
+        return ResponseEntity.ok(drivers != null ? drivers : Page.empty());
     }
 }

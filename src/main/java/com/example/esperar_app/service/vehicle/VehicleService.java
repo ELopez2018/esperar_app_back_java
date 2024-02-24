@@ -24,4 +24,8 @@ public interface VehicleService {
     Vehicle assignDriver(Long id, Long driverId);
 
     List<GetUserDto> findVehicleDrivers(Long id);
+
+    Page<GetVehicleDto> findVehiclesWithSoatSoonToExpire(Pageable pageable);
+
+    Page<GetVehicleDto> findVehiclesWithTecnomechanicalSoonToExpire(Pageable pageable);
 }

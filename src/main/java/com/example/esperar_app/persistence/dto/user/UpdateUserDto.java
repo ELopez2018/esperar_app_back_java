@@ -38,5 +38,12 @@ public class UpdateUserDto {
     private String gender;
 
     private String phone;
+
+    private String licenseExpirationDate;
+
+    public String getLicenseExpirationDate() {
+        if(licenseExpirationDate == null) return null;
+        return licenseExpirationDate;
+    }
 }
 

@@ -102,6 +102,4 @@ public class CreateLegalPersonDto {
      */
     @NotNull
     private Boolean termsAndConditions;
-
-    // TODO: Añadir la cámara de comercio de tipo PDF o JPG
 }
