@@ -1,6 +1,7 @@
 package com.example.esperar_app.exception;
 
 import com.example.esperar_app.persistence.dto.api.ApiError;
+import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-
+@Log
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -25,10 +26,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handlerGenericException(Exception exception) {
         ApiError error = new ApiError();
         error.setMessage("ERROR, PLEASE CHECK SERVER LOGS");
-        error.setBackedMessage(exception.getLocalizedMessage());
+        error.setBackedMessage(exception.getMessage());
         error.setTime(LocalDateTime.now());
         error.setHttpCode(500);
-
+        log.severe(exception.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
@@ -44,7 +45,7 @@ public class GlobalExceptionHandler {
         error.setBackedMessage(exception.getLocalizedMessage());
         error.setTime(LocalDateTime.now());
         error.setHttpCode(404);
-
+        log.severe(exception.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
@@ -61,7 +62,7 @@ public class GlobalExceptionHandler {
         error.setBackedMessage(exception.getLocalizedMessage());
         error.setTime(LocalDateTime.now());
         error.setHttpCode(403);
-
+        log.severe(exception.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
@@ -75,7 +76,7 @@ public class GlobalExceptionHandler {
         Map<String, String> map =  new HashMap<>();
         exception.getBindingResult().getFieldErrors()
                 .forEach(fieldError -> map.put(fieldError.getField(), fieldError.getDefaultMessage()));
-
+        log.severe(exception.getMessage());
         return map;
     }
 
@@ -91,7 +92,7 @@ public class GlobalExceptionHandler {
         error.setBackedMessage(exception.getLocalizedMessage());
         error.setTime(LocalDateTime.now());
         error.setHttpCode(400);
-
+        log.severe(exception.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }
