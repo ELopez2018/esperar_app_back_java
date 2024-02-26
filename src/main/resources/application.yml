@@ -1,0 +1,45 @@
+server:
+  servlet:
+    context-path: /api/v1
+  port: 8080
+
+spring:
+  datasource:
+    url: "${MYSQL_URL}"
+    username: "${MYSQL_USER}"
+    password: "${MYSQL_PASSWORD}"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    open-in-view: false
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: update
+  sql:
+    init:
+      platform: mysql
+      mode: always
+  data:
+    web:
+      pageable:
+        page-parameter: page
+        size-parameter: limit
+  servlet:
+    multipart:
+        file-size-threshold: 2KB
+        max-file-size: 200MB
+        max-request-size: 215MB
+  config:
+    import: optional:secrets.yml
+
+security:
+  default:
+    role: ADMINISTRATOR
+  jwt:
+    expiration-in-minutes: 60
+    secret-key: "${JWT_SECRET_KEY}"
+
+logging:
+  level:
+    org.springframework.messaging: trace
+    org.springframework.web.socket: trace
