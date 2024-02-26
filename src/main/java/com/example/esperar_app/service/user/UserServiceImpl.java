@@ -103,7 +103,6 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.createUserDtoToUser(createNaturalPersonDto);
 
         validateAndSetDate(createNaturalPersonDto.getLicenseExpirationDate(),
-                "Invalid license expiration date",
                 user
         );
 
@@ -259,7 +258,6 @@ public class UserServiceImpl implements UserService {
 //        }
 
         validateAndSetDate(updateUserDto.getLicenseExpirationDate(),
-                "Invalid license expiration date",
                 existingUser
         );
 
@@ -455,14 +453,14 @@ public class UserServiceImpl implements UserService {
         return pattern.matcher(password).matches();
     }
 
-    private void validateAndSetDate(String date, String errorMessage, User user) {
+    private void validateAndSetDate(String date, User user) {
         if (date != null) {
             if (isValidDateFormat(date) && isValidDate(date)) {
                 user.setLicenseExpirationDate(date);
                 logger.info("License expiration date set successfully");
             } else {
-                logger.error(errorMessage + ", the correct format is dd-MM-yyyy");
-                throw new IllegalArgumentException(errorMessage + ", the correct format is dd-MM-yyyy");
+                logger.error("Invalid license expiration date" + ", the correct format is dd-MM-yyyy");
+                throw new IllegalArgumentException("Invalid license expiration date" + ", the correct format is dd-MM-yyyy");
             }
         }
     }

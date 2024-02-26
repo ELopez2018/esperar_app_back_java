@@ -84,7 +84,7 @@ public class VehicleServiceImpl implements VehicleService {
             return vehicleMapper.toGetVehicleDto(vehicleSaved);
         } catch (Exception e) {
             logger.error("Error creating vehicle: " + e.getMessage());
-            throw new RuntimeException("Error creating vehicle")
+            throw new RuntimeException("Error creating vehicle");
         }
 
     }
