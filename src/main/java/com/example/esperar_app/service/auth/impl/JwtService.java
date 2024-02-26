@@ -6,6 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +27,8 @@ public class JwtService {
     @Value("${security.jwt.secret-key}")
     private String JWT_SECRET_KEY;
 
+    private static final Logger logger = LogManager.getLogger();
+
     /**
      * Generate a new JWT token
      * @param userDetails is the user that will be used to generate the token
@@ -32,6 +36,8 @@ public class JwtService {
      * @return the generated token
      */
     public String generateToken(UserDetails userDetails, Map<String, Object> extraClaims) {
+        logger.info("Generating token for user: " + userDetails.getUsername());
+
         Date issuedAt = new Date(System.currentTimeMillis());
         Date expiration = new Date(issuedAt.getTime() + EXPIRATION_IN_MINUTES * 60 * 1000);
 
@@ -52,6 +58,7 @@ public class JwtService {
      * @return the generated key
      */
     private SecretKey generateKey() {
+        logger.info("Generating key for JWT token");
         byte[] secretKeyDecoded = Decoders.BASE64.decode(JWT_SECRET_KEY);
         return Keys.hmacShaKeyFor(secretKeyDecoded);
     }
@@ -62,6 +69,7 @@ public class JwtService {
      * @return the username
      */
     public String extractUsername(String accessToken) {
+        logger.info("Extracting username from token");
         return extractAllClaims(accessToken).getSubject();
     }
 
@@ -71,6 +79,7 @@ public class JwtService {
      * @return the extra claims
      */
     private Claims extractAllClaims(String accessToken) {
+        logger.info("Extracting all claims from token");
          return Jwts.parser().verifyWith(generateKey()).build().parseSignedClaims(accessToken).getPayload();
     }
 
@@ -80,9 +89,11 @@ public class JwtService {
      * @return token obtained from the request
      */
     public String extractJwtFromRequest(HttpServletRequest request) {
+        logger.info("Extracting JWT token from request");
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if(!StringUtils.hasText(authorizationHeader) || !authorizationHeader.startsWith(("Bearer "))) {
+            logger.warn("Token not found in request");
             return null;
         }
 
@@ -95,10 +106,13 @@ public class JwtService {
      * @return the expiration date
      */
     public Date extractExpiration(String accessToken) {
+        logger.info("Extracting expiration date from token");
         return extractAllClaims(accessToken).getExpiration();
     }
 
     public String encryptTokenToChangePassword(User currentUser) {
+        logger.info("Encrypting token to change password for user: " + currentUser.getEmail());
+
         Date issuedAt = new Date(System.currentTimeMillis());
         Date expiration = new Date(issuedAt.getTime() + EXPIRATION_IN_MINUTES * 60 * 1000);
 
@@ -114,6 +128,8 @@ public class JwtService {
     }
 
     public boolean validateTokenToChangePassword(User currentUser, String token) {
+        logger.info("Validating token to change password for user: " + currentUser.getEmail());
+
         Claims claims = extractAllClaims(token);
 
         if(claims.getExpiration().before(new Date())) return false;

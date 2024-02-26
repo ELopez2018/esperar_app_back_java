@@ -9,6 +9,8 @@ import com.example.esperar_app.persistence.dto.route.GetRouteDto;
 import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
 import com.example.esperar_app.persistence.entity.route.Route;
 import com.example.esperar_app.persistence.repository.RouteRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,6 +34,8 @@ public class RouteServiceImpl implements RouteService {
 
     private final CoordinateMapper coordinateMapper;
 
+    private static final Logger logger = LogManager.getLogger();
+
     @Autowired
     public RouteServiceImpl(
             RouteRepository routeRepository,
@@ -53,9 +57,14 @@ public class RouteServiceImpl implements RouteService {
         route.setCoordinates(null);
         route.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
-        Route routeSaved = routeRepository.save(route);
-
-        return routeMapper.routeToGetRouteDto(routeSaved);
+        try {
+            Route routeSaved = routeRepository.save(route);
+            logger.info("Route created with id: " + routeSaved.getId());
+            return routeMapper.routeToGetRouteDto(routeSaved);
+        } catch (Exception e) {
+            logger.error("Error creating route");
+            throw e;
+        }
     }
 
     /**
@@ -66,6 +75,8 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public Page<GetRouteDto> findAll(Pageable pageable) {
         Page<Route> routes = routeRepository.findAll(pageable);
+
+        logger.info("Routes found: " + routes.getTotalElements());
 
         return routes.map(route -> {
             GetRouteDto routeDto = new GetRouteDto();

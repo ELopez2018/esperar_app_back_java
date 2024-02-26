@@ -11,6 +11,8 @@ import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -40,6 +42,8 @@ public class VehicleServiceImpl implements VehicleService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final Pattern DATE_PATTERN = Pattern.compile("^\\d{2}-\\d{2}-\\d{4}$");
+
+    private static final Logger logger = LogManager.getLogger();
 
     @Autowired
     public VehicleServiceImpl(
@@ -74,9 +78,15 @@ public class VehicleServiceImpl implements VehicleService {
                 vehicle
         );
 
-        Vehicle vehicleSaved = vehicleRepository.save(vehicle);
+        try {
+            Vehicle vehicleSaved = vehicleRepository.save(vehicle);
+            logger.info("Vehicle created: " + vehicleSaved.getLicensePlate());
+            return vehicleMapper.toGetVehicleDto(vehicleSaved);
+        } catch (Exception e) {
+            logger.error("Error creating vehicle: " + e.getMessage());
+            throw new RuntimeException("Error creating vehicle")
+        }
 
-        return vehicleMapper.toGetVehicleDto(vehicleSaved);
     }
 
     /**
@@ -87,7 +97,6 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public Page<GetVehicleDto> findAll(Pageable pageable) {
         Page<Vehicle> vehiclesPage = vehicleRepository.findAll(pageable);
-
         return vehiclesPage.map(vehicleMapper::toGetVehicleDto);
     }
 
@@ -125,9 +134,14 @@ public class VehicleServiceImpl implements VehicleService {
             existingVehicle.setTecnoMechanicalExpirationDate(updateVehicleDto.getTecnoMechanicalExpirationDate());
         }
 
-        vehicleRepository.save(existingVehicle);
-
-        return vehicleMapper.toGetVehicle(existingVehicle);
+        try {
+            Vehicle vehicleSaved = vehicleRepository.save(existingVehicle);
+            logger.info("Vehicle updated: " + vehicleSaved.getLicensePlate());
+            return vehicleMapper.toGetVehicleDto(vehicleSaved);
+        } catch (Exception e) {
+            logger.error("Error updating vehicle: " + e.getMessage());
+            throw new RuntimeException("Error updating vehicle");
+        }
     }
 
     /**
@@ -141,8 +155,10 @@ public class VehicleServiceImpl implements VehicleService {
 
         try {
             vehicleRepository.delete(vehicleFound);
+            logger.info("Vehicle deleted: " + vehicleFound.getLicensePlate());
         } catch (Exception e) {
-            throw new InternalError("Error deleting vehicle");
+            logger.error("Error deleting vehicle: " + e.getMessage());
+            throw new RuntimeException("Error deleting vehicle");
         }
     }
 
@@ -163,17 +179,23 @@ public class VehicleServiceImpl implements VehicleService {
 
         for(User user : vehicle.getDrivers()) {
             if(user.getId().equals(driver.getId())) {
+                logger.error("Driver already assigned to this vehicle");
                 throw new ObjectNotFoundException("Driver already assigned to this vehicle");
             }
         }
 
         vehicle.getDrivers().add(driver);
         Vehicle vehicleSaved = vehicleRepository.save(vehicle);
-
         driver.setVehicle(vehicleSaved);
-        userRepository.save(driver);
 
-        return vehicleSaved;
+        try {
+            userRepository.save(driver);
+            logger.info("Driver assigned to vehicle: " + vehicleSaved.getLicensePlate());
+            return vehicleSaved;
+        } catch (Exception e) {
+            logger.error("Error assigning driver to vehicle: " + e.getMessage());
+            throw new RuntimeException("Error assigning driver to vehicle");
+        }
     }
 
     /**
@@ -188,13 +210,9 @@ public class VehicleServiceImpl implements VehicleService {
         Vehicle vehicleFound = vehicleRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Vehicle not found"));
 
-        if(vehicleFound.getDrivers() == null) {
-            System.out.println("Drivers is null");
-        }
+        if(vehicleFound.getDrivers() == null) logger.warn("Vehicle with id: " + id + " has no drivers assigned");
 
-        if(vehicleFound.getDrivers().isEmpty()) {
-            System.out.println("Drivers is empty");
-        }
+        if(vehicleFound.getDrivers().isEmpty()) logger.warn("Vehicle with id: " + id + " has no drivers assigned");
 
         return userMapper.toGetUserDtos(drivers);
     }
@@ -267,8 +285,10 @@ public class VehicleServiceImpl implements VehicleService {
 
         try {
             simpleDateFormat.parse(date);
+            logger.info("Date is valid: " + date);
             return true;
         } catch (Exception e) {
+            logger.error("Date is invalid: " + date);
             return false;
         }
     }
@@ -292,7 +312,9 @@ public class VehicleServiceImpl implements VehicleService {
         if (date != null) {
             if (isValidDateFormat(date) && isValidDate(date)) {
                 setExpirationDate(date, errorMessage.contains("SOAT") ? "soat" : "technomecanical", vehicle);
+                logger.info("Expiration date set: " + date);
             } else {
+                logger.error(errorMessage + ", the correct format is dd-MM-yyyy");
                 throw new IllegalArgumentException(errorMessage + ", the correct format is dd-MM-yyyy");
             }
         }
@@ -321,10 +343,10 @@ public class VehicleServiceImpl implements VehicleService {
     public void checkExpiringDates() {
         List<Vehicle> vehicles = findVehiclesWithExpiringDates();
 
-        System.out.println("Vehículos con expiración próxima: " + vehicles.size());
+        logger.info("Vehicles with expiration date soon to expire: " + vehicles.size());
 
         for (Vehicle vehicle : vehicles) {
-            System.out.println("Vehículo con expiración próxima: " + vehicle.getLicensePlate());
+            logger.info("Vehicle with expiration date soon to expire: " + vehicle.getLicensePlate());
         }
     }
 

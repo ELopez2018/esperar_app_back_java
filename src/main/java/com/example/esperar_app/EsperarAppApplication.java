@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableConfigurationProperties(ConfigProperties.class)
 public class EsperarAppApplication {
-    
+
     public static void main(String[] args) {
         SpringApplication.run(EsperarAppApplication.class, args);
     }

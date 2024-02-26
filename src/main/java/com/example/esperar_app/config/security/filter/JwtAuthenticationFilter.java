@@ -4,12 +4,14 @@ import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
-import com.example.esperar_app.service.user.UserService;
 import com.example.esperar_app.service.auth.impl.JwtService;
+import com.example.esperar_app.service.user.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +30,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserService userService;
     private final UserAuthRepository userAuthRepository;
+
+    private static final Logger logger = LogManager.getLogger(JwtAuthenticationFilter.class);
 
     @Autowired
     public JwtAuthenticationFilter(
@@ -99,7 +103,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         boolean isValid = userAuth.get().isValid() && userAuth.get().getExpirationDate().after(now);
 
         if(!isValid) {
-            System.out.println("Token is not valid");
+            logger.warn("Token is not valid");
             updateTokenStatus(userAuth.get());
         }
 

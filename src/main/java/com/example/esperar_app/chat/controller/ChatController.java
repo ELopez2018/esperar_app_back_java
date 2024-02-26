@@ -3,6 +3,8 @@ package com.example.esperar_app.chat.controller;
 import com.example.esperar_app.chat.persistence.entity.ChatMessage;
 import com.example.esperar_app.chat.persistence.entity.ChatNotification;
 import com.example.esperar_app.chat.service.ChatMessageService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -33,6 +35,8 @@ public class ChatController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageService chatMessageService;
 
+    private static final Logger logger = LogManager.getLogger(ChatController.class);
+
     @Autowired
     public ChatController(
             SimpMessagingTemplate messagingTemplate,
@@ -44,19 +48,27 @@ public class ChatController {
     @MessageMapping("/chat")
     public void processMessage(@Payload ChatMessage chatMessage) {
         ChatMessage savedMsg = chatMessageService.save(chatMessage);
+        logger.info("Saved chat message successfully");
 
         UUID uuid = UUID.randomUUID();
         String randomUUIDString = uuid.toString();
 
-        messagingTemplate.convertAndSendToUser(
-                chatMessage.getRecipientId(), "/queue/messages",
-                new ChatNotification(
-                        randomUUIDString,
-                        savedMsg.getSenderId(),
-                        savedMsg.getRecipientId(),
-                        savedMsg.getContent()
-                )
-        );
+        try {
+            messagingTemplate.convertAndSendToUser(
+                    chatMessage.getRecipientId(), "/queue/messages",
+                    new ChatNotification(
+                            randomUUIDString,
+                            savedMsg.getSenderId(),
+                            savedMsg.getRecipientId(),
+                            savedMsg.getContent()
+                    )
+            );
+
+            logger.info("Sent chat message successfully");
+        } catch (Exception e) {
+            logger.error("Failed to send chat message");
+            throw e;
+        }
     }
 
     @GetMapping("/messages/{senderId}/{recipientId}")
