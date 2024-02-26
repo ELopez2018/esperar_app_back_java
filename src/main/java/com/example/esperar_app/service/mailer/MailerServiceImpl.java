@@ -5,6 +5,8 @@ import com.resend.Resend;
 import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.SendEmailRequest;
 import com.resend.services.emails.model.SendEmailResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ public class MailerServiceImpl implements MailerService {
 
     private final ConfigProperties configProperties;
 
+    private static final Logger logger = LogManager.getLogger();
+
     @Autowired
     public MailerServiceImpl(ConfigProperties configProperties) {
         this.configProperties = configProperties;
@@ -20,7 +24,7 @@ public class MailerServiceImpl implements MailerService {
 
     @Override
     public String sendMail() {
-        System.out.println("Estamos en el mailer service");
+        logger.info("Sending welcome email");
 
         ConfigProperties.Resend resendEnvironments = configProperties.resend();
 
@@ -35,17 +39,17 @@ public class MailerServiceImpl implements MailerService {
 
         try {
             SendEmailResponse data = resend.emails().send(sendEmailRequest);
-            System.out.println(data.getId());
+            logger.info("Email identifier: " + data.getId());
             return "Success";
         } catch (ResendException e) {
-            e.printStackTrace();
+            logger.error("Error sending email");
+            throw new RuntimeException(e);
         }
-
-        return "Error, check logs for more information.";
     }
 
     @Override
     public String sendChangePasswordMail(String email, String token) {
+        logger.info("Sending email to change password");
         ConfigProperties.Resend resendEnvironments = configProperties.resend();
 
         Resend resend = new Resend(resendEnvironments.apiKey());
@@ -59,12 +63,12 @@ public class MailerServiceImpl implements MailerService {
                 .build();
 
         try {
-            resend.emails().send(sendEmailRequest);
+            SendEmailResponse response = resend.emails().send(sendEmailRequest);
+            logger.info("Email identifier: " + response.getId() + " sent successfully.");
             return "Success";
         } catch (ResendException e) {
-            e.printStackTrace();
+            logger.error("Error sending email");
+            throw new RuntimeException(e);
         }
-
-        return "Error, check logs for more information.";
     }
 }

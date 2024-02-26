@@ -5,6 +5,8 @@ import com.example.esperar_app.persistence.dto.coordinate.GetCoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.UpdateCoordinateDto;
 import com.example.esperar_app.service.coordinate.CoordinateService;
 import jakarta.validation.Valid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/coordinates")
 public class CoordinateController {
+    private static final Logger logger = LogManager.getLogger(CoordinateController.class);
 
     private final CoordinateService coordinateService;
 
@@ -35,6 +38,7 @@ public class CoordinateController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<GetCoordinateDto> create(@RequestBody @Valid CreateCoordinateDto createCoordinateDto) {
+        logger.info("Create a new coordinate request received.");
         GetCoordinateDto coordinate = coordinateService.create(createCoordinateDto);
         if(coordinate == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(coordinate);
@@ -43,6 +47,7 @@ public class CoordinateController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<Page<GetCoordinateDto>> findAll(Pageable pageable) {
+        logger.info("Find all coordinates request received.");
         Page<GetCoordinateDto> coordinates = coordinateService.findAll(pageable);
         return ResponseEntity.ok(coordinates != null ? coordinates : Page.empty());
     }
@@ -50,6 +55,7 @@ public class CoordinateController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<GetCoordinateDto> findById(@PathVariable Long id) {
+        logger.info("Find coordinate with id: [" + id + "] request received.");
         GetCoordinateDto coordinate = coordinateService.findById(id);
         return ResponseEntity.of(Optional.ofNullable(coordinate));
     }
@@ -59,6 +65,7 @@ public class CoordinateController {
     public ResponseEntity<GetCoordinateDto> update(
             @PathVariable Long id,
             @RequestBody @Valid UpdateCoordinateDto updateCoordinateDto) {
+        logger.info("Update coordinate with id: [" + id + "] request received.");
         GetCoordinateDto coordinate = coordinateService.update(id, updateCoordinateDto);
         return ResponseEntity.of(Optional.ofNullable(coordinate));
     }
@@ -66,6 +73,7 @@ public class CoordinateController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
+        logger.info("Delete coordinate with id: [" + id + "] request received.");
         coordinateService.delete(id);
         return ResponseEntity.noContent().build();
     }

@@ -8,6 +8,8 @@ import com.example.esperar_app.persistence.dto.user.LoginDto;
 import com.example.esperar_app.service.auth.impl.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private static final Logger logger = LogManager.getLogger(AuthController.class);
 
     @Autowired
     public AuthController(AuthService authService) {
@@ -37,6 +40,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> authenticate(
             @RequestBody @Valid LoginDto loginDto){
+        logger.info("Login request received");
 
         AuthResponse authResponse = authService.login(loginDto);
         return ResponseEntity.ok(authResponse);
@@ -50,6 +54,7 @@ public class AuthController {
      */
     @GetMapping("/validate-token")
     public ResponseEntity<Boolean> validate(@RequestParam String accessToken) {
+        logger.info("Token validation request received");
         boolean isTokenValid = authService.validateToken(accessToken);
         return ResponseEntity.ok(isTokenValid);
     }
@@ -60,6 +65,7 @@ public class AuthController {
      */
     @GetMapping("/current-user")
     public ResponseEntity<CurrentUserDto> getCurrentUser() {
+        logger.info("Current user request received");
         CurrentUserDto currentUserDto = authService.getCurrentUser();
         return ResponseEntity.ok(currentUserDto);
     }
@@ -71,6 +77,7 @@ public class AuthController {
      */
     @PostMapping("/logout")
     public ResponseEntity<LogoutResponse> logout(HttpServletRequest request) {
+        logger.info("Logout request received");
         authService.logout(request);
         return ResponseEntity.ok(new LogoutResponse("Logout successful"));
     }
@@ -79,6 +86,7 @@ public class AuthController {
     public ResponseEntity<String> sendEmailToChangePassword(
             @RequestParam String email
     ) {
+        logger.info("User with email: [" + email + "] request change password request received");
         authService.sendEmailToChangePassword(email);
         return ResponseEntity.ok("Email sent successfully");
     }
@@ -88,6 +96,7 @@ public class AuthController {
             @PathVariable String token,
             @RequestBody ChangePasswordDto changePasswordDto
     ) {
+        logger.info("Change password request received");
         authService.changePassword(
                 token,
                 changePasswordDto.getOldPassword(),
@@ -97,5 +106,4 @@ public class AuthController {
 
         return ResponseEntity.ok("Password changed successfully");
     }
-
 }

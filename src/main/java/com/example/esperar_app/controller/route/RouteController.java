@@ -5,6 +5,8 @@ import com.example.esperar_app.persistence.dto.route.GetRouteDto;
 import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
 import com.example.esperar_app.service.route.RouteService;
 import jakarta.validation.Valid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,8 @@ public class RouteController {
 
     private final RouteService routeService;
 
+    private static final Logger logger = LogManager.getLogger();
+
     @Autowired
     public RouteController(RouteService routeService) {
         this.routeService = routeService;
@@ -35,6 +39,7 @@ public class RouteController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<GetRouteDto> create(@RequestBody @Valid CreateRouteDto createRouteDto) {
+        logger.info("Create a new route request received.");
         GetRouteDto route = routeService.create(createRouteDto);
         if(route != null) return ResponseEntity.ok(route);
         else return ResponseEntity.badRequest().build();
@@ -43,6 +48,7 @@ public class RouteController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<Page<GetRouteDto>> findAll(Pageable pageable) {
+        logger.info("Find all routes request received.");
         Page<GetRouteDto> routesPage = routeService.findAll(pageable);
         return ResponseEntity.ok(routesPage != null ? routesPage : Page.empty());
     }
@@ -51,13 +57,17 @@ public class RouteController {
     @GetMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<GetRouteDto> findById(@PathVariable Long id) {
+        logger.info("Find route with id: [" + id + "] request received.");
         GetRouteDto route = routeService.findById(id);
         return ResponseEntity.of(Optional.ofNullable(route));
     }
 
     @PutMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
-    public ResponseEntity<GetRouteDto> update (@PathVariable Long id, @RequestBody @Valid UpdateRouteDto updateRouteDto) {
+    public ResponseEntity<GetRouteDto> update (
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateRouteDto updateRouteDto) {
+        logger.info("Update route with id: [" + id + "] request received.");
         GetRouteDto route = routeService.update(id, updateRouteDto);
         return ResponseEntity.of(Optional.ofNullable(route));
     }
@@ -65,6 +75,7 @@ public class RouteController {
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
+        logger.info("Delete route with id: [" + id + "] request received.");
         routeService.delete(id);
         return ResponseEntity.noContent().build();
     }

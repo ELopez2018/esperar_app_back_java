@@ -7,6 +7,8 @@ import com.example.esperar_app.persistence.dto.user.RegisteredUser;
 import com.example.esperar_app.persistence.dto.user.UpdateUserDto;
 import com.example.esperar_app.service.user.UserService;
 import jakarta.validation.Valid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +44,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private static final Logger logger = LogManager.getLogger();
 
     @Autowired
     public UserController(UserService userService) {
@@ -55,6 +58,7 @@ public class UserController {
      */
     @PostMapping("sign-up/natural-person")
     public ResponseEntity<RegisteredUser> signUp(@RequestBody @Valid CreateNaturalPersonDto createNaturalPersonDto) {
+        logger.info("Sign up natural person request received.");
         RegisteredUser newUser = userService.create(createNaturalPersonDto);
         return ResponseEntity.ok(newUser);
     }
@@ -67,6 +71,7 @@ public class UserController {
     @PostMapping("sign-up/legal-person")
     public ResponseEntity<RegisteredUser> createLegalPerson(
             @RequestBody @Valid CreateLegalPersonDto createLegalPersonDto) {
+        logger.info("Sign up legal person request received.");
         RegisteredUser newUser = userService.createLegalPerson(createLegalPersonDto);
         return ResponseEntity.ok(newUser);
     }
@@ -79,6 +84,7 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<Page<GetUserDto>> findAll(Pageable pageable) {
+        logger.info("Find all users request received.");
         Page<GetUserDto> usersPage = userService.findAll(pageable);
         return ResponseEntity.ok(usersPage != null ? usersPage : Page.empty());
     }
@@ -91,6 +97,7 @@ public class UserController {
     @GetMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<GetUserDto> findById(@PathVariable Long id) {
+        logger.info("Find user with id: [" + id + "] request received.");
         GetUserDto getUserDto = userService.findById(id);
         return ResponseEntity.ok(getUserDto);
     }
@@ -104,6 +111,7 @@ public class UserController {
     @PutMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<GetUserDto> update(@PathVariable Long id, @RequestBody @Valid UpdateUserDto updateUserDto) {
+        logger.info("Update user with id: [" + id + "] request received.");
         GetUserDto user = userService.update(id, updateUserDto);
         return ResponseEntity.ok(user);
     }
@@ -116,6 +124,7 @@ public class UserController {
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
+        logger.info("Delete user with id: [" + id + "] request received.");
         userService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -126,6 +135,7 @@ public class UserController {
      */
     @GetMapping("connectedUsers")
     public ResponseEntity<List<GetUserDto>> findConnectedUsers() {
+        logger.info("Find all connected users request received.");
         List<GetUserDto> connectedUsers = userService.findConnectedUsers();
         return ResponseEntity.ok(connectedUsers != null ? connectedUsers : List.of());
     }
@@ -135,6 +145,7 @@ public class UserController {
     public ResponseEntity<String> fileUploading(
             @RequestParam("file") MultipartFile file,
             @RequestParam("userId") String userId) {
+        logger.info("File uploading request received.");
         System.out.println("El fichero es: " + file.getOriginalFilename());
         System.out.println("El usuario es: " + userId);
         return ResponseEntity.ok("Successfully uploaded the file");
@@ -143,6 +154,7 @@ public class UserController {
     @GetMapping("license-soon-to-expire")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<Page<GetUserDto>> findDriversWithLicenseSoonToExpire(Pageable pageable) {
+        logger.info("Find drivers with license soon to expire request received.");
         Page<GetUserDto> drivers = userService.findDriversWithLicenseSoonToExpire(pageable);
         return ResponseEntity.ok(drivers != null ? drivers : Page.empty());
     }

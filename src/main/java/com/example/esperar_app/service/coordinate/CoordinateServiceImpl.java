@@ -9,6 +9,8 @@ import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
 import com.example.esperar_app.persistence.entity.route.Route;
 import com.example.esperar_app.persistence.repository.CoordinateRepository;
 import com.example.esperar_app.persistence.repository.RouteRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,6 +28,8 @@ public class CoordinateServiceImpl implements CoordinateService {
     private final CoordinateRepository coordinateRepository;
     private final CoordinateMapper coordinateMapper;
     private final RouteRepository routeRepository;
+
+    private static final Logger logger = LogManager.getLogger();
 
     @Autowired
     public CoordinateServiceImpl(
@@ -53,9 +57,14 @@ public class CoordinateServiceImpl implements CoordinateService {
         coordinate.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         coordinate.setRoute(route);
 
-        Coordinate coordinateSaved = coordinateRepository.save(coordinate);
-
-        return coordinateMapper.coordinateToGetCoordinateDto(coordinateSaved);
+        try {
+            Coordinate coordinateSaved = coordinateRepository.save(coordinate);
+            logger.info("Coordinate created");
+            return coordinateMapper.coordinateToGetCoordinateDto(coordinateSaved);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException("Error creating coordinate");
+        }
     }
 
     /**
@@ -66,7 +75,7 @@ public class CoordinateServiceImpl implements CoordinateService {
     @Override
     public Page<GetCoordinateDto> findAll(Pageable pageable) {
         Page<Coordinate> coordinates = coordinateRepository.findAll(pageable);
-
+        logger.info("Returning all coordinates paginated");
         return coordinates.map(coordinateMapper::coordinateToGetCoordinateDto);
     }
 
@@ -81,6 +90,7 @@ public class CoordinateServiceImpl implements CoordinateService {
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Coordinate not found"));
 
+        logger.info("Returning coordinate found");
         return coordinateMapper.coordinateToGetCoordinateDto(coordinateFound);
     }
 
@@ -99,9 +109,15 @@ public class CoordinateServiceImpl implements CoordinateService {
         BeanUtils.copyProperties(updateCoordinateDto, coordinate, getStrings(updateCoordinateDto));
         coordinate.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
-        Coordinate coordinateUpdated = coordinateRepository.save(coordinate);
+        try {
+            Coordinate coordinateUpdated = coordinateRepository.save(coordinate);
+            logger.info("Coordinate updated");
+            return coordinateMapper.coordinateToGetCoordinateDto(coordinateUpdated);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException("Error updating coordinate");
+        }
 
-        return coordinateMapper.coordinateToGetCoordinateDto(coordinateUpdated);
     }
 
     /**
@@ -114,6 +130,12 @@ public class CoordinateServiceImpl implements CoordinateService {
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Coordinate not found"));
 
-        coordinateRepository.delete(coordinate);
+        try {
+            coordinateRepository.delete(coordinate);
+            logger.info("Coordinate deleted");
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException("Error deleting coordinate");
+        }
     }
 }

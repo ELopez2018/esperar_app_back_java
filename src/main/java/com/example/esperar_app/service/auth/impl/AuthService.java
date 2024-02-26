@@ -20,6 +20,9 @@ import com.example.esperar_app.service.mailer.MailerService;
 import com.example.esperar_app.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -60,14 +63,19 @@ public class AuthService {
 
     private final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
 
+    private static final Logger logger = LogManager.getLogger();
+
     /**
      * Validate the password pattern
      * @param password is the password that will be validated
      * @return true if the password is valid, false otherwise
      */
     public boolean validatePassword(String password) {
+        logger.info("Validating password");
         Matcher matcher = pattern.matcher(password);
-        return matcher.matches();
+        boolean response = matcher.matches();
+        logger.log(response ? Level.INFO : Level.WARN, "Password is " + (response ? "valid" : "not valid"));
+        return response;
     }
 
     /**
@@ -76,6 +84,7 @@ public class AuthService {
      * @return a map with the claims
      */
     public Map<String, Object> generateExtraClaims(User user) {
+        logger.info("Generating extra claims for the JWT token");
         return Map.of(
                 "name", user.getFullName(),
                 "role", user.getRole().getName(),
@@ -89,8 +98,13 @@ public class AuthService {
      * @return the access token
      */
     public AuthResponse login(LoginDto loginDto) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
+        } catch (Exception e) {
+            logger.error("Invalid username or password");
+            throw new RuntimeException("Invalid username or password");
+        }
 
         Optional<User> user = userService.findOneByUsername(loginDto.getUsername());
 
@@ -105,6 +119,7 @@ public class AuthService {
 
             return authRsp;
         } else {
+            logger.error("User not found");
             throw new ObjectNotFoundException("User not found");
         }
     }
@@ -115,10 +130,13 @@ public class AuthService {
      * @return true if the token is valid, false otherwise
      */
     public boolean validateToken(String accessToken) {
+        logger.info("Validating JWT token");
         try {
             jwtService.extractUsername(accessToken);
+            logger.info("JWT token is valid");
             return true;
         } catch (Exception e) {
+            logger.error("JWT token is not valid");
             return false;
         }
     }
@@ -128,15 +146,20 @@ public class AuthService {
      * @param request is the request that contains the JWT token
      */
     public void logout(HttpServletRequest request) {
+        logger.info("Logging out user");
         String accessToken = jwtService.extractJwtFromRequest(request);
 
-        if(!StringUtils.hasText(accessToken)) return;
+        if(!StringUtils.hasText(accessToken)) {
+            logger.error("JWT token not received");
+            return;
+        }
 
         Optional<UserAuth> userAuth = userAuthRepository.findByToken(accessToken);
 
         if(userAuth.isPresent() && userAuth.get().isValid()) {
             userAuth.get().setValid(false);
             userAuthRepository.save(userAuth.get());
+            logger.info("User logged out");
         }
     }
 
@@ -146,13 +169,20 @@ public class AuthService {
      * @param accessToken is the JWT token
      */
     public void saveUserAuth(User user, String accessToken) {
+        logger.info("Saving user authentication");
         UserAuth userAuth = new UserAuth();
         userAuth.setToken(accessToken);
         userAuth.setUser(user);
         userAuth.setExpirationDate(jwtService.extractExpiration(accessToken));
         userAuth.setValid(true);
 
-        userAuthRepository.save(userAuth);
+        try {
+            userAuthRepository.save(userAuth);
+            logger.info("User authentication saved");
+        } catch (Exception e) {
+            logger.error("Error saving user authentication");
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     /**
@@ -160,6 +190,8 @@ public class AuthService {
      * @return the current user
      */
     public CurrentUserDto getCurrentUser() {
+        logger.info("Getting current user");
+
         String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         User userFound = userService.findOneByUsername(username)
@@ -178,10 +210,12 @@ public class AuthService {
      * @param currentUserDto is the current user
      */
     private void setVehicleInfo(User user, CurrentUserDto currentUserDto) {
+        logger.info("Setting vehicle info to the current user");
         if (user.getVehicle() != null) {
             Vehicle vehicle = user.getVehicle();
             GetVehicleDto vehicleDto = vehicleMapper.toGetVehicleDto(vehicle);
             currentUserDto.setCurrentVehicle(vehicleDto);
+            logger.info("Vehicle info set to the current user");
         }
     }
 
@@ -191,6 +225,7 @@ public class AuthService {
      */
     @Transactional
     public void sendEmailToChangePassword(String email) {
+        logger.info("Sending email to change password to [" + email + "]");
         User currentUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ObjectNotFoundException("User with email [" + email + "] not found"));
 
@@ -200,16 +235,19 @@ public class AuthService {
 
         try {
             userRepository.save(currentUser);
+            logger.info("Token to change password saved");
         } catch (Exception e) {
+            logger.error("Error saving the token to change the password");
             throw new RuntimeException("Error saving the token to change the password");
         }
 
         mailerService.sendChangePasswordMail(email, encryptedToken);
 
-        System.out.println("Email sent to " + email + " with the token: " + encryptedToken);
+        logger.info("Email to change password sent");
     }
 
     private String encryptText(String text) {
+        logger.info("Encrypting text");
         return passwordEncoder.encode(text);
     }
 
@@ -226,22 +264,28 @@ public class AuthService {
             String newPassword,
             String confirmPassword
     ) {
+        logger.info("Changing password");
+
         User currentUser = userRepository.findByChangePasswordToken(token)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
 
         if (!validatePassword(newPassword)) {
+            logger.error("The password does not meet the requirements");
             throw new InvalidPasswordException("The password does not meet the requirements");
         }
 
         if (!newPassword.equals(confirmPassword)) {
+            logger.error("The new password and the confirmation password are not the same");
             throw new PasswordMismatchException("The new password and the confirmation password are not the same");
         }
 
         if (!jwtService.validateTokenToChangePassword(currentUser, token)) {
+            logger.error("The token is not valid");
             throw new InvalidTokenException("The token is not valid");
         }
 
         if (!passwordEncoder.matches(oldPassword, currentUser.getPassword())) {
+            logger.error("The old password is not correct");
             throw new IncorrectPasswordException("The old password is not correct");
         }
 
@@ -250,7 +294,9 @@ public class AuthService {
 
         try {
             userRepository.save(currentUser);
+            logger.info("Password changed");
         } catch (Exception e) {
+            logger.error("Error saving the new password");
             throw new RuntimeException("Error saving the new password");
         }
     }

@@ -2,6 +2,8 @@ package com.example.esperar_app.controller.notice;
 
 import com.example.esperar_app.persistence.entity.notice.Notice;
 import com.example.esperar_app.service.notice.NoticeService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +20,7 @@ import java.util.Optional;
 @RestController()
 @RequestMapping("/notices")
 public class NoticeController {
+    private static final Logger logger = LogManager.getLogger();
 
     private final NoticeService noticeService;
 
@@ -38,6 +41,7 @@ public class NoticeController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<Page<Notice>> findAll(Pageable pageable) {
+        logger.info("Find all notices request received.");
         Page<Notice> notices = noticeService.findAll(pageable);
         return ResponseEntity.ok(notices != null ? notices : Page.empty());
     }
@@ -45,6 +49,7 @@ public class NoticeController {
     @GetMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<Notice> findById(@PathVariable Long id) {
+        logger.info("Find notice with id: [" + id + "] request received.");
         Notice notice = noticeService.findById(id);
         return ResponseEntity.of(Optional.ofNullable(notice));
     }
@@ -52,6 +57,7 @@ public class NoticeController {
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
     public ResponseEntity<Void> remove(@PathVariable Long id) {
+        logger.info("Remove notice with id: [" + id + "] request received.");
         noticeService.remove(id);
         return ResponseEntity.noContent().build();
     }

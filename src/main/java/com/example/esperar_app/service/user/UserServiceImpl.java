@@ -19,6 +19,8 @@ import com.example.esperar_app.persistence.utils.UserChatStatus;
 import com.example.esperar_app.persistence.utils.UserType;
 import com.example.esperar_app.service.auth.RoleService;
 import com.example.esperar_app.service.auth.impl.JwtService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,13 +37,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStrings;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private static final Logger logger = LogManager.getLogger();
 
     private final UserRepository userRepository;
 
@@ -86,6 +88,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public RegisteredUser create(CreateNaturalPersonDto createNaturalPersonDto) {
         if(!createNaturalPersonDto.getTermsAndConditions()) {
+            logger.warn("Terms and conditions not accepted");
             throw new TermsAndConditionsException("Terms and conditions must be accepted");
         }
 
@@ -100,7 +103,6 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.createUserDtoToUser(createNaturalPersonDto);
 
         validateAndSetDate(createNaturalPersonDto.getLicenseExpirationDate(),
-                "Invalid license expiration date",
                 user
         );
 
@@ -117,13 +119,20 @@ public class UserServiceImpl implements UserService {
 
         String accessToken = jwtService.generateToken(user, generateExtraClaims(user));
 
-        user = userRepository.save(user);
+        try {
+            user = userRepository.save(user);
+            saveUserAuth(user, accessToken);
 
-        saveUserAuth(user, accessToken);
+            RegisteredUser registeredUser = userMapper.toRegisteredUser(user);
+            registeredUser.setAccessToken(accessToken);
 
-        RegisteredUser registeredUser = userMapper.toRegisteredUser(user);
-        registeredUser.setAccessToken(accessToken);
-        return registeredUser;
+            logger.info("User created successfully");
+
+            return registeredUser;
+        } catch (Exception e) {
+            logger.error("Error creating user");
+            throw new RuntimeException("Error creating user: " + e.getMessage());
+        }
     }
 
     /**
@@ -136,7 +145,8 @@ public class UserServiceImpl implements UserService {
         String nit = createLegalPersonDto.getNit();
         String email = createLegalPersonDto.getEmail();
         String username = createLegalPersonDto.getUsername();
-        String password = createLegalPersonDto.getPassword();
+
+//        String password = createLegalPersonDto.getPassword();
 
 //        if(!validatePasswordRegex(password)) {
 //            throw new InvalidPasswordException("Password must have at least 8 characters," +
@@ -152,11 +162,13 @@ public class UserServiceImpl implements UserService {
                                     existingUser.getNit().equals(nit) ? "NIT" : null;
 
             if (duplicateField != null) {
+                logger.error("Error creating legal person: " + duplicateField + " already exists");
                 throw new AlreadyExistError(duplicateField);
             }
         }
 
         if(!createLegalPersonDto.getTermsAndConditions()) {
+            logger.warn("Terms and conditions not accepted");
             throw new TermsAndConditionsException("Terms and conditions must be accepted");
         }
 
@@ -177,14 +189,20 @@ public class UserServiceImpl implements UserService {
 
         String accessToken = jwtService.generateToken(user, generateExtraClaims(user));
 
-        user = userRepository.save(user);
+        try {
+            user = userRepository.save(user);
+            saveUserAuth(user, accessToken);
 
-        saveUserAuth(user, accessToken);
+            RegisteredUser registeredUser = userMapper.toRegisteredUser(user);
+            registeredUser.setAccessToken(accessToken);
 
-        RegisteredUser registeredUser = userMapper.toRegisteredUser(user);
-        registeredUser.setAccessToken(accessToken);
+            logger.info("Legal person created successfully");
 
-        return registeredUser;
+            return registeredUser;
+        } catch (Exception e) {
+            logger.error("Error creating legal person");
+            throw new RuntimeException("Error creating legal person: " + e.getMessage());
+        }
     }
 
     /**
@@ -240,7 +258,6 @@ public class UserServiceImpl implements UserService {
 //        }
 
         validateAndSetDate(updateUserDto.getLicenseExpirationDate(),
-                "Invalid license expiration date",
                 existingUser
         );
 
@@ -259,9 +276,14 @@ public class UserServiceImpl implements UserService {
 
         BeanUtils.copyProperties(updateUserDto, existingUser, getNullPropertyNames(updateUserDto));
 
-        userRepository.save(existingUser);
-
-        return userMapper.toGetUserDto(existingUser);
+        try {
+            userRepository.save(existingUser);
+            logger.info("User updated successfully");
+            return userMapper.toGetUserDto(existingUser);
+        } catch (Exception e) {
+            logger.error("Error updating user");
+            throw new RuntimeException("Error updating user: " + e.getMessage());
+        }
     }
 
     /**
@@ -273,7 +295,13 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
 
-        userRepository.delete(user);
+        try {
+            userRepository.delete(user);
+            logger.info("User deleted successfully");
+        } catch (Exception e) {
+            logger.error("Error deleting user");
+            throw new RuntimeException("Error deleting user: " + e.getMessage());
+        }
     }
 
     /**
@@ -287,7 +315,12 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
 
         userFound.setChatStatus(UserChatStatus.ONLINE);
-        return userRepository.save(userFound);
+        try {
+            return userRepository.save(userFound);
+        } catch (Exception e) {
+            logger.error("Error connecting user to chat");
+            throw new RuntimeException("Error connecting user to chat: " + e.getMessage());
+        }
     }
 
     /**
@@ -301,7 +334,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
 
         user.setChatStatus(UserChatStatus.OFFLINE);
-        return userRepository.save(user);
+
+        try {
+            return userRepository.save(user);
+        } catch (Exception e) {
+            logger.error("Error disconnecting user from chat");
+            throw new RuntimeException("Error disconnecting user from chat: " + e.getMessage());
+        }
     }
 
     /**
@@ -353,10 +392,12 @@ public class UserServiceImpl implements UserService {
      */
     private void validatePassword(String password, String confirmPassword) {
         if(!StringUtils.hasText(password) || !StringUtils.hasText(confirmPassword)) {
+            logger.error("Password and confirm password are required");
             throw new InvalidPasswordException("Password and confirm password are required");
         }
 
         if(!password.equals(confirmPassword)) {
+            logger.error("Password and confirm password must match");
             throw new InvalidPasswordException("Password and confirm password must match");
         }
     }
@@ -386,7 +427,12 @@ public class UserServiceImpl implements UserService {
         userAuth.setExpirationDate(jwtService.extractExpiration(accessToken));
         userAuth.setValid(true);
 
-        userAuthRepository.save(userAuth);
+        try {
+            userAuthRepository.save(userAuth);
+        } catch (Exception e) {
+            logger.error("Error saving user auth");
+            throw new RuntimeException("Error saving user auth: " + e.getMessage());
+        }
     }
 
     /**
@@ -404,17 +450,17 @@ public class UserServiceImpl implements UserService {
      * @return true if the password is valid, false otherwise
      */
     private boolean validatePasswordRegex(String password) {
-        Matcher matcher = pattern.matcher(password);
-        System.out.println(matcher.matches());
-        return matcher.matches();
+        return pattern.matcher(password).matches();
     }
 
-    private void validateAndSetDate(String date, String errorMessage, User user) {
+    private void validateAndSetDate(String date, User user) {
         if (date != null) {
             if (isValidDateFormat(date) && isValidDate(date)) {
                 user.setLicenseExpirationDate(date);
+                logger.info("License expiration date set successfully");
             } else {
-                throw new IllegalArgumentException(errorMessage + ", the correct format is dd-MM-yyyy");
+                logger.error("Invalid license expiration date" + ", the correct format is dd-MM-yyyy");
+                throw new IllegalArgumentException("Invalid license expiration date" + ", the correct format is dd-MM-yyyy");
             }
         }
     }
@@ -430,6 +476,7 @@ public class UserServiceImpl implements UserService {
             simpleDateFormat.parse(date);
             return true;
         } catch (Exception e) {
+            logger.warn("Invalid date format");
             return false;
         }
     }
@@ -438,10 +485,11 @@ public class UserServiceImpl implements UserService {
     public void checkLicensesToExpireDate() {
         Page<User> users = findUsersWithLicenseSoonToExpire();
 
-        System.out.println("Usuarios con expiración de su licencia próxima: " + users.getTotalElements());
+        logger.info("Users with license soon to expire: " + users.getContent().size());
 
         for (User user : users) {
-            System.out.println("Email del usuario con licencia próxima a expirar: " + user.getEmail());
+            logger.info("User: " + user.getUsername() + " - License expiration date: "
+                    + user.getLicenseExpirationDate());
         }
     }
 
