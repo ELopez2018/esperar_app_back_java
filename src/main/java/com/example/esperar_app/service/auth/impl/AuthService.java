@@ -1,8 +1,6 @@
 package com.example.esperar_app.service.auth.impl;
 
 import com.example.esperar_app.exception.IncorrectPasswordException;
-import com.example.esperar_app.exception.InvalidPasswordException;
-import com.example.esperar_app.exception.InvalidTokenException;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.exception.PasswordMismatchException;
 import com.example.esperar_app.mapper.UserMapper;
@@ -20,7 +18,6 @@ import com.example.esperar_app.service.mailer.MailerService;
 import com.example.esperar_app.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,8 +30,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -58,25 +54,7 @@ public class AuthService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private static final String PASSWORD_PATTERN =
-            "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$";
-
-    private final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
-
     private static final Logger logger = LogManager.getLogger();
-
-    /**
-     * Validate the password pattern
-     * @param password is the password that will be validated
-     * @return true if the password is valid, false otherwise
-     */
-    public boolean validatePassword(String password) {
-        logger.info("Validating password");
-        Matcher matcher = pattern.matcher(password);
-        boolean response = matcher.matches();
-        logger.log(response ? Level.INFO : Level.WARN, "Password is " + (response ? "valid" : "not valid"));
-        return response;
-    }
 
     /**
      * Generate extra claims for the JWT token
@@ -226,12 +204,14 @@ public class AuthService {
     @Transactional
     public void sendEmailToChangePassword(String email) {
         logger.info("Sending email to change password to [" + email + "]");
+
         User currentUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ObjectNotFoundException("User with email [" + email + "] not found"));
 
-        String encryptedToken = jwtService.encryptTokenToChangePassword(currentUser);
+        UUID uuid = UUID.randomUUID();
+        String token = uuid.toString();
 
-        currentUser.setChangePasswordToken(encryptedToken);
+        currentUser.setChangePasswordToken(token);
 
         try {
             userRepository.save(currentUser);
@@ -241,14 +221,9 @@ public class AuthService {
             throw new RuntimeException("Error saving the token to change the password");
         }
 
-        mailerService.sendChangePasswordMail(email, encryptedToken);
+        mailerService.sendChangePasswordMail(email, token);
 
         logger.info("Email to change password sent");
-    }
-
-    private String encryptText(String text) {
-        logger.info("Encrypting text");
-        return passwordEncoder.encode(text);
     }
 
     /**
@@ -269,24 +244,16 @@ public class AuthService {
         User currentUser = userRepository.findByChangePasswordToken(token)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
 
-        if (!validatePassword(newPassword)) {
-            logger.error("The password does not meet the requirements");
-            throw new InvalidPasswordException("The password does not meet the requirements");
-        }
-
         if (!newPassword.equals(confirmPassword)) {
             logger.error("The new password and the confirmation password are not the same");
             throw new PasswordMismatchException("The new password and the confirmation password are not the same");
         }
 
-        if (!jwtService.validateTokenToChangePassword(currentUser, token)) {
-            logger.error("The token is not valid");
-            throw new InvalidTokenException("The token is not valid");
-        }
-
-        if (!passwordEncoder.matches(oldPassword, currentUser.getPassword())) {
-            logger.error("The old password is not correct");
-            throw new IncorrectPasswordException("The old password is not correct");
+        if(oldPassword != null) {
+            if (!passwordEncoder.matches(oldPassword, currentUser.getPassword())) {
+                logger.error("The old password is not correct");
+                throw new IncorrectPasswordException("The old password is not correct");
+            }
         }
 
         currentUser.setPassword(encryptText(newPassword));
@@ -299,5 +266,15 @@ public class AuthService {
             logger.error("Error saving the new password");
             throw new RuntimeException("Error saving the new password");
         }
+    }
+
+    /**
+     * Encrypt any text
+     * @param text is the text that will be encrypted
+     * @return the encrypted text
+     */
+    private String encryptText(String text) {
+        logger.info("Encrypting text");
+        return passwordEncoder.encode(text);
     }
 }

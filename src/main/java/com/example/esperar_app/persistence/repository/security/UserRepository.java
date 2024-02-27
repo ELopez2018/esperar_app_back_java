@@ -23,8 +23,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM com.example.esperar_app.persistence.entity.security.User u WHERE u.chatStatus = :status")
     List<User> findByChatStatus(UserChatStatus status);
 
-    Optional<User> findByChangePasswordToken(String token);
-
     List<User> findByUsernameOrEmailOrNit(String username, String email, String nit);
 
     @Query("SELECT u FROM com.example.esperar_app.persistence.entity.security.User u " +
@@ -33,4 +31,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND YEAR(u.licenseExpirationDate) = YEAR(CURRENT_DATE)")
     Page<User> findDriversWithLicenseSoonToExpire(Pageable pageable);
 
+    Optional<User> findByChangePasswordToken(String token);
 }
