@@ -23,9 +23,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -138,17 +136,6 @@ public class UserController {
         logger.info("Find all connected users request received.");
         List<GetUserDto> connectedUsers = userService.findConnectedUsers();
         return ResponseEntity.ok(connectedUsers != null ? connectedUsers : List.of());
-    }
-
-    // TODO: Implementar subida de la cámara de comercio a S3 y relacionar el url al usuario en la base de datos
-    @PostMapping("/single/upload/")
-    public ResponseEntity<String> fileUploading(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("userId") String userId) {
-        logger.info("File uploading request received.");
-        System.out.println("El fichero es: " + file.getOriginalFilename());
-        System.out.println("El usuario es: " + userId);
-        return ResponseEntity.ok("Successfully uploaded the file");
     }
 
     @GetMapping("license-soon-to-expire")

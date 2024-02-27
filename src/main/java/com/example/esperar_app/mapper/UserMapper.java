@@ -30,6 +30,7 @@ public interface UserMapper {
             @Mapping(source = "confirmPassword", target = "password"),
             @Mapping(source = "username", target = "username"),
             @Mapping(target = "lastName", source = "lastName"),
+            @Mapping(target = "licenseExpirationDate", ignore = true),
             @Mapping(target = "createdAt", ignore = true),
             @Mapping(target = "deletedAt", ignore = true),
             @Mapping(target = "fullName", ignore = true),
@@ -51,7 +52,8 @@ public interface UserMapper {
             @Mapping(target = "nit", ignore = true),
             @Mapping(target = "profileImageUrl", ignore = true),
             @Mapping(target = "userType", ignore = true),
-            @Mapping(target = "whatsapp", ignore = true)
+            @Mapping(target = "whatsapp", ignore = true),
+            @Mapping(target = "changePasswordToken", ignore = true)
     })
     User createUserDtoToUser(CreateNaturalPersonDto createNaturalPersonDto);
 
@@ -120,7 +122,12 @@ public interface UserMapper {
             @Mapping(target = "updatedAt", ignore = true),
             @Mapping(target = "userAuthList", ignore = true),
             @Mapping(target = "vehicle", ignore = true),
-            @Mapping(target = "profileImageUrl", ignore = true)
+            @Mapping(target = "profileImageUrl", ignore = true),
+            @Mapping(target = "acceptedTermsAt", ignore = true),
+            @Mapping(target = "changePasswordToken", ignore = true),
+            @Mapping(target = "confirmedAccountAt", ignore = true),
+            @Mapping(target = "licenseExpirationDate", ignore = true),
+            @Mapping(target = "userType", ignore = true)
     })
     User createLegalPersonDtoToUser(CreateLegalPersonDto createLegalPersonDto);
 }

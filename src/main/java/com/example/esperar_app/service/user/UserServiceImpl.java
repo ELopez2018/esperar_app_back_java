@@ -43,7 +43,7 @@ import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStri
 
 @Service
 public class UserServiceImpl implements UserService {
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     private final UserRepository userRepository;
 
@@ -56,11 +56,6 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
 
     private final UserAuthRepository userAuthRepository;
-
-    private static final String PASSWORD_PATTERN =
-            "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$";
-
-    private final Pattern pattern = Pattern.compile(PASSWORD_PATTERN, Pattern.CASE_INSENSITIVE);
 
     private final Pattern DATE_PATTERN = Pattern.compile("^\\d{2}-\\d{2}-\\d{4}$");
 
@@ -94,17 +89,9 @@ public class UserServiceImpl implements UserService {
 
         validatePassword(createNaturalPersonDto.getPassword(), createNaturalPersonDto.getConfirmPassword());
 
-//        if (!validatePasswordRegex(createNaturalPersonDto.getPassword())) {
-//            throw new InvalidPasswordException("Password must have at least 8 characters," +
-//                    "1 uppercase letter, 1 lowercase letter, 1 number and 1 special character");
-//        }
-
-
         User user = userMapper.createUserDtoToUser(createNaturalPersonDto);
 
-        validateAndSetDate(createNaturalPersonDto.getLicenseExpirationDate(),
-                user
-        );
+        validateAndSetDate(createNaturalPersonDto.getLicenseExpirationDate(), user);
 
         user.setPassword(encodePassword(createNaturalPersonDto.getPassword()));
 
@@ -145,13 +132,6 @@ public class UserServiceImpl implements UserService {
         String nit = createLegalPersonDto.getNit();
         String email = createLegalPersonDto.getEmail();
         String username = createLegalPersonDto.getUsername();
-
-//        String password = createLegalPersonDto.getPassword();
-
-//        if(!validatePasswordRegex(password)) {
-//            throw new InvalidPasswordException("Password must have at least 8 characters," +
-//                    "1 uppercase letter, 1 lowercase letter, 1 number and 1 special character");
-//        }
 
         List<User> usersFound = userRepository.findByUsernameOrEmailOrNit(username, email, nit);
 
@@ -249,13 +229,6 @@ public class UserServiceImpl implements UserService {
     public GetUserDto update(Long id, UpdateUserDto updateUserDto) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
-
-//        String password = updateUserDto.getPassword();
-
-//        if(!validatePasswordRegex(password)) {
-//            throw new InvalidPasswordException("Password must have at least 8 characters," +
-//                    "1 uppercase letter, 1 lowercase letter, 1 number and 1 special character");
-//        }
 
         validateAndSetDate(updateUserDto.getLicenseExpirationDate(),
                 existingUser
@@ -444,29 +417,21 @@ public class UserServiceImpl implements UserService {
         return passwordEncoder.encode(password);
     }
 
-    /**
-     * Validate the password pattern
-     * @param password is the password that will be validated
-     * @return true if the password is valid, false otherwise
-     */
-    private boolean validatePasswordRegex(String password) {
-        return pattern.matcher(password).matches();
-    }
-
     private void validateAndSetDate(String date, User user) {
-        if (date != null) {
-            if (isValidDateFormat(date) && isValidDate(date)) {
+        if(date == null) throw new RuntimeException("The password is required");
+
+        if (DATE_PATTERN.matcher(date).matches() && isValidDate(date)) {
+            logger.info("STEP 1");
+            if(isValidDate(date)) {
+                logger.info("STEP 2");
                 user.setLicenseExpirationDate(date);
                 logger.info("License expiration date set successfully");
-            } else {
-                logger.error("Invalid license expiration date" + ", the correct format is dd-MM-yyyy");
-                throw new IllegalArgumentException("Invalid license expiration date" + ", the correct format is dd-MM-yyyy");
             }
+        } else {
+            logger.error("Invalid license expiration date" + ", the correct format is dd-MM-yyyy");
+            throw new IllegalArgumentException("Invalid license expiration date" + "," +
+                    "the correct format is dd-MM-yyyy");
         }
-    }
-
-    private boolean isValidDateFormat(String date) {
-        return DATE_PATTERN.matcher(date).matches();
     }
 
     private boolean isValidDate(String date) {
