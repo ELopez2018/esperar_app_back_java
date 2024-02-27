@@ -51,4 +51,9 @@ public class CreateNaturalPersonDto implements Serializable {
         if(licenseExpirationDate == null) return null;
         return licenseExpirationDate;
     }
+
+    public void setLicenseExpirationDate(String licenseExpirationDate) {
+        if(licenseExpirationDate == null) this.licenseExpirationDate = null;
+        this.licenseExpirationDate = licenseExpirationDate;
+    }
 }

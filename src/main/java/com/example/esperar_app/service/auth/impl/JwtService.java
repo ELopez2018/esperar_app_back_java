@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 public class JwtService {
@@ -78,9 +79,14 @@ public class JwtService {
      * @param accessToken is the token from which the extra claims will be extracted
      * @return the extra claims
      */
-    private Claims extractAllClaims(String accessToken) {
+    public Claims extractAllClaims(String accessToken) {
         logger.info("Extracting all claims from token");
-         return Jwts.parser().verifyWith(generateKey()).build().parseSignedClaims(accessToken).getPayload();
+
+         return Jwts.parser()
+                 .verifyWith(generateKey())
+                 .build()
+                 .parseSignedClaims(accessToken)
+                 .getPayload();
     }
 
     /**
@@ -110,30 +116,9 @@ public class JwtService {
         return extractAllClaims(accessToken).getExpiration();
     }
 
-    public String encryptTokenToChangePassword(User currentUser) {
-        logger.info("Encrypting token to change password for user: " + currentUser.getEmail());
+    public Integer encryptTokenToChangePassword(User currentUser) {
+        logger.info("Generating token to change password for user with email: [" + currentUser.getEmail() + "]");
 
-        Date issuedAt = new Date(System.currentTimeMillis());
-        Date expiration = new Date(issuedAt.getTime() + EXPIRATION_IN_MINUTES * 60 * 1000);
-
-        return Jwts.builder()
-                .header()
-                .type("JWT")
-                .and()
-                .subject(currentUser.getEmail())
-                .issuedAt(issuedAt)
-                .expiration(expiration)
-                .signWith(generateKey(), Jwts.SIG.HS256)
-                .compact();
-    }
-
-    public boolean validateTokenToChangePassword(User currentUser, String token) {
-        logger.info("Validating token to change password for user: " + currentUser.getEmail());
-
-        Claims claims = extractAllClaims(token);
-
-        if(claims.getExpiration().before(new Date())) return false;
-
-        return claims.getSubject().equals(currentUser.getEmail());
+        return new Random().nextInt(9000) + 1000;
     }
 }

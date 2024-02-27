@@ -48,7 +48,7 @@ public class MailerServiceImpl implements MailerService {
     }
 
     @Override
-    public String sendChangePasswordMail(String email, String token) {
+    public void sendChangePasswordMail(String email, String token) {
         logger.info("Sending email to change password");
         ConfigProperties.Resend resendEnvironments = configProperties.resend();
 
@@ -59,13 +59,12 @@ public class MailerServiceImpl implements MailerService {
                 .to("juanescalderon12@gmail.com")
                 .subject("it works!")
                 .html("You can change your password here:" +
-                        "<a href=\"http://localhost:8000/api/v1/auth/change-password/" + token + "\">Click here</a>")
+                        "<a href=\"http://localhost:8080/api/v1/auth/change-password/" + token + "\">Click here</a>")
                 .build();
 
         try {
             SendEmailResponse response = resend.emails().send(sendEmailRequest);
             logger.info("Email identifier: " + response.getId() + " sent successfully.");
-            return "Success";
         } catch (ResendException e) {
             logger.error("Error sending email");
             throw new RuntimeException(e);
