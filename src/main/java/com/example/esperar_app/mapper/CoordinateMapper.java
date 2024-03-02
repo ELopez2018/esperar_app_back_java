@@ -1,5 +1,6 @@
 package com.example.esperar_app.mapper;
 
+import com.example.esperar_app.persistence.dto.coordinate.CoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.CreateCoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.GetCoordinateDto;
 import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
@@ -23,4 +24,13 @@ public interface CoordinateMapper {
     Coordinate toEntity(CreateCoordinateDto createCoordinateDto);
 
     GetCoordinateDto coordinateToGetCoordinateDto(Coordinate coordinateSaved);
+
+    @Mappings({
+            @Mapping(target = "createdAt", ignore = true),
+            @Mapping(target = "deletedAt", ignore = true),
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "route", ignore = true),
+            @Mapping(target = "updatedAt", ignore = true)
+    })
+    Coordinate coordinateDtoToEntity(CoordinateDto coordinateDto);
 }

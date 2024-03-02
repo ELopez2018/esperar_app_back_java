@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {CoordinateMapper.class})
 public interface RouteMapper {
 
     @Mappings({
@@ -24,7 +24,7 @@ public interface RouteMapper {
     Route toEntity(CreateRouteDto createRouteDto);
 
     @Mappings({
-            @Mapping(target = "coordinates", ignore = true),
+            @Mapping(source = "coordinates", target = "coordinates"),
     })
     GetRouteDto routeToGetRouteDto(Route routeSaved);
 }

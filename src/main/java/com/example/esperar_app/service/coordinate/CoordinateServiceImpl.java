@@ -2,6 +2,7 @@ package com.example.esperar_app.service.coordinate;
 
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.CoordinateMapper;
+import com.example.esperar_app.persistence.dto.coordinate.CoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.CreateCoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.GetCoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.UpdateCoordinateDto;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStrings;
 
@@ -137,5 +140,24 @@ public class CoordinateServiceImpl implements CoordinateService {
             logger.error(e.getMessage());
             throw new RuntimeException("Error deleting coordinate");
         }
+    }
+
+    @Override
+    public List<Coordinate> createAll(List<CoordinateDto> coordinates, Long id) {
+        Route route = routeRepository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Route not found"));
+
+        List<Coordinate> coordinatesSaved = new ArrayList<>();
+
+        for (CoordinateDto coordinateDto : coordinates) {
+            Coordinate coordinate = coordinateMapper.coordinateDtoToEntity(coordinateDto);
+            coordinate.setRoute(route);
+            coordinate.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            coordinatesSaved.add(coordinate);
+            coordinateRepository.save(coordinate);
+        }
+
+        return coordinatesSaved;
     }
 }

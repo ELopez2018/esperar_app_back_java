@@ -1,6 +1,7 @@
 # Project
 .env
 secrets.yml
+pruebas.json
 
 HELP.md
 target/

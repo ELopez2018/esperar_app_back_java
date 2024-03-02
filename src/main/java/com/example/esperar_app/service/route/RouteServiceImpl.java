@@ -3,12 +3,15 @@ package com.example.esperar_app.service.route;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.CoordinateMapper;
 import com.example.esperar_app.mapper.RouteMapper;
+import com.example.esperar_app.persistence.dto.coordinate.CoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.GetCoordinateDto;
 import com.example.esperar_app.persistence.dto.route.CreateRouteDto;
 import com.example.esperar_app.persistence.dto.route.GetRouteDto;
 import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
+import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
 import com.example.esperar_app.persistence.entity.route.Route;
 import com.example.esperar_app.persistence.repository.RouteRepository;
+import com.example.esperar_app.service.coordinate.CoordinateService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -34,16 +38,20 @@ public class RouteServiceImpl implements RouteService {
 
     private final CoordinateMapper coordinateMapper;
 
+    private final CoordinateService coordinateService;
+
     private static final Logger logger = LogManager.getLogger();
 
     @Autowired
     public RouteServiceImpl(
             RouteRepository routeRepository,
             RouteMapper routeMapper,
-            CoordinateMapper coordinateMapper) {
+            CoordinateMapper coordinateMapper,
+            CoordinateService coordinateService) {
         this.routeRepository = routeRepository;
         this.routeMapper = routeMapper;
         this.coordinateMapper = coordinateMapper;
+        this.coordinateService = coordinateService;
     }
 
     /**
@@ -52,14 +60,21 @@ public class RouteServiceImpl implements RouteService {
      * @return route created
      */
     @Override
+    @Transactional
     public GetRouteDto create(CreateRouteDto createRouteDto) {
         Route route = routeMapper.toEntity(createRouteDto);
-        route.setCoordinates(null);
         route.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
         try {
             Route routeSaved = routeRepository.save(route);
             logger.info("Route created with id: " + routeSaved.getId());
+
+            List<CoordinateDto> coordinateDtos = createRouteDto.getCoordinates();
+
+            List<Coordinate> coordinatesCreated = coordinateService.createAll(coordinateDtos, routeSaved.getId());
+
+            routeSaved.setCoordinates(coordinatesCreated);
+
             return routeMapper.routeToGetRouteDto(routeSaved);
         } catch (Exception e) {
             logger.error("Error creating route");
@@ -91,6 +106,7 @@ public class RouteServiceImpl implements RouteService {
             List<GetCoordinateDto> coordinateDtos = route.getCoordinates().stream()
                     .map(coordinateMapper::coordinateToGetCoordinateDto)
                     .collect(Collectors.toList());
+
             routeDto.setCoordinates(coordinateDtos);
 
             return routeDto;
