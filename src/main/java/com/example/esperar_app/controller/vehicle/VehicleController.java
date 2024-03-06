@@ -6,6 +6,7 @@ import com.example.esperar_app.persistence.dto.vehicle.GetVehicleDto;
 import com.example.esperar_app.persistence.dto.vehicle.UpdateVehicleDto;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
+import com.example.esperar_app.persistence.utils.ImageType;
 import com.example.esperar_app.service.vehicle.VehicleService;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +23,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -115,5 +118,23 @@ public class VehicleController {
         logger.info("Find vehicles with tecnomechanical soon to expire request received.");
         Page<GetVehicleDto> vehiclesPage = vehicleService.findVehiclesWithTecnomechanicalSoonToExpire(pageable);
         return ResponseEntity.ok(vehiclesPage != null ? vehiclesPage : Page.empty());
+    }
+
+    @PostMapping("/single/upload/document")
+    public ResponseEntity<String> uploadVehicleDocument(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("vehicleId") Long vehicleId,
+            @RequestParam("imageType") ImageType imageType) {
+        logger.info("File uploading request received.");
+        logger.info("The file original name is: " + file.getOriginalFilename());
+        logger.info("Vehicle id is: " + vehicleId);
+
+        boolean response = vehicleService.uploadVehicleDocument(file, vehicleId, imageType);
+
+        if(!response) return ResponseEntity
+                .badRequest()
+                .body("An error occurred while uploading the file. Please try again.");
+
+        return ResponseEntity.ok("Chamber of Commerce successfully uploaded");
     }
 }

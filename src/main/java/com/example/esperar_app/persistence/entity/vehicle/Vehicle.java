@@ -62,11 +62,31 @@ public class Vehicle {
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<User> drivers = new ArrayList<>();
 
+    // SOAT
     @Column(name = "soat_expiration_date")
     private Date soatExpirationDate;
 
+    @Column(name = "soat_url")
+    private String soatUrl;
+
+    @Column(name = "soat_created_at")
+    private Date soatCreatedAt;
+
+    @Column(name = "soat_updated_at")
+    private Date soatUpdatedAt;
+
+    // TECHNICAL REVIEW
     @Column(name = "tecno_mechanical_expiration_date")
     private Date tecnoMechanicalExpirationDate;
+
+    @Column(name = "tecno_mechanical_url")
+    private String tecnoMechanicalUrl;
+
+    @Column(name = "tecno_mechanical_created_at")
+    private Date tecnoMechanicalCreatedAt;
+
+    @Column(name = "tecno_mechanical_updated_at")
+    private Date tecnoMechanicalUpdatedAt;
 
     @Enumerated(EnumType.STRING)
     private VehicleStatus status;

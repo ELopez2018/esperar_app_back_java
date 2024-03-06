@@ -141,9 +141,6 @@ public class User implements UserDetails {
     @Column
     private String whatsapp;
 
-    @Column(name = "profile_image_url")
-    private String profileImageUrl;
-
     @Column(name = "accepted_terms_at", nullable = false)
     private Date acceptedTermsAt;
 
@@ -153,8 +150,32 @@ public class User implements UserDetails {
     @Column(name = "change_password_token")
     private String changePasswordToken;
 
+    // CHAMBER OF COMMERCE
+    @Column(name = "chamber_of_commerce_url")
+    private String chamberOfCommerceUrl;
+
+    @Column(name = "chamber_of_commerce_created_at")
+    private Date chamberOfCommerceCreatedAt;
+
+    @Column(name = "chamber_of_commerce_updated_at")
+    private Date chamberOfCommerceUpdatedAt;
+
+    // DRIVER LICENSE
+    @Column(name = "driver_license_url")
+    private String driverLicenseUrl;
+
+    @Column(name = "driver_license_created_at")
+    private Date driverLicenseCreatedAt;
+
+    @Column(name = "driver_license_updated_at")
+    private Date driverLicenseUpdatedAt;
+
     @Column(name = "license_expiration_date")
     private Date licenseExpirationDate;
+
+    // PROFILE IMAGE
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

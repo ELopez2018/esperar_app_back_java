@@ -8,10 +8,15 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -163,5 +168,26 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<?> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception) {
+        ApiError error = new ApiError();
+        error.setMessage("The parameter [" + exception.getName() + "]" +
+                " must be of type [" + Objects.requireNonNull(exception.getRequiredType()).getSimpleName() + "]");
+        error.setTime(LocalDateTime.now());
+        error.setHttpCode(400);
+
+        if (exception.getRequiredType().isEnum()) {
+            Enum<?>[] enumConstants = (Enum<?>[]) exception.getRequiredType().getEnumConstants();
+            List<String> validValues = Arrays.stream(enumConstants)
+                    .map(Enum::name)
+                    .collect(Collectors.toList());
+
+            error.setBackedMessage("Valid values are: " + String.join(", ", validValues));
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
 
 }
