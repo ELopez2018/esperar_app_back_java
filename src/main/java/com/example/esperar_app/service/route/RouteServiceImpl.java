@@ -11,6 +11,7 @@ import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
 import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
 import com.example.esperar_app.persistence.entity.route.Route;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
+import com.example.esperar_app.persistence.repository.CoordinateRepository;
 import com.example.esperar_app.persistence.repository.RouteRepository;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.service.coordinate.CoordinateService;
@@ -44,6 +45,8 @@ public class RouteServiceImpl implements RouteService {
 
     private final VehicleRepository vehicleRepository;
 
+    private final CoordinateRepository coordinateRepository;
+
     private static final Logger logger = LogManager.getLogger();
 
     @Autowired
@@ -52,12 +55,14 @@ public class RouteServiceImpl implements RouteService {
             RouteMapper routeMapper,
             CoordinateMapper coordinateMapper,
             CoordinateService coordinateService,
-            VehicleRepository vehicleRepository) {
+            VehicleRepository vehicleRepository,
+            CoordinateRepository coordinateRepository) {
         this.routeRepository = routeRepository;
         this.routeMapper = routeMapper;
         this.coordinateMapper = coordinateMapper;
         this.coordinateService = coordinateService;
         this.vehicleRepository = vehicleRepository;
+        this.coordinateRepository = coordinateRepository;
     }
 
     /**
@@ -159,14 +164,16 @@ public class RouteServiceImpl implements RouteService {
 
         List<Coordinate> coordinatesCreated = coordinateService.createAll(coordinateDtos, route.getId());
 
+        for(Coordinate coordinate : coordinatesCreated) {
+            coordinate.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            coordinateRepository.save(coordinate);
+        }
+
         route.setCoordinates(coordinatesCreated);
 
         Route routeUpdated = routeRepository.save(route);
-        GetRouteDto routeDto = routeMapper.routeToGetRouteDto(routeUpdated);
 
-        mapCoordinatesToRouteDto(routeUpdated, routeDto);
-
-        return routeDto;
+        return routeMapper.routeToGetRouteDto(routeUpdated);
     }
 
     /**
