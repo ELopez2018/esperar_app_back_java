@@ -1,6 +1,6 @@
-package com.example.esperar_app.chat.controller;
+package com.example.esperar_app.websocket.controller;
 
-import com.example.esperar_app.chat.persistence.dto.ConnectUserDto;
+import com.example.esperar_app.websocket.persistence.dto.ConnectUserDto;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.service.user.UserService;
 import org.apache.logging.log4j.LogManager;
@@ -27,14 +27,14 @@ public class UserWebSocketController {
     @MessageMapping("/user.addUser")
     @SendTo("/user/public")
     public User connectUser(@Payload ConnectUserDto connectUserDto) {
-        logger.info("User trying to connect at chat: " + connectUserDto.getUsername());
+        logger.info("User trying to connect at websocket: " + connectUserDto.getUsername());
         return userService.connectUser(connectUserDto.getUsername());
     }
 
     @MessageMapping("/user.disconnectUser")
     @SendTo("/user/public")
     public User disconnectUser(@Payload ConnectUserDto connectUserDto) {
-        logger.info("User trying to disconnect at chat: " + connectUserDto.getUsername());
+        logger.info("User trying to disconnect at websocket: " + connectUserDto.getUsername());
         return userService.disconnectUser(connectUserDto.getUsername());
     }
 

@@ -32,4 +32,8 @@ public interface VehicleService {
     Page<GetVehicleDto> findVehiclesWithTecnomechanicalSoonToExpire(Pageable pageable);
 
     boolean uploadVehicleDocument(MultipartFile file, Long vehicleId, ImageType imageType);
+
+    Page<GetVehicleDto> findVehiclesByRouteId(Pageable pageable, Long routeId);
+
+    Page<GetVehicleDto> findVehiclesByCompanyId(Pageable pageable, Long companyId);
 }

@@ -296,9 +296,9 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Connect the user to the chat
+     * Connect the user to the websocket
      * @param username is the username of the user to be connected
-     * @return the user with the chat status updated
+     * @return the user with the websocket status updated
      */
     @Override
     public User connectUser(String username) {
@@ -309,15 +309,15 @@ public class UserServiceImpl implements UserService {
         try {
             return userRepository.save(userFound);
         } catch (Exception e) {
-            logger.error("Error connecting user to chat");
-            throw new RuntimeException("Error connecting user to chat: " + e.getMessage());
+            logger.error("Error connecting user to websocket");
+            throw new RuntimeException("Error connecting user to websocket: " + e.getMessage());
         }
     }
 
     /**
-     * Disconnect the user from the chat
+     * Disconnect the user from the websocket
      * @param username is the username of the user to be disconnected
-     * @return the user with the chat status updated
+     * @return the user with the websocket status updated
      */
     @Override
     public User disconnectUser(String username) {
@@ -329,8 +329,8 @@ public class UserServiceImpl implements UserService {
         try {
             return userRepository.save(user);
         } catch (Exception e) {
-            logger.error("Error disconnecting user from chat");
-            throw new RuntimeException("Error disconnecting user from chat: " + e.getMessage());
+            logger.error("Error disconnecting user from websocket");
+            throw new RuntimeException("Error disconnecting user from websocket: " + e.getMessage());
         }
     }
 

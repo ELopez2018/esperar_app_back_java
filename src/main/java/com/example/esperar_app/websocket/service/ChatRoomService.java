@@ -1,7 +1,7 @@
-package com.example.esperar_app.chat.service;
+package com.example.esperar_app.websocket.service;
 
-import com.example.esperar_app.chat.persistence.entity.ChatRoom;
-import com.example.esperar_app.chat.persistence.repository.ChatRoomRepository;
+import com.example.esperar_app.websocket.persistence.entity.ChatRoom;
+import com.example.esperar_app.websocket.persistence.repository.ChatRoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +55,10 @@ public class ChatRoomService {
         chatRoomRepository.save(recipientSender);
 
         return chatId;
+    }
+
+    public String createChatRoom() {
+        return chatRoomRepository.save(new ChatRoom()).getChatId();
     }
 
 }

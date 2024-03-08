@@ -10,6 +10,7 @@ import org.mapstruct.Mappings;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {
         UserMapper.class,
+        RouteMapper.class
 })
 public interface VehicleMapper {
 

@@ -137,4 +137,24 @@ public class VehicleController {
 
         return ResponseEntity.ok("Chamber of Commerce successfully uploaded");
     }
+
+    @GetMapping("/find-by-route/{routeId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
+    public ResponseEntity<Page<GetVehicleDto>> findVehiclesByRouteId(
+            @PathVariable Long routeId,
+            Pageable pageable) {
+        logger.info("Find vehicles by route id: [" + routeId + "] request received.");
+        Page<GetVehicleDto> vehiclesPage = vehicleService.findVehiclesByRouteId(pageable, routeId);
+        return ResponseEntity.ok(vehiclesPage != null ? vehiclesPage : Page.empty());
+    }
+
+    @GetMapping("/find-by-company/{companyId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
+    public ResponseEntity<Page<GetVehicleDto>> findVehiclesByCompanyId(
+            @PathVariable Long companyId,
+            Pageable pageable) {
+        logger.info("Find vehicles by company id: [" + companyId + "] request received.");
+        Page<GetVehicleDto> vehiclesPage = vehicleService.findVehiclesByCompanyId(pageable, companyId);
+        return ResponseEntity.ok(vehiclesPage != null ? vehiclesPage : Page.empty());
+    }
 }

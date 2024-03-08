@@ -1,6 +1,7 @@
 package com.example.esperar_app.persistence.entity.route;
 
 import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
+import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,4 +47,7 @@ public class Route {
 
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Coordinate> coordinates;
+
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<Vehicle> vehicles;
 }
