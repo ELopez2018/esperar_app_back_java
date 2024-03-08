@@ -81,8 +81,6 @@ public class RouteServiceImpl implements RouteService {
 
             routeSaved.setCoordinates(coordinatesCreated);
 
-
-
             return routeMapper.routeToGetRouteDto(routeSaved);
         } catch (Exception e) {
             logger.error("Error creating route");
@@ -156,6 +154,12 @@ public class RouteServiceImpl implements RouteService {
 
         BeanUtils.copyProperties(updateRouteDto, route, getStrings(updateRouteDto));
         route.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+
+        List<CoordinateDto> coordinateDtos = updateRouteDto.getCoordinates();
+
+        List<Coordinate> coordinatesCreated = coordinateService.createAll(coordinateDtos, route.getId());
+
+        route.setCoordinates(coordinatesCreated);
 
         Route routeUpdated = routeRepository.save(route);
         GetRouteDto routeDto = routeMapper.routeToGetRouteDto(routeUpdated);
