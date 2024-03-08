@@ -5,6 +5,7 @@ import com.example.esperar_app.persistence.dto.user.CreateNaturalPersonDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.user.RegisteredUser;
 import com.example.esperar_app.persistence.dto.user.UpdateUserDto;
+import com.example.esperar_app.persistence.utils.ImageType;
 import com.example.esperar_app.service.user.UserService;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +24,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -42,7 +45,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(UserController.class);
 
     @Autowired
     public UserController(UserService userService) {
@@ -144,5 +147,23 @@ public class UserController {
         logger.info("Find drivers with license soon to expire request received.");
         Page<GetUserDto> drivers = userService.findDriversWithLicenseSoonToExpire(pageable);
         return ResponseEntity.ok(drivers != null ? drivers : Page.empty());
+    }
+
+    @PostMapping("/single/upload/document")
+    public ResponseEntity<String> uploadUserDocument(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("userId") Long userId,
+            @RequestParam("imageType") ImageType imageType) {
+        logger.info("File uploading request received.");
+        logger.info("The file original name is: " + file.getOriginalFilename());
+        logger.info("User id is: " + userId);
+
+        boolean response = userService.uploadUserDocument(file, userId, imageType);
+
+        if(!response) return ResponseEntity
+                .badRequest()
+                .body("An error occurred while uploading the file. Please try again.");
+
+        return ResponseEntity.ok("Document successfully uploaded");
     }
 }

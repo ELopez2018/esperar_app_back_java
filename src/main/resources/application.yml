@@ -4,6 +4,13 @@ server:
   port: 8080
 
 spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 353724919403-27o1io4r13nqa8cf9r97buu57a5scsik.apps.googleusercontent.com
+            client-secret: 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
   datasource:
     url: "${MYSQL_URL}"
     username: "${MYSQL_USER}"
@@ -43,3 +50,6 @@ logging:
   level:
     org.springframework.messaging: trace
     org.springframework.web.socket: trace
+
+#    GOOGLE CLIENT ID = 353724919403-27o1io4r13nqa8cf9r97buu57a5scsik.apps.googleusercontent.com
+# GOOGLE SECRET ID = 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

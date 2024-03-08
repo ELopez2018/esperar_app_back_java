@@ -100,6 +100,7 @@ public class  HttpSecurityConfig {
         authReqConfig.requestMatchers(HttpMethod.GET, "/auth/validate-token").permitAll();
         authReqConfig.requestMatchers(HttpMethod.POST, "/auth/req-change-password").permitAll();
         authReqConfig.requestMatchers(HttpMethod.POST, "/auth/change-password/**").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/oauth2/**").permitAll();
 
         // PRIVATE ENDPOINTS USERS
         authReqConfig.requestMatchers(HttpMethod.POST, "/users/sign-up/**").permitAll();

@@ -1,6 +1,8 @@
 package com.example.esperar_app.service.user;
 
+import com.example.esperar_app.config.properties.ConfigProperties;
 import com.example.esperar_app.exception.AlreadyExistError;
+import com.example.esperar_app.exception.InvalidCloudProviderException;
 import com.example.esperar_app.exception.InvalidPasswordException;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.exception.TermsAndConditionsException;
@@ -15,10 +17,13 @@ import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
+import com.example.esperar_app.persistence.utils.ImageType;
 import com.example.esperar_app.persistence.utils.UserChatStatus;
 import com.example.esperar_app.persistence.utils.UserType;
 import com.example.esperar_app.service.auth.RoleService;
 import com.example.esperar_app.service.auth.impl.JwtService;
+import com.example.esperar_app.service.file.providers.aws.S3Service;
+import com.example.esperar_app.service.file.providers.cloudinary.CloudinaryService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -29,6 +34,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -57,6 +63,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserAuthRepository userAuthRepository;
 
+    private final CloudinaryService cloudinaryService;
+
+    private final S3Service s3Service;
+
+    private final ConfigProperties configProperties;
+
     private final Pattern DATE_PATTERN = Pattern.compile("^\\d{2}-\\d{2}-\\d{4}$");
 
     @Autowired
@@ -66,13 +78,19 @@ public class UserServiceImpl implements UserService {
             RoleService roleService,
             UserMapper userMapper,
             JwtService jwtService,
-            UserAuthRepository userAuthRepository) {
+            UserAuthRepository userAuthRepository,
+            CloudinaryService cloudinaryService,
+            S3Service s3Service,
+            ConfigProperties configProperties) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
         this.userMapper = userMapper;
         this.jwtService = jwtService;
         this.userAuthRepository = userAuthRepository;
+        this.cloudinaryService = cloudinaryService;
+        this.s3Service = s3Service;
+        this.configProperties = configProperties;
     }
 
     /**
@@ -278,9 +296,9 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Connect the user to the chat
+     * Connect the user to the websocket
      * @param username is the username of the user to be connected
-     * @return the user with the chat status updated
+     * @return the user with the websocket status updated
      */
     @Override
     public User connectUser(String username) {
@@ -291,15 +309,15 @@ public class UserServiceImpl implements UserService {
         try {
             return userRepository.save(userFound);
         } catch (Exception e) {
-            logger.error("Error connecting user to chat");
-            throw new RuntimeException("Error connecting user to chat: " + e.getMessage());
+            logger.error("Error connecting user to websocket");
+            throw new RuntimeException("Error connecting user to websocket: " + e.getMessage());
         }
     }
 
     /**
-     * Disconnect the user from the chat
+     * Disconnect the user from the websocket
      * @param username is the username of the user to be disconnected
-     * @return the user with the chat status updated
+     * @return the user with the websocket status updated
      */
     @Override
     public User disconnectUser(String username) {
@@ -311,8 +329,8 @@ public class UserServiceImpl implements UserService {
         try {
             return userRepository.save(user);
         } catch (Exception e) {
-            logger.error("Error disconnecting user from chat");
-            throw new RuntimeException("Error disconnecting user from chat: " + e.getMessage());
+            logger.error("Error disconnecting user from websocket");
+            throw new RuntimeException("Error disconnecting user from websocket: " + e.getMessage());
         }
     }
 
@@ -417,6 +435,11 @@ public class UserServiceImpl implements UserService {
         return passwordEncoder.encode(password);
     }
 
+    /**
+     * Validate and set the license expiration date
+     * @param date is the date to be validated and set
+     * @param user is the user that will be used to set the date
+     */
     private void validateAndSetDate(String date, User user) {
         if(date == null) throw new RuntimeException("The password is required");
 
@@ -434,6 +457,11 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Validate the date
+     * @param date is the date to be validated
+     * @return a boolean indicating if the date is valid
+     */
     private boolean isValidDate(String date) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
@@ -446,6 +474,9 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Check the licenses to expire date
+     */
     @Scheduled(cron = "0 50 9 * * *")
     public void checkLicensesToExpireDate() {
         Page<User> users = findUsersWithLicenseSoonToExpire();
@@ -458,8 +489,41 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Find the users with the license soon to expire
+     * @return a page with the users found
+     */
     public Page<User> findUsersWithLicenseSoonToExpire() {
         Pageable pageable = Pageable.unpaged();
         return userRepository.findDriversWithLicenseSoonToExpire(pageable);
+    }
+
+    /**
+     * Upload the chamber of commerce or driver license of the user to the cloud, depending on the cloud provider set in the properties
+     * @param file is the file to be uploaded
+     * @param userId is the id of the user that will be used to upload the file
+     * @return a boolean indicating if the file was uploaded successfully
+     */
+    public Boolean uploadUserDocument(
+            MultipartFile file,
+            Long userId,
+            ImageType imageType) {
+        ConfigProperties.CloudPlatform cloudPlatform = configProperties.cloudPlatform();
+
+        String provider = cloudPlatform.provider();
+        logger.info("Provider: " + provider);
+
+        switch (provider) {
+            case "cloudinary":
+                cloudinaryService.uploadUserDocument(file, userId, imageType);
+                break;
+            case "s3":
+                s3Service.uploadUserDocument(file, userId, imageType);
+                break;
+            default:
+                throw new InvalidCloudProviderException("Invalid service provider: " + provider);
+        }
+
+        return true;
     }
 }

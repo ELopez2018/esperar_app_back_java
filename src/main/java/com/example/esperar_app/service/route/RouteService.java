@@ -16,4 +16,6 @@ public interface RouteService {
     GetRouteDto update(Long id, UpdateRouteDto updateRouteDto);
 
     void delete(Long id);
+
+    void assignVehicleToRoute(Long routeId, Long vehicleId);
 }

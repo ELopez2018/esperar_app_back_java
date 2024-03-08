@@ -1,5 +1,7 @@
 package com.example.esperar_app.service.vehicle;
 
+import com.example.esperar_app.config.properties.ConfigProperties;
+import com.example.esperar_app.exception.InvalidCloudProviderException;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.UserMapper;
 import com.example.esperar_app.mapper.VehicleMapper;
@@ -9,8 +11,12 @@ import com.example.esperar_app.persistence.dto.vehicle.GetVehicleDto;
 import com.example.esperar_app.persistence.dto.vehicle.UpdateVehicleDto;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
+import com.example.esperar_app.persistence.repository.RouteRepository;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
+import com.example.esperar_app.persistence.utils.ImageType;
+import com.example.esperar_app.service.file.providers.aws.S3Service;
+import com.example.esperar_app.service.file.providers.cloudinary.CloudinaryService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -23,6 +29,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.beans.PropertyDescriptor;
 import java.text.SimpleDateFormat;
@@ -41,20 +48,32 @@ public class VehicleServiceImpl implements VehicleService {
     private final VehicleMapper vehicleMapper;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final CloudinaryService cloudinaryService;
+    private final S3Service s3Service;
+    private final ConfigProperties configProperties;
     private final Pattern DATE_PATTERN = Pattern.compile("^\\d{2}-\\d{2}-\\d{4}$");
 
     private static final Logger logger = LogManager.getLogger();
+    private final RouteRepository routeRepository;
 
     @Autowired
     public VehicleServiceImpl(
             VehicleRepository vehicleRepository,
             VehicleMapper vehicleMapper,
             UserRepository userRepository,
-            UserMapper userMapper) {
+            UserMapper userMapper,
+            CloudinaryService cloudinaryService,
+            S3Service s3Service,
+            ConfigProperties configProperties,
+            RouteRepository routeRepository) {
         this.vehicleRepository = vehicleRepository;
         this.vehicleMapper = vehicleMapper;
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.cloudinaryService = cloudinaryService;
+        this.s3Service = s3Service;
+        this.configProperties = configProperties;
+        this.routeRepository = routeRepository;
     }
 
     /**
@@ -65,8 +84,6 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public GetVehicleDto create(CreateVehicleDto createVehicleDto) {
         Vehicle vehicle = vehicleMapper.toEntity(createVehicleDto);
-
-        validateUserExists();
 
         validateAndSetDate(createVehicleDto.getSoatExpirationDate(),
                 "Invalid SOAT expiration date format",
@@ -79,6 +96,9 @@ public class VehicleServiceImpl implements VehicleService {
         );
 
         try {
+            User owner = validateUserExists();
+            vehicle.setOwner(owner);
+
             Vehicle vehicleSaved = vehicleRepository.save(vehicle);
             logger.info("Vehicle created: " + vehicleSaved.getLicensePlate());
             return vehicleMapper.toGetVehicleDto(vehicleSaved);
@@ -187,9 +207,11 @@ public class VehicleServiceImpl implements VehicleService {
         vehicle.getDrivers().add(driver);
         Vehicle vehicleSaved = vehicleRepository.save(vehicle);
         driver.setVehicle(vehicleSaved);
+        vehicle.setMainDriver(driver);
 
         try {
             userRepository.save(driver);
+            vehicleRepository.save(vehicle);
             logger.info("Driver assigned to vehicle: " + vehicleSaved.getLicensePlate());
             return vehicleSaved;
         } catch (Exception e) {
@@ -237,6 +259,51 @@ public class VehicleServiceImpl implements VehicleService {
     public Page<GetVehicleDto> findVehiclesWithTecnomechanicalSoonToExpire(Pageable pageable) {
         Page<Vehicle> vehiclesFound = vehicleRepository.findVehiclesWithTechnoMechanicalSoonToExpire(pageable);
         return vehiclesFound.map(vehicleMapper::toGetVehicleDto);
+    }
+
+    @Override
+    public boolean uploadVehicleDocument(
+            MultipartFile file,
+            Long vehicleId,
+            ImageType imageType
+    ) {
+        ConfigProperties.CloudPlatform cloudPlatform = configProperties.cloudPlatform();
+
+        String provider = cloudPlatform.provider();
+        logger.info("Provider: " + provider);
+
+        switch (provider) {
+            case "cloudinary":
+                cloudinaryService.uploadVehicleDocument(file, vehicleId, imageType);
+                break;
+            case "s3":
+                s3Service.uploadVehicleDocument(file, vehicleId, imageType);
+                break;
+            default:
+                throw new InvalidCloudProviderException("Invalid service provider: " + provider);
+        }
+
+        return true;
+    }
+
+    @Override
+    public Page<GetVehicleDto> findVehiclesByRouteId(Pageable pageable, Long routeId) {
+        routeRepository
+                .findById(routeId)
+                .orElseThrow(() -> new ObjectNotFoundException("Route not found"));
+
+        Page<Vehicle> vehicles = vehicleRepository.findVehiclesByRouteId(pageable, routeId);
+        return vehicles.map(vehicleMapper::toGetVehicleDto);
+    }
+
+    @Override
+    public Page<GetVehicleDto> findVehiclesByCompanyId(Pageable pageable, Long id) {
+        userRepository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Company not found"));
+
+        Page<Vehicle> vehicles = vehicleRepository.findVehiclesByOwnerId(pageable, id);
+        return vehicles.map(vehicleMapper::toGetVehicleDto);
     }
 
     /**
@@ -295,10 +362,11 @@ public class VehicleServiceImpl implements VehicleService {
 
     /**
      * Validate user exists
+     * @return User found
      */
-    private void validateUserExists() {
+    private User validateUserExists() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        userRepository.findByUsername(username)
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ObjectNotFoundException("Owner not found"));
     }
 

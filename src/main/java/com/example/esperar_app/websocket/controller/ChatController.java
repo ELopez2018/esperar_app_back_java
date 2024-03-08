@@ -1,8 +1,8 @@
-package com.example.esperar_app.chat.controller;
+package com.example.esperar_app.websocket.controller;
 
-import com.example.esperar_app.chat.persistence.entity.ChatMessage;
-import com.example.esperar_app.chat.persistence.entity.ChatNotification;
-import com.example.esperar_app.chat.service.ChatMessageService;
+import com.example.esperar_app.websocket.persistence.entity.ChatMessage;
+import com.example.esperar_app.websocket.persistence.entity.ChatNotification;
+import com.example.esperar_app.websocket.service.ChatMessageService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +45,10 @@ public class ChatController {
         this.chatMessageService = chatMessageService;
     }
 
-    @MessageMapping("/chat")
+    @MessageMapping("/websocket")
     public void processMessage(@Payload ChatMessage chatMessage) {
         ChatMessage savedMsg = chatMessageService.save(chatMessage);
-        logger.info("Saved chat message successfully");
+        logger.info("Saved websocket message successfully");
 
         UUID uuid = UUID.randomUUID();
         String randomUUIDString = uuid.toString();
@@ -64,9 +64,9 @@ public class ChatController {
                     )
             );
 
-            logger.info("Sent chat message successfully");
+            logger.info("Sent websocket message successfully");
         } catch (Exception e) {
-            logger.error("Failed to send chat message");
+            logger.error("Failed to send websocket message");
             throw e;
         }
     }

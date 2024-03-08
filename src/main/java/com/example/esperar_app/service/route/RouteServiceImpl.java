@@ -10,7 +10,9 @@ import com.example.esperar_app.persistence.dto.route.GetRouteDto;
 import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
 import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
 import com.example.esperar_app.persistence.entity.route.Route;
+import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.repository.RouteRepository;
+import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.service.coordinate.CoordinateService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,6 +42,8 @@ public class RouteServiceImpl implements RouteService {
 
     private final CoordinateService coordinateService;
 
+    private final VehicleRepository vehicleRepository;
+
     private static final Logger logger = LogManager.getLogger();
 
     @Autowired
@@ -47,11 +51,13 @@ public class RouteServiceImpl implements RouteService {
             RouteRepository routeRepository,
             RouteMapper routeMapper,
             CoordinateMapper coordinateMapper,
-            CoordinateService coordinateService) {
+            CoordinateService coordinateService,
+            VehicleRepository vehicleRepository) {
         this.routeRepository = routeRepository;
         this.routeMapper = routeMapper;
         this.coordinateMapper = coordinateMapper;
         this.coordinateService = coordinateService;
+        this.vehicleRepository = vehicleRepository;
     }
 
     /**
@@ -74,6 +80,8 @@ public class RouteServiceImpl implements RouteService {
             List<Coordinate> coordinatesCreated = coordinateService.createAll(coordinateDtos, routeSaved.getId());
 
             routeSaved.setCoordinates(coordinatesCreated);
+
+
 
             return routeMapper.routeToGetRouteDto(routeSaved);
         } catch (Exception e) {
@@ -168,6 +176,32 @@ public class RouteServiceImpl implements RouteService {
                 .orElseThrow(() -> new ObjectNotFoundException("Route not found"));
 
         routeRepository.delete(route);
+    }
+
+    @Override
+    public void assignVehicleToRoute(Long routeId, Long vehicleId) {
+        try {
+            Route routeFound = routeRepository
+                    .findById(routeId)
+                    .orElseThrow(() -> new ObjectNotFoundException("Route not found"));
+
+            Vehicle vehicleFound = vehicleRepository
+                    .findById(vehicleId)
+                    .orElseThrow(() -> new ObjectNotFoundException("Vehicle not found"));
+
+            vehicleFound.setRoute(routeFound);
+
+            List<Vehicle> assignedVehicles = routeFound.getVehicles();
+            assignedVehicles.add(vehicleFound);
+
+            routeRepository.save(routeFound);
+
+            logger.info("Vehicle with plates: [" + vehicleFound.getLicensePlate() + "]" +
+                    " assigned to route: [" + routeFound.getName() + "]");
+        } catch (Exception e) {
+            logger.error("Error assigning vehicle to route");
+            throw e;
+        }
     }
 
     /**

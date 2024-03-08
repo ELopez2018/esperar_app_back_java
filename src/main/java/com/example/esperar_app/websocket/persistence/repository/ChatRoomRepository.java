@@ -1,6 +1,6 @@
-package com.example.esperar_app.chat.persistence.repository;
+package com.example.esperar_app.websocket.persistence.repository;
 
-import com.example.esperar_app.chat.persistence.entity.ChatRoom;
+import com.example.esperar_app.websocket.persistence.entity.ChatRoom;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
