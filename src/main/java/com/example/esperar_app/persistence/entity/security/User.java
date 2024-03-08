@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -108,9 +109,11 @@ public class User implements UserDetails {
     public String deletedAt;
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Vehicle> ownedVehicles;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
@@ -176,6 +179,16 @@ public class User implements UserDetails {
     // PROFILE IMAGE
     @Column(name = "profile_image_url")
     private String profileImageUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private User company;
+
+    @OneToMany(mappedBy = "company")
+    private List<User> drivers;
+
+    @OneToOne(mappedBy = "mainDriver")
+    private Vehicle mainVehicle;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

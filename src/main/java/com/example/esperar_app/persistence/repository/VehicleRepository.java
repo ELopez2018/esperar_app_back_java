@@ -26,4 +26,13 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
             "WHERE MONTH(v.tecnoMechanicalExpirationDate) = MONTH(CURRENT_DATE) " +
             "AND YEAR(v.tecnoMechanicalExpirationDate) = YEAR(CURRENT_DATE)")
     Page<Vehicle> findVehiclesWithTechnoMechanicalSoonToExpire(Pageable pageable);
+
+    @Query("SELECT v FROM Vehicle v " +
+            "WHERE v.route.id = :routeId")
+    Page<Vehicle> findVehiclesByRouteId(Pageable pageable, Long routeId);
+
+    @Query("SELECT v FROM Vehicle v " +
+            "WHERE v.owner.id = :id AND (v.owner.role.name = 'CEO' OR v.owner.role.name = 'ADMINISTRATOR')")
+    Page<Vehicle> findVehiclesByOwnerId(Pageable pageable, Long id);
+
 }

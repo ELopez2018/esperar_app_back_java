@@ -80,4 +80,15 @@ public class RouteController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("assign-vehicle-to-route/{routeId}/{vehicleId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
+    public ResponseEntity<String> assignVehicleToRoute(@PathVariable Long routeId, @PathVariable Long vehicleId) {
+        logger.info("Assign vehicle with id:[" + vehicleId + "] to route with id:" +
+                "[" + routeId + "] request received.");
+
+        routeService.assignVehicleToRoute(routeId, vehicleId);
+
+        return ResponseEntity
+                .ok("Vehicle with id: [" + vehicleId + "] assigned to route with id: [" + routeId + "]");
+    }
 }

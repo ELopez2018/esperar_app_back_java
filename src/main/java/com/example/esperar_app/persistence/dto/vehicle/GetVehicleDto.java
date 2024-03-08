@@ -1,5 +1,7 @@
 package com.example.esperar_app.persistence.dto.vehicle;
 
+import com.example.esperar_app.persistence.dto.route.GetRouteDto;
+import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.utils.VehicleStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,4 +40,11 @@ public class GetVehicleDto {
      * The status of the vehicle
      */
     private VehicleStatus status;
+
+    /**
+     * The route of the vehicle
+     */
+    private GetRouteDto route;
+
+    private GetUserDto mainDriver;
 }

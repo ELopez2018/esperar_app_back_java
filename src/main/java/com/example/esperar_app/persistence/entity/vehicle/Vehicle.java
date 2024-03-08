@@ -1,5 +1,6 @@
 package com.example.esperar_app.persistence.entity.vehicle;
 
+import com.example.esperar_app.persistence.entity.route.Route;
 import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.utils.VehicleStatus;
 import jakarta.persistence.CascadeType;
@@ -11,7 +12,10 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -62,6 +66,10 @@ public class Vehicle {
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<User> drivers = new ArrayList<>();
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "main_driver_id")
+    private User mainDriver;
+
     // SOAT
     @Column(name = "soat_expiration_date")
     private Date soatExpirationDate;
@@ -90,6 +98,14 @@ public class Vehicle {
 
     @Enumerated(EnumType.STRING)
     private VehicleStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "route_id")
+    private Route route;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
     public List<User> getDrivers() {
         System.out.println("Drivers: " + drivers.size());

@@ -1,4 +1,4 @@
-package com.example.esperar_app.chat.persistence.dto;
+package com.example.esperar_app.websocket.persistence.dto;
 
 import lombok.Getter;
 import lombok.Setter;

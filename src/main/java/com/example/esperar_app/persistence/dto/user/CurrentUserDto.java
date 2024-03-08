@@ -76,7 +76,7 @@ public class CurrentUserDto {
     private IdentificationDocumentDto identificationData;
 
     /**
-     * User's chat status
+     * User's websocket status
      */
     private UserChatStatus chatStatus;
 

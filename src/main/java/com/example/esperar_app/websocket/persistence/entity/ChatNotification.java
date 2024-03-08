@@ -1,4 +1,4 @@
-package com.example.esperar_app.chat.persistence.entity;
+package com.example.esperar_app.websocket.persistence.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
