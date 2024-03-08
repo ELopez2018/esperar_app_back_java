@@ -362,8 +362,7 @@ public class VehicleServiceImpl implements VehicleService {
 
     /**
      * Validate user exists
-     *
-     * @return
+     * @return User found
      */
     private User validateUserExists() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
