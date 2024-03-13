@@ -10,9 +10,9 @@ import com.example.esperar_app.persistence.dto.route.CreateRouteDto;
 import com.example.esperar_app.persistence.dto.route.GetRouteDto;
 import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
 import com.example.esperar_app.persistence.dto.station.GetStationDto;
+import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
 import com.example.esperar_app.persistence.entity.route.Route;
-import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.station.Station;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.repository.CoordinateRepository;
@@ -22,24 +22,21 @@ import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.service.coordinate.CoordinateService;
 import com.example.esperar_app.service.station.StationService;
 import com.example.esperar_app.service.user.UserService;
-import com.example.esperar_app.websocket.persistence.RouteWebSocketRoom;
-import com.example.esperar_app.websocket.persistence.WebSocketRoomManager;
+import com.example.esperar_app.websocket.persistence.dto.InitRouteDto;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStrings;
@@ -61,8 +58,6 @@ public class RouteServiceImpl implements RouteService {
 
     private final UserService userService;
 
-    private final WebSocketRoomManager webSocketRoomManager;
-
     private final StationService stationService;
 
     private final StationRepository stationRepository;
@@ -81,7 +76,6 @@ public class RouteServiceImpl implements RouteService {
             VehicleRepository vehicleRepository,
             CoordinateRepository coordinateRepository,
             UserService userService,
-            WebSocketRoomManager webSocketRoomManager,
             StationService stationService,
             StationRepository stationRepository,
             StationMapper stationMapper) {
@@ -92,13 +86,10 @@ public class RouteServiceImpl implements RouteService {
         this.vehicleRepository = vehicleRepository;
         this.coordinateRepository = coordinateRepository;
         this.userService = userService;
-        this.webSocketRoomManager = webSocketRoomManager;
         this.stationService = stationService;
         this.stationRepository = stationRepository;
         this.stationMapper = stationMapper;
     }
-
-    Map<Long, RouteWebSocketRoom> rooms = new HashMap<>();
 
     /**
      * Create a new route
@@ -270,37 +261,22 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public void initRoute(Long routeId) {
+    public void initRoute(InitRouteDto initRouteDto) {
         Route route = routeRepository
-                .findById(routeId)
+                .findById(initRouteDto.getRouteId())
                 .orElseThrow(() -> new ObjectNotFoundException("Route not found"));
 
-        String username = (String) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
+        GetUserDto userFound = userService.findById(initRouteDto.getUserId());
 
-        User userFound = userService.findOneByUsername(username)
-                .orElseThrow(() -> new ObjectNotFoundException("User not found"));
+        if(!Objects.equals(userFound.getId(), initRouteDto.getUserId())) {
+            logger.error("User not matching with the one logged in");
+            throw new RuntimeException("Access denied");
+        }
 
-        Vehicle vehicle = userFound.getVehicle();
-
-//        boolean vehicleAssignedToRoute = route.getVehicles().stream()
-//                .anyMatch(v -> v.getId().equals(vehicle.getId()));
-//
-//        if (vehicleAssignedToRoute) {
-//            // Obtener la sala de WebSocket para la ruta
-//            WebSocketRoomManager room = webSocketRoomManager.getRoomForRoute(route.getId());
-//
-//            // Conectar al usuario al WebSocket
-//
-//            WebSocketSession session = obtainWebSocketSessionForUser(username);
-//
-//            room.join(session);
-//
-//            // Notificar a los demás vehículos en la ruta sobre la nueva conexión (si es necesario)
-//            String message = "El vehículo " + vehicle.getLicensePlate() + " se ha unido a la ruta.";
-//            room.broadcast(message);
-//        }
-
+        if(!Objects.equals(userFound.getCurrentVehicle().getRoute().getId(), route.getId())) {
+            logger.error("Vehicle not matching with the route selected");
+            throw new RuntimeException("Access denied");
+        }
     }
 
     /**
