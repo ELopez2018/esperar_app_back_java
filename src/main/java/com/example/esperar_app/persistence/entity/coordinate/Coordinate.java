@@ -1,6 +1,7 @@
 package com.example.esperar_app.persistence.entity.coordinate;
 
 import com.example.esperar_app.persistence.entity.route.Route;
+import com.example.esperar_app.persistence.entity.station.Station;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,4 +45,8 @@ public class Coordinate {
     @JoinColumn(name = "route_id")
     @JsonIgnore
     private Route route;
+
+    @ManyToOne
+    @JoinColumn(name = "station_id")
+    private Station station;
 }

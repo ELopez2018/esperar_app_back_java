@@ -18,4 +18,6 @@ public interface RouteService {
     void delete(Long id);
 
     void assignVehicleToRoute(Long routeId, Long vehicleId);
+
+    void initRoute(Long routeId);
 }
