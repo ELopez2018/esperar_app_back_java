@@ -117,7 +117,7 @@ public class RouteServiceImpl implements RouteService {
 
             List<CoordinateDto> coordinateDtos = createRouteDto.getCoordinates();
 
-            List<Coordinate> coordinatesCreated = coordinateService.createAll(coordinateDtos, routeSaved.getId());
+            List<Coordinate> coordinatesCreated = coordinateService.createAll(coordinateDtos, routeSaved);
 
             routeSaved.setCoordinates(coordinatesCreated);
 
@@ -207,7 +207,7 @@ public class RouteServiceImpl implements RouteService {
 
         List<CoordinateDto> coordinateDtos = updateRouteDto.getCoordinates();
 
-        List<Coordinate> coordinatesCreated = coordinateService.createAll(coordinateDtos, route.getId());
+        List<Coordinate> coordinatesCreated = coordinateService.createAll(coordinateDtos, route);
 
         for(Coordinate coordinate : coordinatesCreated) {
             coordinate.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));

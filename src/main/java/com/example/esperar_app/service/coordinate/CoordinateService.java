@@ -5,6 +5,8 @@ import com.example.esperar_app.persistence.dto.coordinate.CreateCoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.GetCoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.UpdateCoordinateDto;
 import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
+import com.example.esperar_app.persistence.entity.route.Route;
+import com.example.esperar_app.persistence.entity.station.Station;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -21,6 +23,6 @@ public interface CoordinateService {
     GetCoordinateDto update(Long id, UpdateCoordinateDto updateCoordinateDto);
 
     void delete(Long id);
-
-    List<Coordinate> createAll(List<CoordinateDto> coordinates, Long id);
+    List<Coordinate> createAll(List<CoordinateDto> coordinates, Route route);
+    List<Coordinate> createAll(List<CoordinateDto> coordinates, Station station);
 }
