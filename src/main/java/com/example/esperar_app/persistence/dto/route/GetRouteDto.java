@@ -1,6 +1,7 @@
 package com.example.esperar_app.persistence.dto.route;
 
 import com.example.esperar_app.persistence.dto.coordinate.GetCoordinateDto;
+import com.example.esperar_app.persistence.dto.station.GetStationDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,4 +54,9 @@ public class GetRouteDto {
      * The list of coordinates of the route
      */
     private List<GetCoordinateDto> coordinates;
+
+    /**
+     * The list of stations of the route
+     */
+    private List<GetStationDto> stations;
 }

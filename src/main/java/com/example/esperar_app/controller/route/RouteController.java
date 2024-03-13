@@ -91,4 +91,17 @@ public class RouteController {
         return ResponseEntity
                 .ok("Vehicle with id: [" + vehicleId + "] assigned to route with id: [" + routeId + "]");
     }
+
+    /**
+     * This method is used to initialize a route, this means that the route will be ready to be used by the drivers.
+     * @param routeId The id of the route to be initialized.
+     * @return A response entity with a message indicating that the route was initialized.
+     */
+    @GetMapping("init-route/{routeId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO', 'DRIVER')")
+    public ResponseEntity<String> initRoute(@PathVariable Long routeId) {
+        logger.info("Trying init route with id: [" + routeId + "] request received.");
+        routeService.initRoute(routeId);
+        return ResponseEntity.ok("Route with id: [" + routeId + "] initialized.");
+    }
 }

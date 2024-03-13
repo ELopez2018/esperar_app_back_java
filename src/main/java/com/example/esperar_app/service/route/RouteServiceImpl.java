@@ -3,31 +3,43 @@ package com.example.esperar_app.service.route;
 import com.example.esperar_app.exception.ObjectNotFoundException;
 import com.example.esperar_app.mapper.CoordinateMapper;
 import com.example.esperar_app.mapper.RouteMapper;
+import com.example.esperar_app.mapper.StationMapper;
 import com.example.esperar_app.persistence.dto.coordinate.CoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.GetCoordinateDto;
 import com.example.esperar_app.persistence.dto.route.CreateRouteDto;
 import com.example.esperar_app.persistence.dto.route.GetRouteDto;
 import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
+import com.example.esperar_app.persistence.dto.station.GetStationDto;
 import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
 import com.example.esperar_app.persistence.entity.route.Route;
+import com.example.esperar_app.persistence.entity.security.User;
+import com.example.esperar_app.persistence.entity.station.Station;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.repository.CoordinateRepository;
 import com.example.esperar_app.persistence.repository.RouteRepository;
+import com.example.esperar_app.persistence.repository.StationRepository;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.service.coordinate.CoordinateService;
+import com.example.esperar_app.service.station.StationService;
+import com.example.esperar_app.service.user.UserService;
+import com.example.esperar_app.websocket.persistence.RouteWebSocketRoom;
+import com.example.esperar_app.websocket.persistence.WebSocketRoomManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.example.esperar_app.service.vehicle.VehicleServiceImpl.getStrings;
@@ -47,7 +59,18 @@ public class RouteServiceImpl implements RouteService {
 
     private final CoordinateRepository coordinateRepository;
 
+    private final UserService userService;
+
+    private final WebSocketRoomManager webSocketRoomManager;
+
+    private final StationService stationService;
+
+    private final StationRepository stationRepository;
+
+    private final StationMapper stationMapper;
+
     private static final Logger logger = LogManager.getLogger();
+
 
     @Autowired
     public RouteServiceImpl(
@@ -56,14 +79,26 @@ public class RouteServiceImpl implements RouteService {
             CoordinateMapper coordinateMapper,
             CoordinateService coordinateService,
             VehicleRepository vehicleRepository,
-            CoordinateRepository coordinateRepository) {
+            CoordinateRepository coordinateRepository,
+            UserService userService,
+            WebSocketRoomManager webSocketRoomManager,
+            StationService stationService,
+            StationRepository stationRepository,
+            StationMapper stationMapper) {
         this.routeRepository = routeRepository;
         this.routeMapper = routeMapper;
         this.coordinateMapper = coordinateMapper;
         this.coordinateService = coordinateService;
         this.vehicleRepository = vehicleRepository;
         this.coordinateRepository = coordinateRepository;
+        this.userService = userService;
+        this.webSocketRoomManager = webSocketRoomManager;
+        this.stationService = stationService;
+        this.stationRepository = stationRepository;
+        this.stationMapper = stationMapper;
     }
+
+    Map<Long, RouteWebSocketRoom> rooms = new HashMap<>();
 
     /**
      * Create a new route
@@ -85,6 +120,10 @@ public class RouteServiceImpl implements RouteService {
             List<Coordinate> coordinatesCreated = coordinateService.createAll(coordinateDtos, routeSaved.getId());
 
             routeSaved.setCoordinates(coordinatesCreated);
+
+            List<Station> stationsCreated = stationService.createAll(createRouteDto.getStations(), routeSaved);
+
+            routeSaved.setStations(stationsCreated);
 
             return routeMapper.routeToGetRouteDto(routeSaved);
         } catch (Exception e) {
@@ -119,6 +158,12 @@ public class RouteServiceImpl implements RouteService {
                     .collect(Collectors.toList());
 
             routeDto.setCoordinates(coordinateDtos);
+
+            List<GetStationDto> stationDtos = route.getStations().stream()
+                    .map(stationMapper::stationToGetStationDto)
+                    .collect(Collectors.toList());
+
+            routeDto.setStations(stationDtos);
 
             return routeDto;
         });
@@ -171,6 +216,15 @@ public class RouteServiceImpl implements RouteService {
 
         route.setCoordinates(coordinatesCreated);
 
+        List<Station> stationsCreated = stationService.createAll(updateRouteDto.getStations(), route);
+
+        for(Station station : stationsCreated) {
+            station.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            stationRepository.save(station);
+        }
+
+        route.setStations(stationsCreated);
+
         Route routeUpdated = routeRepository.save(route);
 
         return routeMapper.routeToGetRouteDto(routeUpdated);
@@ -213,6 +267,40 @@ public class RouteServiceImpl implements RouteService {
             logger.error("Error assigning vehicle to route");
             throw e;
         }
+    }
+
+    @Override
+    public void initRoute(Long routeId) {
+        Route route = routeRepository
+                .findById(routeId)
+                .orElseThrow(() -> new ObjectNotFoundException("Route not found"));
+
+        String username = (String) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+
+        User userFound = userService.findOneByUsername(username)
+                .orElseThrow(() -> new ObjectNotFoundException("User not found"));
+
+        Vehicle vehicle = userFound.getVehicle();
+
+//        boolean vehicleAssignedToRoute = route.getVehicles().stream()
+//                .anyMatch(v -> v.getId().equals(vehicle.getId()));
+//
+//        if (vehicleAssignedToRoute) {
+//            // Obtener la sala de WebSocket para la ruta
+//            WebSocketRoomManager room = webSocketRoomManager.getRoomForRoute(route.getId());
+//
+//            // Conectar al usuario al WebSocket
+//
+//            WebSocketSession session = obtainWebSocketSessionForUser(username);
+//
+//            room.join(session);
+//
+//            // Notificar a los demás vehículos en la ruta sobre la nueva conexión (si es necesario)
+//            String message = "El vehículo " + vehicle.getLicensePlate() + " se ha unido a la ruta.";
+//            room.broadcast(message);
+//        }
+
     }
 
     /**

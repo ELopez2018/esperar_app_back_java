@@ -1,6 +1,7 @@
 package com.example.esperar_app.persistence.dto.route;
 
 import com.example.esperar_app.persistence.dto.coordinate.CoordinateDto;
+import com.example.esperar_app.persistence.dto.station.CreateStationDto;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,4 +22,6 @@ public class CreateRouteDto {
     private String to;
 
     private List<CoordinateDto> coordinates;
+
+    private List<CreateStationDto> stations;
 }
