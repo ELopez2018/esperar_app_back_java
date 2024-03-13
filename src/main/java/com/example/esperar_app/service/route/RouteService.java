@@ -3,6 +3,7 @@ package com.example.esperar_app.service.route;
 import com.example.esperar_app.persistence.dto.route.CreateRouteDto;
 import com.example.esperar_app.persistence.dto.route.GetRouteDto;
 import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
+import com.example.esperar_app.websocket.persistence.dto.InitRouteDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -19,5 +20,5 @@ public interface RouteService {
 
     void assignVehicleToRoute(Long routeId, Long vehicleId);
 
-    void initRoute(Long routeId);
+    void initRoute(InitRouteDto initRouteDto);
 }
