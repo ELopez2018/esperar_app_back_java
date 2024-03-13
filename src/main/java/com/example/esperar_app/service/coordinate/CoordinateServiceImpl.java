@@ -8,6 +8,7 @@ import com.example.esperar_app.persistence.dto.coordinate.GetCoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.UpdateCoordinateDto;
 import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
 import com.example.esperar_app.persistence.entity.route.Route;
+import com.example.esperar_app.persistence.entity.station.Station;
 import com.example.esperar_app.persistence.repository.CoordinateRepository;
 import com.example.esperar_app.persistence.repository.RouteRepository;
 import org.apache.logging.log4j.LogManager;
@@ -143,16 +144,27 @@ public class CoordinateServiceImpl implements CoordinateService {
     }
 
     @Override
-    public List<Coordinate> createAll(List<CoordinateDto> coordinates, Long id) {
-        Route route = routeRepository
-                .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Route not found"));
-
+    public List<Coordinate> createAll(List<CoordinateDto> coordinates, Route route) {
         List<Coordinate> coordinatesSaved = new ArrayList<>();
 
         for (CoordinateDto coordinateDto : coordinates) {
             Coordinate coordinate = coordinateMapper.coordinateDtoToEntity(coordinateDto);
             coordinate.setRoute(route);
+            coordinate.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            coordinatesSaved.add(coordinate);
+            coordinateRepository.save(coordinate);
+        }
+
+        return coordinatesSaved;
+    }
+
+    @Override
+    public List<Coordinate> createAll(List<CoordinateDto> coordinates, Station station) {
+        List<Coordinate> coordinatesSaved = new ArrayList<>();
+
+        for (CoordinateDto coordinateDto : coordinates) {
+            Coordinate coordinate = coordinateMapper.coordinateDtoToEntity(coordinateDto);
+            coordinate.setStation(station);
             coordinate.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
             coordinatesSaved.add(coordinate);
             coordinateRepository.save(coordinate);
