@@ -21,6 +21,5 @@ public interface StationMapper {
     })
     Station createStationDtoToStation(CreateStationDto stationDto);
 
-    @Mapping(target = "routeId", ignore = true)
     GetStationDto stationToGetStationDto(Station station);
 }
