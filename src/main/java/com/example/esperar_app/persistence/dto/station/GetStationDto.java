@@ -16,8 +16,6 @@ import java.util.List;
 public class GetStationDto {
     private String name;
 
-    private Long routeId;
-
     private List<CoordinateDto> coordinates;
 
     private Date createdAt;
