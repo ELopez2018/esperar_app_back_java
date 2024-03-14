@@ -32,4 +32,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findDriversWithLicenseSoonToExpire(Pageable pageable);
 
     Optional<User> findByChangePasswordToken(String token);
+
+    @Query("SELECT u FROM com.example.esperar_app.persistence.entity.security.User u " +
+            "WHERE u.company.id = :companyId AND u.role.name = 'DRIVER'")
+    Page<User> findByCompanyId(Long companyId, Pageable pageable);
 }
