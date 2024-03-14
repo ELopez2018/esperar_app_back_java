@@ -58,6 +58,7 @@ public class UserController {
      * @return the created user
      */
     @PostMapping("sign-up/natural-person")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
     public ResponseEntity<RegisteredUser> signUp(@RequestBody @Valid CreateNaturalPersonDto createNaturalPersonDto) {
         logger.info("Sign up natural person request received.");
         RegisteredUser newUser = userService.create(createNaturalPersonDto);
@@ -165,5 +166,12 @@ public class UserController {
                 .body("An error occurred while uploading the file. Please try again.");
 
         return ResponseEntity.ok("Document successfully uploaded");
+    }
+
+    @GetMapping("find-by-company/{companyId}")
+    public ResponseEntity<Page<GetUserDto>> findByCompanyId(@PathVariable Long companyId, Pageable pageable) {
+        logger.info("Find all users by company id request received.");
+        Page<GetUserDto> usersPage = userService.findByCompanyId(companyId, pageable);
+        return ResponseEntity.ok(usersPage != null ? usersPage : Page.empty());
     }
 }

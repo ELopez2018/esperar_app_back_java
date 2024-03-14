@@ -8,9 +8,12 @@ import com.example.esperar_app.persistence.dto.station.GetStationDto;
 import com.example.esperar_app.persistence.entity.coordinate.Coordinate;
 import com.example.esperar_app.persistence.entity.route.Route;
 import com.example.esperar_app.persistence.entity.station.Station;
+import com.example.esperar_app.persistence.repository.CoordinateRepository;
 import com.example.esperar_app.persistence.repository.RouteRepository;
 import com.example.esperar_app.persistence.repository.StationRepository;
 import com.example.esperar_app.service.coordinate.CoordinateService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,32 +34,45 @@ public class StationServiceImpl implements StationService {
 
     private final CoordinateService coordinateService;
 
+    private final CoordinateRepository coordinateRepository;
+
+    private final Logger logger = LoggerFactory.getLogger(StationServiceImpl.class);
+
     @Autowired
     public StationServiceImpl(
             StationRepository stationRepository,
             StationMapper stationMapper,
             RouteRepository routeRepository,
-            CoordinateService coordinateService) {
+            CoordinateService coordinateService,
+            CoordinateRepository coordinateRepository) {
         this.stationRepository = stationRepository;
         this.stationMapper = stationMapper;
         this.routeRepository = routeRepository;
         this.coordinateService = coordinateService;
+        this.coordinateRepository = coordinateRepository;
     }
 
     @Override
     public List<Station> createAll(List<CreateStationDto> stations, Route route) {
         List<Station> stationSaved = new ArrayList<>();
 
-        System.out.println("Trying create stations in route: " + route.getId());
+        logger.info("Trying create stations in route: " + route.getId());
 
         for(CreateStationDto stationDto : stations) {
             Station station = stationMapper.createStationDtoToStation(stationDto);
             station.getRoutes().add(route);
             station.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+
             try {
+                List<CoordinateDto> coordinateDtos = stationDto.getCoordinates();
+//                List<Coordinate> coordinatesCreated = coordinateService.createAll(coordinateDtos, station);
+
+//                station.setCoordinates(coordinatesCreated);
                 stationSaved.add(stationRepository.save(station));
+
+                logger.info("Station created: " + station.getName() + " in route: " + route.getId());
             } catch (Exception e) {
-                System.out.println("Error creating station: " + e.getMessage());
+                logger.error("Error creating station: " + e.getMessage());
             }
         }
 

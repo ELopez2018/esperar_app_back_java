@@ -188,6 +188,7 @@ public class RouteServiceImpl implements RouteService {
      * @return - route updated
      */
     @Override
+    @Transactional
     public GetRouteDto update(Long id, UpdateRouteDto updateRouteDto) {
         Route route = routeRepository
                 .findById(id)
@@ -196,27 +197,17 @@ public class RouteServiceImpl implements RouteService {
         BeanUtils.copyProperties(updateRouteDto, route, getStrings(updateRouteDto));
         route.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
-        List<CoordinateDto> coordinateDtos = updateRouteDto.getCoordinates();
-
-        List<Coordinate> coordinatesCreated = coordinateService.createAll(coordinateDtos, route);
-
-        for(Coordinate coordinate : coordinatesCreated) {
-            coordinate.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-            coordinateRepository.save(coordinate);
-        }
-
+        List<Coordinate> coordinatesCreated = coordinateService.createAll(updateRouteDto.getCoordinates(), route);
         route.setCoordinates(coordinatesCreated);
 
         List<Station> stationsCreated = stationService.createAll(updateRouteDto.getStations(), route);
-
-        for(Station station : stationsCreated) {
-            station.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-            stationRepository.save(station);
-        }
-
         route.setStations(stationsCreated);
 
+        logger.info("Route updated with id: " + route.getId());
+
         Route routeUpdated = routeRepository.save(route);
+
+        logger.info("Route updated with id: " + route.getId());
 
         return routeMapper.routeToGetRouteDto(routeUpdated);
     }

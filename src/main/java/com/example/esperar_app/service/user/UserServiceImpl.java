@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -105,6 +106,11 @@ public class UserServiceImpl implements UserService {
             throw new TermsAndConditionsException("Terms and conditions must be accepted");
         }
 
+        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        User userFound = findOneByUsername(username)
+                .orElseThrow(() -> new ObjectNotFoundException("User not found"));
+
         validatePassword(createNaturalPersonDto.getPassword(), createNaturalPersonDto.getConfirmPassword());
 
         User user = userMapper.createUserDtoToUser(createNaturalPersonDto);
@@ -113,14 +119,14 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(encodePassword(createNaturalPersonDto.getPassword()));
 
-        Role defaultRole = roleService.findDefaultRole()
-                .orElseThrow(() -> new ObjectNotFoundException("Default role not found"));
+        Role defaultRole = roleService.getDriverRole();
 
         user.setRole(defaultRole);
         user.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         user.setAcceptedTermsAt(Timestamp.valueOf(LocalDateTime.now()));
         user.setFullName(userMapper.getFullName(user));
         user.setUserType(UserType.NATURAL_PERSON);
+        user.setCompany(userFound);
 
         String accessToken = jwtService.generateToken(user, generateExtraClaims(user));
 
@@ -525,5 +531,15 @@ public class UserServiceImpl implements UserService {
         }
 
         return true;
+    }
+
+    @Override
+    public Page<GetUserDto> findByCompanyId(Long companyId, Pageable pageable) {
+        User companyFound = userRepository
+                .findById(companyId)
+                .orElseThrow(() -> new ObjectNotFoundException("Company not found"));
+
+        Page<User> usersPage = userRepository.findByCompanyId(companyFound.getId(), pageable);
+        return usersPage.map(userMapper::toGetUserDto);
     }
 }

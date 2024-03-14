@@ -155,6 +155,8 @@ public class CoordinateServiceImpl implements CoordinateService {
             coordinateRepository.save(coordinate);
         }
 
+        logger.info("Coordinates created to route: " + route.getId());
+
         return coordinatesSaved;
     }
 
@@ -169,6 +171,8 @@ public class CoordinateServiceImpl implements CoordinateService {
             coordinatesSaved.add(coordinate);
             coordinateRepository.save(coordinate);
         }
+
+        logger.info("Coordinates created to station: " + station.getId());
 
         return coordinatesSaved;
     }
