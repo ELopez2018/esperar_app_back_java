@@ -30,6 +30,7 @@ public interface RouteMapper {
 
     @Mappings({
             @Mapping(source = "coordinates", target = "coordinates"),
+            @Mapping(source = "stations", target = "stations"),
     })
     GetRouteDto routeToGetRouteDto(Route routeSaved);
 }

@@ -38,4 +38,6 @@ public interface UserService {
     Page<GetUserDto> findDriversWithLicenseSoonToExpire(Pageable pageable);
 
     Boolean uploadUserDocument(MultipartFile file, Long userId, ImageType imageType);
+
+    Page<GetUserDto> findByCompanyId(Long companyId, Pageable pageable);
 }
