@@ -43,7 +43,7 @@ security:
   default:
     role: ADMINISTRATOR
   jwt:
-    expiration-in-minutes: 5
+    expiration-in-minutes: 1440
     secret-key: "${JWT_SECRET_KEY}"
 
 logging:
