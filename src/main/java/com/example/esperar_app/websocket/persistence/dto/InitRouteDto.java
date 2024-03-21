@@ -15,5 +15,5 @@ public class InitRouteDto implements Serializable {
 
     private Long routeId;
 
-    private List<CoordinateDto> initialCoordinates;
+    private List<CoordinateDto> coordinates;
 }
