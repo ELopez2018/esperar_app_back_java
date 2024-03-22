@@ -17,6 +17,7 @@ import com.example.esperar_app.persistence.entity.security.User;
 import com.example.esperar_app.persistence.entity.security.UserAuth;
 import com.example.esperar_app.persistence.repository.security.UserAuthRepository;
 import com.example.esperar_app.persistence.repository.security.UserRepository;
+import com.example.esperar_app.persistence.utils.Gender;
 import com.example.esperar_app.persistence.utils.ImageType;
 import com.example.esperar_app.persistence.utils.UserChatStatus;
 import com.example.esperar_app.persistence.utils.UserType;
@@ -186,6 +187,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ObjectNotFoundException("Default role not found"));
 
         user.setRole(defaultRole);
+        user.setGender(Gender.OTHER);
 
         user.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         user.setAcceptedTermsAt(Timestamp.valueOf(LocalDateTime.now()));

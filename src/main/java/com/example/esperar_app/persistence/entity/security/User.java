@@ -265,4 +265,12 @@ public class User implements UserDetails {
             );
         }
     }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
 }
