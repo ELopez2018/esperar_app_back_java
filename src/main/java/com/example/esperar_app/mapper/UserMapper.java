@@ -92,6 +92,7 @@ public interface UserMapper {
             @Mapping(source = "documentNumber", target = "identificationData.documentNumber"),
             @Mapping(source = "documentType", target = "identificationData.documentType"),
             @Mapping(target = "currentVehicle", ignore = true),
+            @Mapping(target = "gender", ignore = true),
     })
     GetUserDto toGetUserDto(User user);
 

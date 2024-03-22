@@ -2,6 +2,7 @@ package com.example.esperar_app.persistence.dto.user;
 
 import com.example.esperar_app.persistence.dto.vehicle.GetVehicleDto;
 import com.example.esperar_app.persistence.entity.security.Role;
+import com.example.esperar_app.persistence.utils.Gender;
 import com.example.esperar_app.persistence.utils.UserChatStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -68,7 +69,7 @@ public class RegisteredUser implements Serializable {
     /**
      * User's gender
      */
-    private String gender;
+    private Gender gender;
 
     /**
      * The user's identification data
