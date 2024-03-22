@@ -4,9 +4,11 @@ import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.vehicle.CreateVehicleDto;
 import com.example.esperar_app.persistence.dto.vehicle.GetVehicleDto;
 import com.example.esperar_app.persistence.dto.vehicle.UpdateVehicleDto;
+import com.example.esperar_app.persistence.dto.vehicle.VehicleStatusesResDto;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
 import com.example.esperar_app.persistence.utils.ImageType;
+import com.example.esperar_app.persistence.utils.VehicleStatus;
 import com.example.esperar_app.service.vehicle.VehicleService;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -157,4 +160,15 @@ public class VehicleController {
         Page<GetVehicleDto> vehiclesPage = vehicleService.findVehiclesByCompanyId(pageable, companyId);
         return ResponseEntity.ok(vehiclesPage != null ? vehiclesPage : Page.empty());
     }
+
+    @GetMapping("/vehicleStatus")
+    public VehicleStatusesResDto getVehicleStatusEnum() {
+        VehicleStatus[] statuses = VehicleStatus.values();
+        List<String> statusList = new ArrayList<>();
+        for (VehicleStatus status : statuses) {
+            statusList.add(status.name());
+        }
+        return new VehicleStatusesResDto(statusList);
+    }
+
 }

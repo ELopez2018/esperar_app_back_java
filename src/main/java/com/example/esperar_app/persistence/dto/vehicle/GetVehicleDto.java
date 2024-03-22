@@ -22,9 +22,9 @@ public class GetVehicleDto {
     private Long id;
 
     /**
-     * The brand of the vehicle
+     * The license plate of the vehicle
      */
-    private String model;
+    private String licensePlate;
 
     /**
      * The year of the vehicle
@@ -32,9 +32,49 @@ public class GetVehicleDto {
     private String secondaryPlate;
 
     /**
-     * The license plate of the vehicle
+     * The brand of the vehicle
      */
-    private String licensePlate;
+    private String brand;
+
+    /**
+     * The brand of the vehicle
+     */
+    private String model;
+
+    /**
+     * The color of the vehicle
+     */
+    private String color;
+
+    /**
+     * The year of the vehicle
+     */
+    private Integer year;
+
+    /**
+     * The cylinder capacity of the vehicle
+     */
+    private Double cylinderCapacity;
+
+    /**
+     * The capacity of the vehicle
+     */
+    private Integer capacity;
+
+    /**
+     * The occupancy of the vehicle
+     */
+    private Integer occupancy;
+
+    /**
+     * The soat expiration date of the vehicle
+     */
+    private String soatExpirationDate;
+
+    /**
+     * The tecnomechanical expiration date of the vehicle
+     */
+    private String tecnoMechanicalExpirationDate;
 
     /**
      * The status of the vehicle
@@ -46,5 +86,8 @@ public class GetVehicleDto {
      */
     private GetRouteDto route;
 
+    /**
+     * Main driver data
+     */
     private GetUserDto mainDriver;
 }
