@@ -3,6 +3,7 @@ package com.example.esperar_app.persistence.entity.security;
 import com.example.esperar_app.exception.ExpirationDateException;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.utils.DocumentType;
+import com.example.esperar_app.persistence.utils.Gender;
 import com.example.esperar_app.persistence.utils.UserChatStatus;
 import com.example.esperar_app.persistence.utils.UserType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -78,8 +79,9 @@ public class User implements UserDetails {
     @Column(name = "birthdate")
     private String birthdate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender")
-    private String gender;
+    private Gender gender;
 
     @Column(name = "document_number", unique = true)
     private Long documentNumber;

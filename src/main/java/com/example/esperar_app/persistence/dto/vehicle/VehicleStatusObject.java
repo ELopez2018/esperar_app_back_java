@@ -5,9 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
-public class VehicleStatusesResDto {
-    private List<VehicleStatusObject> vehicleStatuses;
+public class VehicleStatusObject {
+    private String value;
+    private String name;
 }

@@ -2,9 +2,15 @@ package com.example.esperar_app.controller.user;
 
 import com.example.esperar_app.persistence.dto.user.CreateLegalPersonDto;
 import com.example.esperar_app.persistence.dto.user.CreateNaturalPersonDto;
+import com.example.esperar_app.persistence.dto.user.DocumentTypesObject;
+import com.example.esperar_app.persistence.dto.user.GendersObject;
+import com.example.esperar_app.persistence.dto.user.GendersResDto;
 import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.user.RegisteredUser;
 import com.example.esperar_app.persistence.dto.user.UpdateUserDto;
+import com.example.esperar_app.persistence.dto.user.UserDocumentTypesResDto;
+import com.example.esperar_app.persistence.utils.DocumentType;
+import com.example.esperar_app.persistence.utils.Gender;
 import com.example.esperar_app.persistence.utils.ImageType;
 import com.example.esperar_app.service.user.UserService;
 import jakarta.validation.Valid;
@@ -28,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {
@@ -173,5 +180,35 @@ public class UserController {
         logger.info("Find all users by company id request received.");
         Page<GetUserDto> usersPage = userService.findByCompanyId(companyId, pageable);
         return ResponseEntity.ok(usersPage != null ? usersPage : Page.empty());
+    }
+
+    @GetMapping("/document-types")
+    public UserDocumentTypesResDto getDocumentTypesEnum() {
+        DocumentType[] types = DocumentType.values();
+
+        List<DocumentTypesObject> typesObjectList = new ArrayList<>();
+
+        for (DocumentType type : types) {
+            typesObjectList.add(new DocumentTypesObject(
+                    type.name().toLowerCase(),
+                    type.name()
+            ));
+        }
+        return new UserDocumentTypesResDto(typesObjectList);
+    }
+
+    @GetMapping("/genders")
+    public GendersResDto getGendersEnum() {
+        Gender[] genders = Gender.values();
+
+        List<GendersObject> gendersObjects = new ArrayList<>();
+
+        for (Gender gender : genders) {
+            gendersObjects.add(new GendersObject(
+                    gender.name().toLowerCase(),
+                    gender.name()
+            ));
+        }
+        return new GendersResDto(gendersObjects);
     }
 }
