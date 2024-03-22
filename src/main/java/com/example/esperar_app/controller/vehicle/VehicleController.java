@@ -4,6 +4,7 @@ import com.example.esperar_app.persistence.dto.user.GetUserDto;
 import com.example.esperar_app.persistence.dto.vehicle.CreateVehicleDto;
 import com.example.esperar_app.persistence.dto.vehicle.GetVehicleDto;
 import com.example.esperar_app.persistence.dto.vehicle.UpdateVehicleDto;
+import com.example.esperar_app.persistence.dto.vehicle.VehicleStatusObject;
 import com.example.esperar_app.persistence.dto.vehicle.VehicleStatusesResDto;
 import com.example.esperar_app.persistence.entity.vehicle.Vehicle;
 import com.example.esperar_app.persistence.repository.VehicleRepository;
@@ -164,9 +165,13 @@ public class VehicleController {
     @GetMapping("/vehicleStatus")
     public VehicleStatusesResDto getVehicleStatusEnum() {
         VehicleStatus[] statuses = VehicleStatus.values();
-        List<String> statusList = new ArrayList<>();
+
+        List<VehicleStatusObject> statusList = new ArrayList<>();
         for (VehicleStatus status : statuses) {
-            statusList.add(status.name());
+            statusList.add(new VehicleStatusObject(
+                    status.name().toLowerCase(),
+                    status.name()
+            ));
         }
         return new VehicleStatusesResDto(statusList);
     }
