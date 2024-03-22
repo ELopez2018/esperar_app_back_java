@@ -1,5 +1,6 @@
 package com.example.esperar_app.controller.user;
 
+import com.example.esperar_app.persistence.dto.user.Color;
 import com.example.esperar_app.persistence.dto.user.CreateLegalPersonDto;
 import com.example.esperar_app.persistence.dto.user.CreateNaturalPersonDto;
 import com.example.esperar_app.persistence.dto.user.DocumentTypesObject;
@@ -35,7 +36,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static com.example.esperar_app.service.utils.UtilsFunctions.capitalizeFirstLetter;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {
         RequestMethod.GET,
@@ -190,8 +194,8 @@ public class UserController {
 
         for (DocumentType type : types) {
             typesObjectList.add(new DocumentTypesObject(
-                    type.name().toLowerCase(),
-                    type.name()
+                    type.name().toUpperCase(),
+                    capitalizeFirstLetter(type.name())
             ));
         }
         return new UserDocumentTypesResDto(typesObjectList);
@@ -205,10 +209,31 @@ public class UserController {
 
         for (Gender gender : genders) {
             gendersObjects.add(new GendersObject(
-                    gender.name().toLowerCase(),
-                    gender.name()
+                    gender.name().toUpperCase(),
+                    capitalizeFirstLetter(gender.name())
             ));
         }
         return new GendersResDto(gendersObjects);
+    }
+
+    @GetMapping("/colors")
+    public List<Color> getColors() {
+        return Arrays.asList(
+                new Color("Rojo", "FF0000"),
+                new Color("Negro", "000000"),
+                new Color("Blanco", "FFFFFF"),
+                new Color("Azul", "0000FF"),
+                new Color("Gris", "808080"),
+                new Color("Plata", "C0C0C0"),
+                new Color("Verde", "008000"),
+                new Color("Amarillo", "FFFF00"),
+                new Color("Naranja", "FFA500"),
+                new Color("Marrón", "964B00"),
+                new Color("Morado", "800080"),
+                new Color("Cian", "00FFFF"),
+                new Color("Magenta", "FF00FF"),
+                new Color("Oro", "FFD700"),
+                new Color("Bronce", "CD7F32")
+        );
     }
 }

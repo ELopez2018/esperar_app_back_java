@@ -107,6 +107,7 @@ public class  HttpSecurityConfig {
         authReqConfig.requestMatchers(HttpMethod.GET, "/vehicles/vehicleStatus").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/users/document-types").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/users/genders").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/users/colors").permitAll();
 
         // PRIVATE ENDPOINTS WS
         authReqConfig.requestMatchers(HttpMethod.GET, "/ws").permitAll();

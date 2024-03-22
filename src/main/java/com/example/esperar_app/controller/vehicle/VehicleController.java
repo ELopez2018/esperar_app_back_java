@@ -33,6 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.esperar_app.service.utils.UtilsFunctions.capitalizeFirstLetter;
+
 @RestController
 @RequestMapping("/vehicles")
 public class VehicleController {
@@ -169,10 +171,13 @@ public class VehicleController {
         List<VehicleStatusObject> statusList = new ArrayList<>();
         for (VehicleStatus status : statuses) {
             statusList.add(new VehicleStatusObject(
-                    status.name().toLowerCase(),
-                    status.name()
+                    status.name().toUpperCase(),
+                    capitalizeFirstLetter(status.name())
             ));
         }
+
+        long unixTimestamp = System.currentTimeMillis() / 1000L;
+
         return new VehicleStatusesResDto(statusList);
     }
 

@@ -1,5 +1,7 @@
 package com.example.esperar_app.persistence.dto.user;
 
+import com.example.esperar_app.persistence.utils.DocumentType;
+import com.example.esperar_app.persistence.utils.Gender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -18,6 +20,20 @@ public class UpdateUserDto {
     @Size(min = 3, max = 50)
     private String username;
 
+    private String nit;
+
+    private String address;
+
+    private String city;
+
+    private String department;
+
+    private String country;
+
+    private String cellPhone;
+
+    private String whatsapp;
+
     @Size(min = 8, max = 50)
     private String password;
 
@@ -33,9 +49,13 @@ public class UpdateUserDto {
     @Size(min = 3, max = 50)
     private String lastName;
 
-    private String birthday;
+    private String birthdate;
 
-    private String gender;
+    private Gender gender;
+
+    private Long documentNumber;
+
+    private DocumentType documentType;
 
     private String phone;
 
