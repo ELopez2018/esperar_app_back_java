@@ -58,16 +58,10 @@ public interface UserMapper {
     User createUserDtoToUser(CreateNaturalPersonDto createNaturalPersonDto);
 
     @Mappings({
-            @Mapping(source = "id", target = "id"),
-            @Mapping(source = "username", target = "username"),
-            @Mapping(source = "fullName", target = "fullName"),
+            @Mapping(target = "currentVehicle", ignore = true),
             @Mapping(target = "accessToken", ignore = true),
-            @Mapping(target = "role", expression = "java(mapRole(user.getRole()))"),
-            @Mapping(source = "phone", target = "phone"),
-            @Mapping(source = "documentNumber", target = "documentNumber"),
-            @Mapping(source = "documentType", target = "documentType"),
-            @Mapping(source = "gender", target = "gender"),
-            @Mapping(source = "birthdate", target = "birthdate"),
+            @Mapping(source = "documentType", target = "identificationData.documentType"),
+            @Mapping(source = "documentNumber", target = "identificationData.documentNumber"),
     })
     RegisteredUser toRegisteredUser(User user);
 

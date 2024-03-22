@@ -102,8 +102,9 @@ public class  HttpSecurityConfig {
         authReqConfig.requestMatchers(HttpMethod.POST, "/auth/change-password/**").permitAll();
         authReqConfig.requestMatchers(HttpMethod.GET, "/oauth2/**").permitAll();
 
-        // PRIVATE ENDPOINTS USERS
+        // PRIVATE ENDPOINTS
         authReqConfig.requestMatchers(HttpMethod.POST, "/users/sign-up/**").permitAll();
+        authReqConfig.requestMatchers(HttpMethod.GET, "/vehicles/vehicleStatus").permitAll();
 
         // PRIVATE ENDPOINTS WS
         authReqConfig.requestMatchers(HttpMethod.GET, "/ws").permitAll();
