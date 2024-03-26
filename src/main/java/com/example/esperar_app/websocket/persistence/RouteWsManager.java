@@ -38,6 +38,7 @@ public class RouteWsManager {
         response.setRoute(route);
         GetUserDto user = userService.findById(initRouteDto.getUserId());
         response.setVehicle(user.getCurrentVehicle());
+        response.setCoordinates(initRouteDto.getCoordinates());
 
         try {
             messagingTemplate.convertAndSend("/topic/route/" + initRouteDto.getRouteId(), response);
