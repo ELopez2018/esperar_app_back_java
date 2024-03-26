@@ -116,9 +116,11 @@ public class Vehicle {
     }
 
     public void setSoatExpirationDate(String soatExpirationDate) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
+
         try {
-            this.soatExpirationDate = sdf.parse(soatExpirationDate);
+            Date date = dateFormat.parse(soatExpirationDate);
+            this.soatExpirationDate = date;
         } catch (ParseException e) {
             throw new IllegalArgumentException(
                     "Fecha de expiración del SOAT inválida: "
