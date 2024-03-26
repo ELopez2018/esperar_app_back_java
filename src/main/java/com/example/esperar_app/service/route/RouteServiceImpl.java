@@ -6,6 +6,7 @@ import com.example.esperar_app.mapper.RouteMapper;
 import com.example.esperar_app.mapper.StationMapper;
 import com.example.esperar_app.persistence.dto.coordinate.CoordinateDto;
 import com.example.esperar_app.persistence.dto.coordinate.GetCoordinateDto;
+import com.example.esperar_app.persistence.dto.route.AssignVehicleToRouteDto;
 import com.example.esperar_app.persistence.dto.route.CreateRouteDto;
 import com.example.esperar_app.persistence.dto.route.GetRouteDto;
 import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
@@ -226,27 +227,28 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public void assignVehicleToRoute(Long routeId, Long vehicleId) {
+    public void assignVehicleToRoute(AssignVehicleToRouteDto assignVehicleToRouteDto) {
         try {
             Route routeFound = routeRepository
-                    .findById(routeId)
+                    .findById(assignVehicleToRouteDto.getRouteId())
                     .orElseThrow(() -> new ObjectNotFoundException("Route not found"));
 
-            Vehicle vehicleFound = vehicleRepository
-                    .findById(vehicleId)
-                    .orElseThrow(() -> new ObjectNotFoundException("Vehicle not found"));
+            for (Long vehicleId : assignVehicleToRouteDto.getVehiclesIds()) {
+                Vehicle vehicleFound = vehicleRepository
+                        .findById(vehicleId)
+                        .orElseThrow(() -> new ObjectNotFoundException("Vehicle with ID: " + vehicleId + " not found"));
 
-            vehicleFound.setRoute(routeFound);
+                vehicleFound.setRoute(routeFound);
 
-            List<Vehicle> assignedVehicles = routeFound.getVehicles();
-            assignedVehicles.add(vehicleFound);
+                List<Vehicle> assignedVehicles = routeFound.getVehicles();
+                assignedVehicles.add(vehicleFound);
+            }
 
             routeRepository.save(routeFound);
 
-            logger.info("Vehicle with plates: [" + vehicleFound.getLicensePlate() + "]" +
-                    " assigned to route: [" + routeFound.getName() + "]");
+            logger.info("Vehicles assigned to route: [" + routeFound.getName() + "]");
         } catch (Exception e) {
-            logger.error("Error assigning vehicle to route");
+            logger.error("Error assigning vehicles to route");
             throw e;
         }
     }

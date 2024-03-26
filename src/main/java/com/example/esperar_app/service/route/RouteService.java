@@ -1,5 +1,6 @@
 package com.example.esperar_app.service.route;
 
+import com.example.esperar_app.persistence.dto.route.AssignVehicleToRouteDto;
 import com.example.esperar_app.persistence.dto.route.CreateRouteDto;
 import com.example.esperar_app.persistence.dto.route.GetRouteDto;
 import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
@@ -18,7 +19,7 @@ public interface RouteService {
 
     void delete(Long id);
 
-    void assignVehicleToRoute(Long routeId, Long vehicleId);
+    void assignVehicleToRoute(AssignVehicleToRouteDto assignVehicleToRouteDto);
 
     void initRoute(InitRouteDto initRouteDto);
 }

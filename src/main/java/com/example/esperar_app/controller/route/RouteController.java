@@ -1,5 +1,6 @@
 package com.example.esperar_app.controller.route;
 
+import com.example.esperar_app.persistence.dto.route.AssignVehicleToRouteDto;
 import com.example.esperar_app.persistence.dto.route.CreateRouteDto;
 import com.example.esperar_app.persistence.dto.route.GetRouteDto;
 import com.example.esperar_app.persistence.dto.route.UpdateRouteDto;
@@ -80,15 +81,12 @@ public class RouteController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("assign-vehicle-to-route/{routeId}/{vehicleId}")
+    @GetMapping("assign-vehicle-to-route")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'CEO')")
-    public ResponseEntity<String> assignVehicleToRoute(@PathVariable Long routeId, @PathVariable Long vehicleId) {
-        logger.info("Assign vehicle with id:[" + vehicleId + "] to route with id:" +
-                "[" + routeId + "] request received.");
+    public ResponseEntity<String> assignVehicleToRoute(
+            @RequestBody @Valid AssignVehicleToRouteDto assignVehicleToRouteDto) {
+        routeService.assignVehicleToRoute(assignVehicleToRouteDto);
 
-        routeService.assignVehicleToRoute(routeId, vehicleId);
-
-        return ResponseEntity
-                .ok("Vehicle with id: [" + vehicleId + "] assigned to route with id: [" + routeId + "]");
+        return ResponseEntity.ok("Vehicles assigned successfully to route");
     }
 }
